@@ -3,10 +3,13 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PIDMotor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ClawSubsystem extends SubsystemBase {
   public PIDMotor clawMotor;
+  public DigitalInput clawBreak;
+
    public enum ClawState {
     Eat, WaitTheyDontLoveYouLikeILoveYou, Vomit, EatAlgae;
 
@@ -28,7 +31,7 @@ public class ClawSubsystem extends SubsystemBase {
 
 
   public ClawSubsystem() {
-    clawMotor = PIDMotor.makeMotor(Constants.clawId, "claw", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 0, 0, 0, 0, 0, 0, 0, 0, 0);
     clawMotor.setCurrentLimit(30);
   }
 

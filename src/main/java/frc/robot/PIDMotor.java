@@ -14,7 +14,7 @@ public class PIDMotor {
     boolean initialized = false;
 
     double p, i, d, s, v, a;
-    Slot0Configs slot0Configs;
+    TalonFXConfiguration talonFXConfigs;
 
     /*
      * p - output per unit of error in velocity (output/rps)
@@ -56,28 +56,9 @@ public class PIDMotor {
         // controller = motor.getPIDController();
         // encoder = motor.getEncoder();
 
+        talonFXConfigs = new TalonFXConfiguration();
+
         motorTimer = new Timer();
-
-        // in init function
-        var talonFXConfigs = new TalonFXConfiguration();
-
-        // set slot 0 gains
-        this.slot0Configs = talonFXConfigs.Slot0;
-        slot0Configs.kP = p; // A position error of 2.5 rotations results in 12 V output
-        slot0Configs.kI = i; // no output for integrated error
-        slot0Configs.kD = d; // A velocity error of 1 rps results in 0.1 V output
-
-        slot0Configs.kS = s; // Add 0.25 V output to overcome static friction
-        slot0Configs.kV = v; // A velocity target of 1 rps results in 0.12 V output
-        slot0Configs.kA = a; // An acceleration of 1 rps/s requires 0.01 V output
-
-        // set Motion Magic settings
-        var motionMagicConfigs = talonFXConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = maxV; // Target cruise velocity of 80 rps
-        motionMagicConfigs.MotionMagicAcceleration = maxA; // Target acceleration of 160 rps/s (0.5 seconds)
-        motionMagicConfigs.MotionMagicJerk = maxJerk; // Target jerk of 1600 rps/s/s (0.1 seconds)
-
-        motor.getConfigurator().apply(talonFXConfigs);
     }
 
     /**
@@ -122,7 +103,6 @@ public class PIDMotor {
      */
     private void init() {
         if (!initialized) {
-            motor.getConfigurator().apply(new TalonFXConfiguration());
             sleep();
             resetAll();
             sleep();
@@ -199,15 +179,6 @@ public class PIDMotor {
     }
 
     /**
-     * Gets the position of the encoder in degrees.
-     * 
-     * @return The position of the encoder in degrees.
-     */
-    public double getDegrees() {
-        return motor.getPosition().getValueAsDouble() * 360; // maybe broken
-    }
-
-    /**
      * Fetches the PIDF values from the SmartDashboard. Call `updatePIDF` to send
      * the values to the motor controller.
      */
@@ -230,18 +201,14 @@ public class PIDMotor {
      * changed.
      */
     public void updatePIDF() {
-        // in init function
-        var talonFXConfigs = new TalonFXConfiguration();
-
         // set slot 0 gains
-        this.slot0Configs = talonFXConfigs.Slot0;
-        slot0Configs.kP = p; // A position error of 2.5 rotations results in 12 V output
-        slot0Configs.kI = i; // no output for integrated error
-        slot0Configs.kD = d; // A velocity error of 1 rps results in 0.1 V output
+        talonFXConfigs.Slot0.kP = p; // A position error of 2.5 rotations results in 12 V output
+        talonFXConfigs.Slot0.kI = i; // no output for integrated error
+        talonFXConfigs.Slot0.kD = d; // A velocity error of 1 rps results in 0.1 V
 
-        slot0Configs.kS = s; // Add 0.25 V output to overcome static friction
-        slot0Configs.kV = v; // A velocity target of 1 rps results in 0.12 V output
-        slot0Configs.kA = a; // An acceleration of 1 rps/s requires 0.01 V output
+        talonFXConfigs.Slot0.kS = s; // Add 0.25 V output to overcome static friction
+        talonFXConfigs.Slot0.kV = v; // A velocity target of 1 rps results in 0.12 V output
+        talonFXConfigs.Slot0.kA = a; // An acceleration of 1 rps/s requires 0.01 V output
 
         // set Motion Magic settings
         var motionMagicConfigs = talonFXConfigs.MotionMagic;
@@ -254,12 +221,15 @@ public class PIDMotor {
 
     /**
      * Resets the encoder, making its current position 0.
+     * DOES NOT WORK RN
      */
     public void resetEncoder() {
         // encoder.setPosition(0);
 
         // TODO fix this
     }
+
+
 
     public void follow(PIDMotor other, boolean inverted) {
         motor.setControl(new Follower(other.motor.getDeviceID(), inverted));
@@ -348,6 +318,15 @@ public class PIDMotor {
     }
 
     /**
+     * Gets the position of the encoder in degrees.
+     * 
+     * @return The position of the encoder in degrees.
+     */
+    public double getDegrees() {
+        return motor.getPosition().getValueAsDouble() * 360; // maybe broken
+    }
+
+    /**
      * Gets whether the current position of the motor is within 10 revolutions of
      * the target position.
      * 
@@ -388,14 +367,13 @@ public class PIDMotor {
      * @param limit Current limit in amps.
      */
     public void setCurrentLimit(int limit) {
-        var talonFXConfigurator = motor.getConfigurator();
         var limitConfigs = new CurrentLimitsConfigs();
 
         // enable stator current limit
         limitConfigs.StatorCurrentLimit = limit;
         limitConfigs.StatorCurrentLimitEnable = true;
 
-        talonFXConfigurator.apply(limitConfigs);
+        motor.getConfigurator().apply(limitConfigs);
     }
 
     public double getCurrent() {
