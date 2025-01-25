@@ -29,7 +29,6 @@ public class ClawSubsystem extends SubsystemBase {
   }
   ClawState state = ClawState.WaitTheyDontLoveYouLikeILoveYou;
 
-
   public ClawSubsystem() {
     clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 0, 0, 0, 0, 0, 0, 0, 0, 0);
     clawMotor.setCurrentLimit(30);
