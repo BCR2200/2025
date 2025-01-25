@@ -106,9 +106,52 @@ public class ElevArmSubsystem extends SubsystemBase {
   } 
 
   //return next elevator/arm
-  public void go(double currentElevator, double currentArm){
-    //TODO THIS
-  }
+  public void go(double currentElevator, double currentArm, double goalElevator, double goalArm) {
+    
+    // idk how else to find the zone
+    Zone[] zones = { zone1, zone2, zone3, zone4, zone5 };
+    Zone currentZone = null;
+    for (Zone zone : zones) {
+        if (zone.isItIn(currentElevator, currentArm)) {
+            currentZone = zone;
+            break;
+        }
+    }
+
+    Zone targetZone = null;
+    for (Zone zone : zones) {
+        if (zone.isItIn(goalElevator, goalArm)) {
+            targetZone = zone;
+            break;
+        }
+    }
+
+    if (currentZone == null || targetZoneIndex < 1 || targetZoneIndex > zones.length) {
+        System.out.println("What are you doing? Target isn't in a zone??");
+        return;
+    }
+
+    int currentZoneIndex = currentZone.zoneIndex;
+    
+      while (currentZoneIndex != targetZoneIndex) {
+          
+          int nextZoneIndex = currentZoneIndex < targetZoneIndex ? currentZoneIndex + 1 : currentZoneIndex - 1;
+          Zone nextZone = zones[nextZoneIndex - 1];
+  
+          // go to triangle spots
+          rightElevatorMotor.setTarget(nextZone.safeElevator());
+          shoulderMotor.setTarget(nextZone.safeArm());
+  
+          currentZoneIndex = nextZoneIndex;
+  
+          // wait for movement
+      }
+
+    // in target zone, move to direct
+    rightElevatorMotor.setTarget(goalElevator); 
+    shoulderMotor.setTarget(goalArm); 
+}
+
 
   //manage positions asked to, only go if safe
 
