@@ -28,8 +28,6 @@ public class PIDMotor {
      */
 
     double target = 0.0;
-    double finalTarget = 0;
-    double pidfEpsilonFactor = 1.001;
     double maxV;
     double maxA;
     double maxJerk;
@@ -226,7 +224,7 @@ public class PIDMotor {
     public void resetEncoder() {
         // encoder.setPosition(0);
 
-        // TODO fix this
+        motor.setPosition(0);
     }
 
 
@@ -337,7 +335,7 @@ public class PIDMotor {
     }
 
     public boolean atPosition(double epsilon) {
-        return ExtraMath.within(finalTarget, getPosition(), epsilon);
+        return ExtraMath.within(target, getPosition(), epsilon);
     }
 
     /**

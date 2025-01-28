@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PIDMotor;
@@ -33,6 +34,15 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     /**
+     * Climber is at position.
+     * 
+     * @return True/False.
+     */
+    public boolean atPosition() {
+        return climbMotor.atPosition(5);
+    }
+
+    /**
      * Sets a new desired height for the climbers.
      * 
      * @param newHeight
@@ -47,6 +57,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        
+        printDashboard();
+    }
+
+    public void printDashboard() {
+        SmartDashboard.putBoolean("Climber At Position", this.atPosition());
     }
 }

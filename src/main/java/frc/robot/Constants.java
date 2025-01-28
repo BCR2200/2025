@@ -10,6 +10,8 @@ public class Constants {
     
     public static final int CLIMBER_DOWN_HEIGHT = 0;
     public static final int CLIMBER_UP_HEIGHT = 0;
+    public static final int LED_STRIP_ID = 19;
+
 
 
 
