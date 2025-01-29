@@ -38,7 +38,7 @@ public class LEDSubsystem extends SubsystemBase implements Runnable {
 
     LimelightSubsystem limelight;
     PowerDistribution pdp;
-    ElevArmSubsystem arm;
+    ElevClArmSubsystem arm;
 
     boolean[] conditions;
     int functionIndex = -1;
@@ -75,7 +75,7 @@ public class LEDSubsystem extends SubsystemBase implements Runnable {
     int tempDisabledMode;
     double fakeVUSaved = 0;
 
-    public LEDSubsystem(LimelightSubsystem limelight, PowerDistribution pdp, ElevArmSubsystem arm) {
+    public LEDSubsystem(LimelightSubsystem limelight, PowerDistribution pdp, ElevClArmSubsystem arm) {
         this.limelight = limelight;
         this.pdp = pdp;
         this.arm = arm;

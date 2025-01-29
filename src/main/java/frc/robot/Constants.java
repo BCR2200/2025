@@ -1,5 +1,8 @@
 package frc.robot;
 
+import frc.robot.subsystems.ElevClArmSubsystem;
+import frc.robot.subsystems.ElevClArmSubsystem.ElevArmPosition;
+
 public class Constants {
     //Motors
     public static final int CLAW_ID = 9;
@@ -11,10 +14,6 @@ public class Constants {
     public static final int CLIMBER_DOWN_HEIGHT = 0;
     public static final int CLIMBER_UP_HEIGHT = 0;
     public static final int LED_STRIP_ID = 19;
-
-
-
-
 
     //Digital IO
     public static final int HOPPER_ID = 2;
