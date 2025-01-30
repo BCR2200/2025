@@ -34,13 +34,22 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition SAFE_POSITION = new ElevArmPosition(0, 0);
 
-  public enum CurrentState {
-    Funnel, Intake, Safe;
+  public enum ElevArmState {
+    Funnel, Intake, Safe, LvlOne, LvlTwo, LvlThree, LvlFour, PickBottom, PickTop, Barge, Processor;
 
     public ElevArmPosition position() {
         return switch (this) {
             case Funnel -> FUNNEL_POSITION;
             case Intake -> INTAKE_POSITION;
+            case Safe -> INTAKE_POSITION;
+            case LvlOne -> INTAKE_POSITION;
+            case LvlTwo -> INTAKE_POSITION;
+            case LvlThree -> INTAKE_POSITION;
+            case LvlFour -> INTAKE_POSITION;
+            case PickBottom -> INTAKE_POSITION;
+            case PickTop -> INTAKE_POSITION;
+            case Barge -> INTAKE_POSITION;
+            case Processor -> INTAKE_POSITION;
             default -> SAFE_POSITION;
         };
     }
@@ -57,7 +66,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public boolean algaeMode = false;
 
   ClawState clawstate = ClawState.Stop________HammerTime;
-  CurrentState state = CurrentState.Safe;
+  ElevArmState state = ElevArmState.Safe;
 
   public enum ClawState {
     Eat, Stop________HammerTime, Vomit, EatAlgae;
@@ -136,17 +145,17 @@ public class ElevClArmSubsystem extends SubsystemBase {
     switch (state) { // state transitions
       case Funnel:
         if (!hopperEmpty) {
-          state = CurrentState.Intake;
+          state = ElevArmState.Intake;
         }
         break;
       case Intake:
         if (!coralAbsent) {
-          state = CurrentState.Safe;
+          state = ElevArmState.Safe;
         }
         break;
       case Safe:
         if (coralAbsent && !algaeMode) {
-          state = CurrentState.Funnel;
+          state = ElevArmState.Funnel;
         }
         break;
       default:
