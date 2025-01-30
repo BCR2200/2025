@@ -38,20 +38,20 @@ public class ElevClArmSubsystem extends SubsystemBase {
     Funnel, Intake, Safe, LvlOne, LvlTwo, LvlThree, LvlFour, PickBottom, PickTop, Barge, Processor;
 
     public ElevArmPosition position() {
-        return switch (this) {
-            case Funnel -> FUNNEL_POSITION;
-            case Intake -> INTAKE_POSITION;
-            case Safe -> INTAKE_POSITION;
-            case LvlOne -> INTAKE_POSITION;
-            case LvlTwo -> INTAKE_POSITION;
-            case LvlThree -> INTAKE_POSITION;
-            case LvlFour -> INTAKE_POSITION;
-            case PickBottom -> INTAKE_POSITION;
-            case PickTop -> INTAKE_POSITION;
-            case Barge -> INTAKE_POSITION;
-            case Processor -> INTAKE_POSITION;
-            default -> SAFE_POSITION;
-        };
+      return switch (this) {
+        case Funnel -> FUNNEL_POSITION;
+        case Intake -> INTAKE_POSITION;
+        case Safe -> INTAKE_POSITION;
+        case LvlOne -> INTAKE_POSITION;
+        case LvlTwo -> INTAKE_POSITION;
+        case LvlThree -> INTAKE_POSITION;
+        case LvlFour -> INTAKE_POSITION;
+        case PickBottom -> INTAKE_POSITION;
+        case PickTop -> INTAKE_POSITION;
+        case Barge -> INTAKE_POSITION;
+        case Processor -> INTAKE_POSITION;
+        default -> SAFE_POSITION;
+      };
     }
   }
 
@@ -72,16 +72,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
     Eat, Stop________HammerTime, Vomit, EatAlgae;
 
     public double speed() {
-        return switch (this) {
-            case Eat, EatAlgae -> 1.0;
-            case Stop________HammerTime -> 0.0;
-            case Vomit -> -1.0;
-            default -> 0.0;
-        };
+      return switch (this) {
+        case Eat, EatAlgae -> 1.0;
+        case Stop________HammerTime -> 0.0;
+        case Vomit -> -1.0;
+        default -> 0.0;
+      };
     }
   }
 
-  // TODO: give better names for each zone
+  // see images\ZoneDiagram.png
   public Zone zone1 = new Zone(1, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone2 = new Zone(2, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone3 = new Zone(3, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
@@ -158,6 +158,22 @@ public class ElevClArmSubsystem extends SubsystemBase {
           state = ElevArmState.Funnel;
         }
         break;
+      case LvlOne:
+        break;
+      case LvlTwo:
+        break;
+      case LvlThree:
+        break;
+      case LvlFour:
+        break;
+      case PickBottom:
+        break;
+      case PickTop:
+        break;
+      case Barge:
+        break;
+      case Processor:
+        break;
       default:
         break;
     }
@@ -171,7 +187,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         break;
       case Safe:
         if (!algaeMode) {
-          clawstate = ClawState.Stop________HammerTime; // stop the claw intake
+          clawstate = ClawState.Stop________HammerTime;
         } else {
           clawstate = ClawState.EatAlgae;
         }
@@ -186,8 +202,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
-    ElevArmPosition currentElevArmPos = new ElevArmPosition(rightElevatorMotor.getPosition(), shoulderMotor.getPosition());
-    // idk how else to find the zone
+    ElevArmPosition currentElevArmPos = new ElevArmPosition(rightElevatorMotor.getPosition(),
+        shoulderMotor.getPosition());
     Zone[] zones = { zone1, zone2, zone3, zone4, zone5 };
     Zone currentZone = null;
     for (Zone zone : zones) {
@@ -198,7 +214,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
     if (currentZone == null) {
       System.out.println("What are you doing? CurrentElevArmPos isn't in a zone??");
-      return; // TODO BAD
+      return;
     }
 
     Zone targetZone = null;
@@ -210,7 +226,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
     if (targetZone == null) {
       System.out.println("What are you doing? Target isn't in a zone??");
-      return; // TODO BAD
+      return;
     }
 
     int currentZoneIndex = currentZone.zoneIndex;
