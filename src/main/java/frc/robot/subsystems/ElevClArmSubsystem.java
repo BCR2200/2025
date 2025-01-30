@@ -140,7 +140,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     boolean coralInClaw = !isCoralInClaw();
-    boolean coralInHopper = !isCoralInHoppr();
+    boolean coralInHopper = !isCoralInHopper();
 
     switch (state) { // state transitions
       case Funnel:
@@ -249,7 +249,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
   }
 
-  public boolean isCoralInHoppr() {
+  public boolean isCoralInHopper() {
     return !hopperBeamBreak.get();
   }
 
@@ -265,7 +265,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     SmartDashboard.putString("ElevArm State:", state.toString());
     SmartDashboard.putBoolean("Algae Mode:", algaeMode);
     SmartDashboard.putString("Claw State:", clawstate.toString());
-    SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHoppr());
+    SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHopper());
     SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
     clawMotor.putPIDF();
     clawMotor.putPV();
