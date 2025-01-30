@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amp;
-
 import java.io.UncheckedIOException;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -23,8 +21,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   // -> claw break -> go to safe coral :thumbsup:
 
   public static class ElevArmPosition {
-    public double elevatorPos;
-    public double armPos;
+    public final double elevatorPos;
+    public final double armPos;
 
     public ElevArmPosition(double elevatorPos, double armPos) {
       this.elevatorPos = elevatorPos;
@@ -40,15 +38,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
     Funnel, Intake, Safe;
 
     public ElevArmPosition position() {
-      switch (this) {
-        case Funnel:
-          return FUNNEL_POSITION;
-        case Intake:
-          return INTAKE_POSITION;
-        case Safe:
-        default:
-          return SAFE_POSITION;
-      }
+        return switch (this) {
+            case Funnel -> FUNNEL_POSITION;
+            case Intake -> INTAKE_POSITION;
+            default -> SAFE_POSITION;
+        };
     }
   }
 
@@ -57,47 +51,40 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public PIDMotor shoulderMotor;
   public PIDMotor clawMotor;
 
-  public DigitalInput clawBreak;
-  public DigitalInput hopperBreak;
-
-  public ElevArmPosition currentElevArmPos;
+  public DigitalInput clawBeamBreak;
+  public DigitalInput hopperBeamBreak;
 
   public boolean algaeMode = false;
+
+  ClawState clawstate = ClawState.Stop________HammerTime;
+  CurrentState state = CurrentState.Safe;
 
   public enum ClawState {
     Eat, Stop________HammerTime, Vomit, EatAlgae;
 
     public double speed() {
-      switch (this) {
-        case Eat:
-        case EatAlgae:
-          return 1.0;
-        case Stop________HammerTime:
-          return 0.0;
-        case Vomit:
-          return -1.0;
-        default:
-          return 0.0;
-      }
+        return switch (this) {
+            case Eat, EatAlgae -> 1.0;
+            case Stop________HammerTime -> 0.0;
+            case Vomit -> -1.0;
+            default -> 0.0;
+        };
     }
   }
 
-  ClawState clawstate = ClawState.Stop________HammerTime;
-  CurrentState state = CurrentState.Safe;
-
+  // TODO: give better names for each zone
   public Zone zone1 = new Zone(1, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone2 = new Zone(2, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone3 = new Zone(3, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone4 = new Zone(4, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone5 = new Zone(5, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
 
-  public class Zone {
+  public static final class Zone {
     final public int zoneIndex;
     final public ElevArmPosition min;
     final public ElevArmPosition max;
     final public ElevArmPosition safe;
 
-    // adjacent
     public Zone(int zone, ElevArmPosition min, ElevArmPosition max, ElevArmPosition safe) {
       if (max.elevatorPos < min.elevatorPos) {
         throw new UncheckedIOException("Elevator max is less than min", null);
@@ -124,10 +111,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
   }
 
-  public boolean atPosition() {
-    return rightElevatorMotor.atPosition(5) && shoulderMotor.atPosition(5);
-  }
-
   public ElevClArmSubsystem() {
     leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 0, 0, 0, 0, 0, 0, 0, 0, 0);
     rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -141,17 +124,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
     clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 0, 0, 0, 0, 0, 0, 0, 0, 0);
     clawMotor.setCurrentLimit(30);
 
-    clawBreak = new DigitalInput(Constants.CLAW_BREAK_ID);
-    hopperBreak = new DigitalInput(Constants.HOPPER_ID);
+    clawBeamBreak = new DigitalInput(Constants.CLAW_BREAK_ID);
+    hopperBeamBreak = new DigitalInput(Constants.HOPPER_ID);
   }
 
   @Override
   public void periodic() {
-    // this is good
-    currentElevArmPos = new ElevArmPosition(rightElevatorMotor.getPosition(), shoulderMotor.getPosition());
-
-    boolean coralAbsent = clawBreak.get();
-    boolean hopperEmpty = hopperBreak.get();
+    boolean coralAbsent = clawBeamBreak.get();
+    boolean hopperEmpty = hopperBeamBreak.get();
 
     switch (state) { // state transitions
       case Funnel:
@@ -191,20 +171,24 @@ public class ElevClArmSubsystem extends SubsystemBase {
         break;
     }
 
-    go(currentElevArmPos, state.position());
+    go(state.position());
     clawMotor.setPercentOutput(clawstate.speed());
   }
 
   // manage positions asked to, only go if safe
-  public void go(ElevArmPosition current, ElevArmPosition goal) {
+  public void go(ElevArmPosition goal) {
+    ElevArmPosition currentElevArmPos = new ElevArmPosition(rightElevatorMotor.getPosition(), shoulderMotor.getPosition());
     // idk how else to find the zone
     Zone[] zones = { zone1, zone2, zone3, zone4, zone5 };
     Zone currentZone = null;
     for (Zone zone : zones) {
-      if (zone.isItIn(current)) {
+      if (zone.isItIn(currentElevArmPos)) {
         currentZone = zone;
         break;
       }
+    }
+    if (currentZone == null) {
+      return; // TODO BAD
     }
 
     Zone targetZone = null;
@@ -214,11 +198,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
         break;
       }
     }
+    if (targetZone == null) {
+      return; // TODO BAD
+    }
 
     int currentZoneIndex = currentZone.zoneIndex;
     int targetZoneIndex = targetZone.zoneIndex;
 
-    if (currentZone == null || targetZoneIndex < 1 || targetZoneIndex > zones.length) {
+    if (targetZoneIndex < 1 || targetZoneIndex > zones.length) {
       System.out.println("What are you doing? Target isn't in a zone??");
       return;
     }
@@ -242,12 +229,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
   }
 
+  public boolean atPosition() {
+    return rightElevatorMotor.atPosition(5) && shoulderMotor.atPosition(5);
+  }
+
   public void printDashboard() {
     SmartDashboard.putString("ElevArm State:", state.toString());
     SmartDashboard.putBoolean("Algae Mode:", algaeMode);
     SmartDashboard.putString("Claw State:", clawstate.toString());
-    SmartDashboard.putBoolean("Hopper Break:", hopperBreak.get());
-    SmartDashboard.putBoolean("Claw Break:", clawBreak.get());
+    SmartDashboard.putBoolean("Hopper Break:", hopperBeamBreak.get());
+    SmartDashboard.putBoolean("Claw Break:", clawBeamBreak.get());
     clawMotor.putPIDF();
     clawMotor.putPV();
   }
