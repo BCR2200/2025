@@ -188,6 +188,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       }
     }
     if (currentZone == null) {
+      System.out.println("What are you doing? CurrentElevArmPos isn't in a zone??");
       return; // TODO BAD
     }
 
@@ -199,21 +200,17 @@ public class ElevClArmSubsystem extends SubsystemBase {
       }
     }
     if (targetZone == null) {
+      System.out.println("What are you doing? Target isn't in a zone??");
       return; // TODO BAD
     }
 
     int currentZoneIndex = currentZone.zoneIndex;
     int targetZoneIndex = targetZone.zoneIndex;
 
-    if (targetZoneIndex < 1 || targetZoneIndex > zones.length) {
-      System.out.println("What are you doing? Target isn't in a zone??");
-      return;
-    }
-
     // if not in the correct zone/adjacent zone
     if (Math.abs(currentZoneIndex - targetZoneIndex) > 1) {
       int nextZoneIndex = currentZoneIndex < targetZoneIndex ? currentZoneIndex + 1 : currentZoneIndex - 1;
-      Zone nextZone = zones[nextZoneIndex - 1];
+      Zone nextZone = zones[nextZoneIndex];
 
       // go to triangle spots
       rightElevatorMotor.setTarget(nextZone.safe.elevatorPos);
@@ -223,7 +220,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
       // wait for movement
     } else {
-      // in target zone, move to direct
+      // in target or adjacent zone, move to direct
       rightElevatorMotor.setTarget(goal.elevatorPos);
       shoulderMotor.setTarget(goal.armPos);
     }
