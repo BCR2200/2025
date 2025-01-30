@@ -216,8 +216,6 @@ public class PIDMotor {
      * DOES NOT WORK RN
      */
     public void resetEncoder() {
-        // encoder.setPosition(0);
-
         motor.setPosition(0);
     }
 
