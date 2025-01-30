@@ -10,11 +10,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PIDMotor {
 
-    String name;
+    final String name;
     boolean initialized = false;
-
-    double p, i, d, s, v, a;
-    TalonFXConfiguration talonFXConfigs;
 
     /*
      * p - output per unit of error in velocity (output/rps)
@@ -26,15 +23,16 @@ public class PIDMotor {
      * not used (YET):
      * g - output to overcome gravity (output)
      */
-
-    double target = 0.0;
+    double p, i, d, s, v, a;
     double maxV;
     double maxA;
     double maxJerk;
-    TalonFX motor;
 
-    Timer motorTimer;
-    private final int sleepTime = 20;
+    // This can be used as both position and velocity target
+    double target = 0.0;
+
+    final TalonFXConfiguration talonFXConfigs;
+    final TalonFX motor;
 
     private PIDMotor(int deviceID, String name, double p, double i, double d, double s, double v, double a, double maxV,
             double maxA, double maxJerk) {
@@ -49,14 +47,8 @@ public class PIDMotor {
         this.maxA = maxA;
         this.maxJerk = maxJerk;
 
-        // motor = new CANSparkMax(deviceID, MotorType.kBrushless);
-        motor = new TalonFX(deviceID); // , canbus
-        // controller = motor.getPIDController();
-        // encoder = motor.getEncoder();
-
+        motor = new TalonFX(deviceID);
         talonFXConfigs = new TalonFXConfiguration();
-
-        motorTimer = new Timer();
     }
 
     /**
@@ -90,8 +82,7 @@ public class PIDMotor {
      */
     private void catchUninit() {
         if (!initialized) {
-            new Exception("PIDMotor `" + name + "` has not been initialized! Call `init()` before using the motor!")
-                    .printStackTrace();
+            new Exception("PIDMotor `" + name + "` has not been initialized! Call `init()` before using the motor!").printStackTrace();
         }
     }
 
@@ -104,21 +95,25 @@ public class PIDMotor {
             sleep();
             resetAll();
             sleep();
-            // putPIDF();
+            // TODO: Once we are sure that all the motors are going in the right direction, set a reasonable current
+            //  limit for all motors and remove following line.
+            setCurrentLimit(20);
+            sleep();
+            putPIDF();
+            sleep();
             updatePIDF();
             sleep();
+            motor.setNeutralMode(NeutralModeValue.Brake);
+            setIdleBrakeMode();
             initialized = true;
         }
-        motor.setNeutralMode(NeutralModeValue.Brake);
     }
 
     public void sleep() {
         try {
+            final int sleepTime = 20;
             Thread.sleep(sleepTime);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        } catch (InterruptedException ignored) {}
     }
 
     public void setIdleCoastMode() {
@@ -136,8 +131,8 @@ public class PIDMotor {
         SmartDashboard.putNumber(name + " P", p);
         SmartDashboard.putNumber(name + " I", i);
         SmartDashboard.putNumber(name + " D", d);
-        SmartDashboard.putNumber(name + " V", v);
         SmartDashboard.putNumber(name + " S", s);
+        SmartDashboard.putNumber(name + " V", v);
         SmartDashboard.putNumber(name + " A", a);
         SmartDashboard.putNumber(name + " MaxV", maxV);
         SmartDashboard.putNumber(name + " MaxA", maxA);
@@ -160,7 +155,6 @@ public class PIDMotor {
      * @param p The new proportional coefficient.
      * @param i The new integral coefficient.
      * @param d The new derivative coefficient.
-     * @param f The new feed-forward coefficient.
      */
     public void setPIDF(double p, double i, double d, double s, double v, double a, double maxV, double maxA, double maxJerk) {
         catchUninit();
@@ -227,19 +221,9 @@ public class PIDMotor {
         motor.setPosition(0);
     }
 
-
-
     public void follow(PIDMotor other, boolean inverted) {
         motor.setControl(new Follower(other.motor.getDeviceID(), inverted));
     }
-
-    /**
-     * Resets the controller's integral accumulation. Call this every time this
-     * motor is enabled.
-     */
-    // public void resetIAccum() {
-    //     controller.setIAccum(0); //maybe a problem
-    // }
 
     /**
      * Resets the state of the motor. Call this every time this motor is enabled.
@@ -247,30 +231,7 @@ public class PIDMotor {
     public void resetAll() {
         resetEncoder();
         sleep();
-        // resetIAccum();
-        sleep();
     }
-
-    // /**
-    // * Converts the units for this motor into encoder rotations.
-    // *
-    // * @param units The units specified by this motor to convert.
-    // * @return The number of rotations that correspond to the given units.
-    // */
-    // public double unitsToRotations(double units) {
-    // return units * rotationsPerUnit;
-    // }
-
-    // /**
-    // * Converts encoder rotations into units for this motor.
-    // *
-    // * @param units The number of rotations to convert.
-    // * @return The units specified by this motor that correspond to the given
-    // rotations.
-    // */
-    // public double rotationsToUnits(double rotations) {
-    // return rotations / rotationsPerUnit;
-    // }
 
     /**
      * Sets the motor's target to a given unit value.
@@ -316,15 +277,6 @@ public class PIDMotor {
     }
 
     /**
-     * Gets the position of the encoder in degrees.
-     * 
-     * @return The position of the encoder in degrees.
-     */
-    public double getDegrees() {
-        return motor.getPosition().getValueAsDouble() * 360; // maybe broken
-    }
-
-    /**
      * Gets whether the current position of the motor is within 10 revolutions of
      * the target position.
      * 
@@ -344,19 +296,11 @@ public class PIDMotor {
      * @return Velocity in rotations per second.
      */
     public double getVelocity() {
-        
         return motor.getVelocity().getValueAsDouble();
     }
 
-    /**
-     * Gets whether the current velocity of the motor is within the desired
-     * threshold RPM of the target velocity.
-     * 
-     * @param threshold The threshold of acceptable desired velocity.
-     * @return Whether velocity is at desired target.
-     */
     public boolean atVelocity(double threshold) {
-        return ExtraMath.within(target, getVelocity() * 60, threshold);
+        return ExtraMath.within(target, getVelocity(), threshold);
     }
 
     /**
