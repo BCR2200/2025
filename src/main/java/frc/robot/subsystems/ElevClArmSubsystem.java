@@ -22,7 +22,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   // against funnel
   // -> claw break -> go to safe coral :thumbsup:
 
-  public class ElevArmPosition {
+  public static class ElevArmPosition {
     public double elevatorPos;
     public double armPos;
 
@@ -31,7 +31,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       this.armPos = armPos;
     }
   }
-  
+
   public final static ElevArmPosition FUNNEL_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition SAFE_POSITION = new ElevArmPosition(0, 0);
@@ -55,7 +55,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public PIDMotor leftElevatorMotor;
   public PIDMotor rightElevatorMotor;
   public PIDMotor shoulderMotor;
-
   public PIDMotor clawMotor;
 
   public DigitalInput clawBreak;
@@ -72,17 +71,17 @@ public class ElevClArmSubsystem extends SubsystemBase {
       switch (this) {
         case Eat:
         case EatAlgae:
-        return 1.0;
+          return 1.0;
         case Stop________HammerTime:
-        return 0.0;
+          return 0.0;
         case Vomit:
-        return -1.0;
+          return -1.0;
         default:
-        return 0.0;
+          return 0.0;
       }
     }
   }
-  
+
   ClawState clawstate = ClawState.Stop________HammerTime;
   CurrentState state = CurrentState.Safe;
 
@@ -144,57 +143,54 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     clawBreak = new DigitalInput(Constants.CLAW_BREAK_ID);
     hopperBreak = new DigitalInput(Constants.HOPPER_ID);
-
   }
 
   @Override
   public void periodic() {
-    //this is good
+    // this is good
     currentElevArmPos = new ElevArmPosition(rightElevatorMotor.getPosition(), shoulderMotor.getPosition());
-    
+
     boolean coralAbsent = clawBreak.get();
     boolean hopperEmpty = hopperBreak.get();
-    
+
     switch (state) { // state transitions
       case Funnel:
-      if(!hopperEmpty){
-        state = CurrentState.Intake;
-      }
-      break;
+        if (!hopperEmpty) {
+          state = CurrentState.Intake;
+        }
+        break;
       case Intake:
-      if(!coralAbsent){
-        state = CurrentState.Safe;
-      }
-      break;
+        if (!coralAbsent) {
+          state = CurrentState.Safe;
+        }
+        break;
       case Safe:
-      if (coralAbsent && !algaeMode) {
-        state = CurrentState.Funnel;
-      }
-      break;
+        if (coralAbsent && !algaeMode) {
+          state = CurrentState.Funnel;
+        }
+        break;
       default:
         break;
     }
-    
+
     switch (state) { // in state what are we doing
       case Funnel:
-      clawstate = ClawState.Stop________HammerTime;
-      break;
+        clawstate = ClawState.Stop________HammerTime;
+        break;
       case Intake:
-      if(algaeMode){
-        clawstate = ClawState.EatAlgae;
-      } else {
         clawstate = ClawState.Eat;
-      }
-      break;
+        break;
       case Safe:
-      if (!algaeMode) {
-        clawstate = ClawState.Stop________HammerTime; // stop the claw intake
-      } 
-      break;
+        if (!algaeMode) {
+          clawstate = ClawState.Stop________HammerTime; // stop the claw intake
+        } else {
+          clawstate = ClawState.EatAlgae;
+        }
+        break;
       default:
-      break;
+        break;
     }
-    
+
     go(currentElevArmPos, state.position());
     clawMotor.setPercentOutput(clawstate.speed());
   }
@@ -247,6 +243,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public void printDashboard() {
+    SmartDashboard.putString("ElevArm State:", state.toString());
+    SmartDashboard.putBoolean("Algae Mode:", algaeMode);
     SmartDashboard.putString("Claw State:", clawstate.toString());
     SmartDashboard.putBoolean("Hopper Break:", hopperBreak.get());
     SmartDashboard.putBoolean("Claw Break:", clawBreak.get());
