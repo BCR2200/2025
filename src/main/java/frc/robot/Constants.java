@@ -1,8 +1,5 @@
 package frc.robot;
 
-import frc.robot.subsystems.ElevClArmSubsystem;
-import frc.robot.subsystems.ElevClArmSubsystem.ElevArmPosition;
-
 public class Constants {
     //Motors
     public static final int CLAW_ID = 9;

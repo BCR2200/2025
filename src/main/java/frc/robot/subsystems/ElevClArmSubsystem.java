@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amp;
+
 import java.io.UncheckedIOException;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -8,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PIDMotor;
 
-
 public class ElevClArmSubsystem extends SubsystemBase {
   // Elevator x 2 kraken
   // 13.1 revolutions of elevator = 7.85 inches of travel
@@ -16,29 +17,41 @@ public class ElevClArmSubsystem extends SubsystemBase {
   // 73.5 revolutions = 360 degrees (all the way around, not good)
   // Contains beam break in claw
   // beam break in hopper
-  
+
   // w/o coral default to funnel accept -> hopper break -> run wheels and intake
   // against funnel
   // -> claw break -> go to safe coral :thumbsup:
-  
+
   public class ElevArmPosition {
     public double elevatorPos;
     public double armPos;
-    
+
     public ElevArmPosition(double elevatorPos, double armPos) {
       this.elevatorPos = elevatorPos;
       this.armPos = armPos;
     }
   }
+  
+  public final static ElevArmPosition FUNNEL_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition SAFE_POSITION = new ElevArmPosition(0, 0);
 
   public enum CurrentState {
-    Funnel, Intake, Safe, Custom
+    Funnel, Intake, Safe;
+
+    public ElevArmPosition position() {
+      switch (this) {
+        case Funnel:
+          return FUNNEL_POSITION;
+        case Intake:
+          return INTAKE_POSITION;
+        case Safe:
+        default:
+          return SAFE_POSITION;
+      }
+    }
   }
 
-  public final ElevArmPosition FUNNEL_POSITION = new ElevArmPosition(0, 0);
-  public final ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
-  public final ElevArmPosition SAFE_POSITION = new ElevArmPosition(0, 0);
-  
   public PIDMotor leftElevatorMotor;
   public PIDMotor rightElevatorMotor;
   public PIDMotor shoulderMotor;
@@ -51,33 +64,33 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public ElevArmPosition currentElevArmPos;
 
   public boolean algaeMode = false;
-  
+
   public enum ClawState {
-    Eat, WaitTheyDontLoveYouLikeILoveYou, Vomit, EatAlgae;
+    Eat, Stop________HammerTime, Vomit, EatAlgae;
 
     public double speed() {
       switch (this) {
         case Eat:
         case EatAlgae:
-          return 1.0;
-        case WaitTheyDontLoveYouLikeILoveYou:
-          return 0.0;
+        return 1.0;
+        case Stop________HammerTime:
+        return 0.0;
         case Vomit:
-          return -1.0;
+        return -1.0;
         default:
-          return 0.0;
+        return 0.0;
       }
     }
   }
-
-  ClawState clawstate = ClawState.WaitTheyDontLoveYouLikeILoveYou;
+  
+  ClawState clawstate = ClawState.Stop________HammerTime;
+  CurrentState state = CurrentState.Safe;
 
   public Zone zone1 = new Zone(1, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone2 = new Zone(2, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone3 = new Zone(3, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone4 = new Zone(4, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone zone5 = new Zone(5, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
-
 
   public class Zone {
     final public int zoneIndex;
@@ -136,68 +149,58 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    clawMotor.setPercentOutput(clawstate.speed());   
-    //this is isn't good
+    //this is good
     currentElevArmPos = new ElevArmPosition(rightElevatorMotor.getPosition(), shoulderMotor.getPosition());
     
     boolean coralAbsent = clawBreak.get();
     boolean hopperEmpty = hopperBreak.get();
-
-    CurrentState state = CurrentState.Safe; // current zero ish
     
     switch (state) { // state transitions
       case Funnel:
-        if(!hopperEmpty){
-          state = CurrentState.Intake;
-        }
-        break;
+      if(!hopperEmpty){
+        state = CurrentState.Intake;
+      }
+      break;
       case Intake:
-        if(!coralAbsent){
-          state = CurrentState.Safe;
-        }
-        break;
+      if(!coralAbsent){
+        state = CurrentState.Safe;
+      }
+      break;
       case Safe:
-        if (coralAbsent && !algaeMode) {
-          state = CurrentState.Funnel;
-        }
-        break;
+      if (coralAbsent && !algaeMode) {
+        state = CurrentState.Funnel;
+      }
+      break;
       default:
         break;
     }
-
+    
     switch (state) { // in state what are we doing
       case Funnel:
-        //TODO
-        break;
+      clawstate = ClawState.Stop________HammerTime;
+      break;
       case Intake:
-        //TODO
-        break;
+      if(algaeMode){
+        clawstate = ClawState.EatAlgae;
+      } else {
+        clawstate = ClawState.Eat;
+      }
+      break;
       case Safe:
-        clawstate = ClawState.WaitTheyDontLoveYouLikeILoveYou; // stop the claw intake
-        break;
+      if (!algaeMode) {
+        clawstate = ClawState.Stop________HammerTime; // stop the claw intake
+      } 
+      break;
       default:
-        break;
+      break;
     }
-
-    // go(currentElevArmPos, CurrentState.position);
-
-    // if(coralAbsent && !algaeMode){
-    //   go(currentElevArmPos, FUNNEL_POSITION);
-    //   if(atPosition()){
-        
-    //   }
-    // } 
-    // if(!coralAbsent && state == CurrentState.Safe){
-
-    //   setClaw(ClawState.WaitTheyDontLoveYouLikeILoveYou);
-    //   go(currentElevArmPos, SAFE_POSITION); 
-    // }
+    
+    go(currentElevArmPos, state.position());
+    clawMotor.setPercentOutput(clawstate.speed());
   }
 
-
-  // return next elevator/arm
+  // manage positions asked to, only go if safe
   public void go(ElevArmPosition current, ElevArmPosition goal) {
-
     // idk how else to find the zone
     Zone[] zones = { zone1, zone2, zone3, zone4, zone5 };
     Zone currentZone = null;
@@ -242,8 +245,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
       shoulderMotor.setTarget(goal.armPos);
     }
   }
-
-  // manage positions asked to, only go if safe
 
   public void printDashboard() {
     SmartDashboard.putString("Claw State:", clawstate.toString());
