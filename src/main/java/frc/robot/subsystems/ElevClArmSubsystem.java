@@ -139,22 +139,22 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    boolean coralAbsent = clawBeamBreak.get();
-    boolean hopperEmpty = hopperBeamBreak.get();
+    boolean coralInClaw = !isCoralInClaw();
+    boolean coralInHopper = !isCoralInHoppr();
 
     switch (state) { // state transitions
       case Funnel:
-        if (!hopperEmpty) {
+        if (!coralInHopper) {
           state = ElevArmState.Intake;
         }
         break;
       case Intake:
-        if (!coralAbsent) {
+        if (!coralInClaw) {
           state = ElevArmState.Safe;
         }
         break;
       case Safe:
-        if (coralAbsent && !algaeMode) {
+        if (coralInClaw && !algaeMode) {
           state = ElevArmState.Funnel;
         }
         break;
@@ -221,18 +221,24 @@ public class ElevClArmSubsystem extends SubsystemBase {
       int nextZoneIndex = currentZoneIndex < targetZoneIndex ? currentZoneIndex + 1 : currentZoneIndex - 1;
       Zone nextZone = zones[nextZoneIndex];
 
-      // go to triangle spots
+      // go to triangle (safe) spots
       rightElevatorMotor.setTarget(nextZone.safe.elevatorPos);
       shoulderMotor.setTarget(nextZone.safe.armPos);
 
-      currentZoneIndex = nextZoneIndex;
-
-      // wait for movement
+      // wait for movement (next iteration of periodic()
     } else {
       // in target or adjacent zone, move to direct
       rightElevatorMotor.setTarget(goal.elevatorPos);
       shoulderMotor.setTarget(goal.armPos);
     }
+  }
+
+  public boolean isCoralInHoppr() {
+    return !hopperBeamBreak.get();
+  }
+
+  public boolean isCoralInClaw() {
+    return !clawBeamBreak.get();
   }
 
   public boolean atPosition() {
@@ -243,8 +249,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
     SmartDashboard.putString("ElevArm State:", state.toString());
     SmartDashboard.putBoolean("Algae Mode:", algaeMode);
     SmartDashboard.putString("Claw State:", clawstate.toString());
-    SmartDashboard.putBoolean("Hopper Break:", hopperBeamBreak.get());
-    SmartDashboard.putBoolean("Claw Break:", clawBeamBreak.get());
+    SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHoppr());
+    SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
     clawMotor.putPIDF();
     clawMotor.putPV();
   }
