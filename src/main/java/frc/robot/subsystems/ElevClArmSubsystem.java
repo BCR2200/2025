@@ -33,6 +33,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition FUNNEL_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition SAFE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(0, 0);
 
   public enum ElevArmState {
     Funnel, Intake, Safe, LvlOne, LvlTwo, LvlThree, LvlFour, PickBottom, PickTop, Barge, Processor;
@@ -65,7 +73,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public boolean algaeMode = false;
 
-  ClawState clawstate = ClawState.Stop________HammerTime;
+  ClawState clawstate = ClawState.Stop________HammerTime; 
   ElevArmState state = ElevArmState.Safe;
 
   public enum ClawState {
@@ -158,25 +166,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
           state = ElevArmState.Funnel;
         }
         break;
-      case LvlOne:
-        break;
-      case LvlTwo:
-        break;
-      case LvlThree:
-        break;
-      case LvlFour:
-        break;
-      case PickBottom:
-        break;
-      case PickTop:
-        break;
-      case Barge:
-        break;
-      case Processor:
-        break;
       default:
         break;
     }
+
+    ElevArmPosition goal = state.position();
 
     switch (state) { // in state what are we doing
       case Funnel:
@@ -192,11 +186,28 @@ public class ElevClArmSubsystem extends SubsystemBase {
           clawstate = ClawState.EatAlgae;
         }
         break;
+      case LvlOne:
+        break;
+      case LvlTwo:
+        break;
+      case LvlThree:
+        break;
+      case LvlFour:
+        break;
+      case PickBottom:
+        break;
+      case PickTop:
+        break;
+      case Barge:
+        // go up! shoot, safe
+        break;
+      case Processor:
+        break;
       default:
         break;
     }
 
-    go(state.position());
+    go(goal);
     clawMotor.setPercentOutput(clawstate.speed());
   }
 
