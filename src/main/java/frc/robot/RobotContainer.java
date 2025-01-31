@@ -6,9 +6,18 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.drive.TunerConstants;
 
 public class RobotContainer {
+  
+  // private final double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps * slowdownPercent; // kSpeedAt12VoltsMps desired top speed
+  // public static double MaxAngularRate = 1.5 * Math.PI * slowdownPercent; // 1.0 of a rotation per second max angular velocity
+
+  //set up the pigeon
+  // public PigeonSubsystem gyro = new PigeonSubsystem();
   public RobotContainer() {
+    
+    
     configureBindings();
   }
 

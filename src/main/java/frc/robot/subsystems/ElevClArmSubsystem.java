@@ -49,15 +49,15 @@ public class ElevClArmSubsystem extends SubsystemBase {
       return switch (this) {
         case Funnel -> FUNNEL_POSITION;
         case Intake -> INTAKE_POSITION;
-        case Safe -> INTAKE_POSITION;
-        case LvlOne -> INTAKE_POSITION;
-        case LvlTwo -> INTAKE_POSITION;
-        case LvlThree -> INTAKE_POSITION;
-        case LvlFour -> INTAKE_POSITION;
-        case PickBottom -> INTAKE_POSITION;
-        case PickTop -> INTAKE_POSITION;
-        case Barge -> INTAKE_POSITION;
-        case Processor -> INTAKE_POSITION;
+        case Safe -> SAFE_POSITION;
+        case LvlOne -> LVL1_POSITION;
+        case LvlTwo -> LVL2_POSITION;
+        case LvlThree -> LVL3_POSITION;
+        case LvlFour -> LVL4_POSITION;
+        case PickBottom -> PICKBOTTOM_POSITION;
+        case PickTop -> PICKTOP_POSITION;
+        case Barge -> BARGE_POSITION;
+        case Processor -> PROCESSOR_POSITION;
         default -> SAFE_POSITION;
       };
     }
@@ -147,6 +147,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    // if arm back, claws forward tracker
+    
     boolean coralInClaw = !isCoralInClaw();
     boolean coralInHopper = !isCoralInHopper();
 
@@ -170,7 +173,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         break;
     }
 
-    ElevArmPosition goal = state.position();
+    // ElevArmPosition goal = state.position();
 
     switch (state) { // in state what are we doing
       case Funnel:
@@ -186,28 +189,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
           clawstate = ClawState.EatAlgae;
         }
         break;
-      case LvlOne:
-        break;
-      case LvlTwo:
-        break;
-      case LvlThree:
-        break;
-      case LvlFour:
-        break;
-      case PickBottom:
-        break;
-      case PickTop:
-        break;
-      case Barge:
-        // go up! shoot, safe
-        break;
-      case Processor:
-        break;
       default:
         break;
     }
 
-    go(goal);
+    go(state.position());
     clawMotor.setPercentOutput(clawstate.speed());
   }
 
