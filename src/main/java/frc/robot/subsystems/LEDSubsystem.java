@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.ExtraMath;
 import frc.robot.RobotContainer;
-import frc.robot.RobotContainer.ControlMode;
 
 public class LEDSubsystem extends SubsystemBase implements Runnable {
     AddressableLED ledStrip;
@@ -294,6 +293,7 @@ public class LEDSubsystem extends SubsystemBase implements Runnable {
         while (true) {
             synchronized (this) {
                 // if (robot.mode == Coral booom or something)
+                // ElevClArm, led, enum declaring the different levels
                 allianceCheck();
                 checkConditions();
                 priorityCheck();
