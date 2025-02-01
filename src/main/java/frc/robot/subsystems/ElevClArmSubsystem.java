@@ -73,15 +73,18 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public boolean algaeMode = false;
 
-  ClawState clawstate = ClawState.Stop________HammerTime; 
-  ElevArmState state = ElevArmState.Safe;
+  private ClawState clawstate = ClawState.Stop________HammerTime; 
+  private ElevArmState state = ElevArmState.Safe;
+  public boolean shootLust = false;
 
   public enum ClawState {
-    Eat, Stop________HammerTime, Vomit, EatAlgae;
+    Eat, Stop________HammerTime, Vomit, EatAlgae, Poop;
 
     public double speed() {
       return switch (this) {
-        case Eat, EatAlgae -> 1.0;
+        case Eat -> 1.0;
+        case EatAlgae -> 0.5;
+        case Poop -> 1.0;
         case Stop________HammerTime -> 0.0;
         case Vomit -> -1.0;
         default -> 0.0;
@@ -149,7 +152,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public void periodic() {
 
     // if arm back, claws forward tracker
-    
     boolean coralInClaw = !isCoralInClaw();
     boolean coralInHopper = !isCoralInHopper();
 
@@ -194,6 +196,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
 
     go(state.position());
+    if(shootLust && (state != ElevArmState.Safe || state != ElevArmState.Intake)){
+      clawstate = ClawState.Vomit;
+    }
     clawMotor.setPercentOutput(clawstate.speed());
   }
 

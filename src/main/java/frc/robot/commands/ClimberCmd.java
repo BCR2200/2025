@@ -4,11 +4,11 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ClimberSubsystem.ClimbState;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ClimberPositionCmd extends Command {
+public class ClimberCmd extends Command {
   private final ClimberSubsystem climber;
   public ClimbState state;
 
-  public ClimberPositionCmd(ClimberSubsystem climber, ClimbState state) {
+  public ClimberCmd(ClimberSubsystem climber, ClimbState state) {
     this.climber = climber;
     this.state = state;
     addRequirements(climber);

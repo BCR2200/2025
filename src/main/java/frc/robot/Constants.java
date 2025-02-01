@@ -7,6 +7,10 @@ public class Constants {
     public static final int RIGHT_ELEVATOR_ID = 11;
     public static final int SHOULDER_ID = 12;
     public static final int CLIMBER_ID = 13;
+    public static final int PIGEON_ID = 14;
+    public static final int DRIVER_CONTROLLER_PORT = 0;
+    
+    public static final int PDP_ID = 1;
     
     public static final int CLIMBER_DOWN_HEIGHT = 0;
     public static final int CLIMBER_UP_HEIGHT = 0;

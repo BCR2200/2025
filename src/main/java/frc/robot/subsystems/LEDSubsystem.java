@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.ExtraMath;
+import frc.robot.RobotContainer;
+import frc.robot.RobotContainer.ControlMode;
 
 public class LEDSubsystem extends SubsystemBase implements Runnable {
     AddressableLED ledStrip;
@@ -34,6 +36,7 @@ public class LEDSubsystem extends SubsystemBase implements Runnable {
     Strip[] circleStripBack;
     Strip[] circleStripRight;
     Strip[][] circleStrips;
+
 
 
     LimelightSubsystem limelight;
@@ -74,11 +77,15 @@ public class LEDSubsystem extends SubsystemBase implements Runnable {
     SendableChooser<Integer> disableChooser;
     int tempDisabledMode;
     double fakeVUSaved = 0;
+    RobotContainer robot;
 
-    public LEDSubsystem(LimelightSubsystem limelight, PowerDistribution pdp, ElevClArmSubsystem arm) {
-        this.limelight = limelight;
-        this.pdp = pdp;
-        this.arm = arm;
+    public LEDSubsystem(RobotContainer robot) {
+        this.limelight = robot.limelightLeft;
+        this.pdp = robot.pdp;
+        this.arm = robot.e;
+        this.robot = robot;
+        
+
         // disabledMode = (int) (Math.random() * disabledModes);
         disabledMode = (int) (Math.random() * disabledModes);
 
@@ -286,6 +293,7 @@ public class LEDSubsystem extends SubsystemBase implements Runnable {
     public void run() {
         while (true) {
             synchronized (this) {
+                // if (robot.mode == Coral booom or something)
                 allianceCheck();
                 checkConditions();
                 priorityCheck();
