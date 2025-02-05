@@ -2,19 +2,22 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.ClawState;
+import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ShootCmd extends Command {
+public class RequesteStateCmd extends Command {
   private final ElevClArmSubsystem e;
+  private final RequestState state;
 
-  public ShootCmd(ElevClArmSubsystem e) {
+  public RequesteStateCmd(ElevClArmSubsystem e, RequestState state) {
     this.e = e;
+    this.state=state;
     addRequirements(e);
   }
 
   @Override
   public void initialize() {
-    e.shootLust = true;
+    e.requestState = state; 
   }
 
   @Override
@@ -22,7 +25,7 @@ public class ShootCmd extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    e.shootLust = false;
+    e.requestState = RequestState.None;
   }
 
 }
