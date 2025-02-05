@@ -522,9 +522,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
     if(state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2){
       go(state.position());
     } 
-    if (shootLust && (state != ElevArmState.SafeCoral || state != ElevArmState.Intake)) {
+    if(shootLust && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral && state != ElevArmState.Intake){
+      clawstate = ClawState.Poop;
+    }
+    if(shootLust && getEMode() == ControlMode.Algae && state != ElevArmState.SafeAlgae){
       clawstate = ClawState.Vomit;
     }
+
     clawMotor.setPercentOutput(clawstate.speed());
   }
 
