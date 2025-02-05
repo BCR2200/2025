@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.ElevClArmSubsystem;
-import frc.robot.subsystems.ElevClArmSubsystem.ClawState;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ShootCmd extends Command {

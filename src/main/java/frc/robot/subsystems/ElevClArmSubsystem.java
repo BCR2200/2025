@@ -504,18 +504,15 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     switch (state) { // in state what are we doing
       case Hopper:
+      case SafeCoral:
+      default:
         clawstate = ClawState.Stop________HammerTime;
         break;
       case Intake:
         clawstate = ClawState.Eat;
         break;
-      case SafeCoral:
-        clawstate = ClawState.Stop________HammerTime;
-        break;
       case SafeAlgae:
         clawstate = ClawState.EatAlgae;
-        break;
-      default:
         break;
     }
 
