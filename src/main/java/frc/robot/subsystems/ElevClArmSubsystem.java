@@ -31,9 +31,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public enum RequestState {
-    None, CoralLevel1, CoralLevel2, CoralLevel3, CoralLevel4, Barge, Processor, AlgaeBottom, AlgaeTop;
+    None, CoralLevel1, CoralLevel2, CoralLevel3, CoralLevel4, UnjamStrat1, UnjamStrat2, Barge, Processor, AlgaeBottom, AlgaeTop;
   }
-
+  
+ 
+   
   public enum ControlMode {
     Coral, Algae, Climb;
   }
@@ -52,11 +54,23 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(0, 0);
 
   public enum ElevArmState {
-    Hopper, Intake, SafeCoral, LvlOne, LvlTwo, LvlThree, LvlFour, SafeAlgae, PickBottom, PickTop, Barge, Processor,
+    Hopper, Intake, SafeCoral, 
+    UnjamStrat1, UnjamStrat2,
+    LvlOne, LvlTwo, LvlThree, LvlFour, 
+    LvlOneEMove, LvlTwoEMove, LvlThreeEMove, LvlFourEMove, 
+    SafeAlgae, PickBottom, PickTop, 
+    PickBottomEMove, PickTopEMove, Barge, BargeEMove, Processor,
     SafeClimb;
 
     public ElevArmPosition position() {
@@ -72,7 +86,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case LvlFour -> LVL4_POSITION;
         case PickBottom -> PICKBOTTOM_POSITION;
         case PickTop -> PICKTOP_POSITION;
+        case LvlOneEMove -> LVL1_EMOVE_POSITION;
+        case LvlTwoEMove -> LVL2_EMOVE_POSITION;
+        case LvlThreeEMove -> LVL3_EMOVE_POSITION;
+        case LvlFourEMove -> LVL4_EMOVE_POSITION;
+        case PickBottomEMove -> PICKBOTTOM_EMOVE_POSITION;
+        case PickTopEMove -> PICKTOP_EMOVE_POSITION;
         case Barge -> BARGE_POSITION;
+        case BargeEMove -> BARGE_EMOVE_POSITION;
         case Processor -> PROCESSOR_POSITION;
         default -> SAFE_CORAL_POSITION;
       };
@@ -180,31 +201,60 @@ public class ElevClArmSubsystem extends SubsystemBase {
           default:
             break;
         }
+        switch (requestState) {
+          case UnjamStrat1:
+            state = ElevArmState.UnjamStrat1;
+            break;
+          case UnjamStrat2:
+            state = ElevArmState.UnjamStrat2;
+            break;
+          default:
+            break;
+        }
         if (coralInHopper) {
           state = ElevArmState.Intake;
+        }
+        if (coralInClaw) {
+          state = ElevArmState.SafeCoral;
         }
         break;
       case Intake:
         if (coralInClaw) {
           state = ElevArmState.SafeCoral;
         }
+        switch (requestState) {
+          // case CoralLevel1:
+          //   state = ElevArmState.LvlOneEMove;
+          //   break;
+          // case CoralLevel2:
+          //   state = ElevArmState.LvlTwoEMove;
+          //   break;
+          // case CoralLevel3:
+          //   state = ElevArmState.LvlThreeEMove;
+          //   break;
+          // case CoralLevel4:
+          //   state = ElevArmState.LvlFourEMove;
+          //   break;
+          default:
+            break;
+        }
         break;
       case SafeCoral:
         if (!coralInClaw) {
-          state = ElevArmState.Hopper;
+          state = moveFromXToYIfAtPosition(state, ElevArmState.Hopper);
         }
         switch (requestState) {
           case CoralLevel1:
-            state = ElevArmState.LvlOne;
+            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlOneEMove);
             break;
           case CoralLevel2:
-            state = ElevArmState.LvlTwo;
+            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlTwoEMove);
             break;
           case CoralLevel3:
-            state = ElevArmState.LvlThree;
+            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlThreeEMove);
             break;
           case CoralLevel4:
-            state = ElevArmState.LvlFour;
+            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlFourEMove);
             break;
           default:
             break;
@@ -220,7 +270,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case SafeAlgae:
         switch (requestMode) {
           case Coral:
-            state = ElevArmState.Hopper;
+            state = moveFromXToYIfAtPosition(state,ElevArmState.Hopper);
             break;
           case Climb:
             state = ElevArmState.SafeClimb;
@@ -230,16 +280,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         switch (requestState) {
           case AlgaeTop:
-            state = ElevArmState.PickTop;
+            state = moveFromXToYIfAtPosition(state, ElevArmState.PickTopEMove);
             break;
           case AlgaeBottom:
-            state = ElevArmState.PickBottom;
+            state = moveFromXToYIfAtPosition(state, ElevArmState.PickBottomEMove);
             break;
           case Processor:
-            state = ElevArmState.Processor;
+            state = moveFromXToYIfAtPosition(state, ElevArmState.Processor);
             break;
           case Barge:
-            state = ElevArmState.Barge;
+            state = moveFromXToYIfAtPosition(state, ElevArmState.BargeEMove);
             break;
           default:
             break;
@@ -257,147 +307,197 @@ public class ElevClArmSubsystem extends SubsystemBase {
         break;
       case Barge:
         switch (requestState) {
-          case None:
-            state = ElevArmState.SafeAlgae;
-            break;
-          case AlgaeTop:
-            state = ElevArmState.PickTop;
-            break;
-          case AlgaeBottom:
-            state = ElevArmState.PickBottom;
-            break;
-          case Processor:
-            state = ElevArmState.Processor;
+          case Barge:
             break;
           default:
+            state = ElevArmState.BargeEMove;
             break;
         }
         break;
       case PickBottom:
         switch (requestState) {
-          case None:
-            state = ElevArmState.SafeAlgae;
-            break;
-          case AlgaeTop:
-            state = ElevArmState.PickTop;
-            break;
-          case Processor:
-            state = ElevArmState.Processor;
-            break;
-          case Barge:
-            state = ElevArmState.Barge;
+          case AlgaeBottom:
             break;
           default:
+            state = ElevArmState.PickBottomEMove;
             break;
         }
         break;
       case PickTop:
         switch (requestState) {
-          case None:
-            state = ElevArmState.SafeAlgae;
-            break;
-          case Barge:
-            state = ElevArmState.Barge;
-            break;
-          case AlgaeBottom:
-            state = ElevArmState.PickBottom;
-            break;
-          case Processor:
-            state = ElevArmState.Processor;
+          case AlgaeTop:
             break;
           default:
+            state = ElevArmState.PickTopEMove;
             break;
         }
         break;
       case Processor:
         switch (requestState) {
-          case None:
-            state = ElevArmState.SafeAlgae;
-            break;
-          case AlgaeTop:
-            state = ElevArmState.PickTop;
-            break;
-          case AlgaeBottom:
-            state = ElevArmState.PickBottom;
-            break;
-          case Barge:
-            state = ElevArmState.Barge;
+          case Processor:
             break;
           default:
+            state = ElevArmState.SafeAlgae;
             break;
         }
         break;
       case LvlOne:
         switch (requestState) {
-          case None:
-            state = ElevArmState.SafeCoral;
-            break;
-          case CoralLevel2:
-            state = ElevArmState.LvlTwo;
-            break;
-          case CoralLevel3:
-            state = ElevArmState.LvlThree;
-            break;
-          case CoralLevel4:
-            state = ElevArmState.LvlFour;
+          case CoralLevel1:
             break;
           default:
+            state = ElevArmState.LvlOneEMove;
             break;
         }
         break;
       case LvlTwo:
         switch (requestState) {
-          case None:
-            state = ElevArmState.SafeCoral;
-            break;
-          case CoralLevel1:
-            state = ElevArmState.LvlOne;
-            break;
-          case CoralLevel3:
-            state = ElevArmState.LvlThree;
-            break;
-          case CoralLevel4:
-            state = ElevArmState.LvlFour;
+          case CoralLevel2:
             break;
           default:
+            state = ElevArmState.LvlTwoEMove;
             break;
         }
         break;
       case LvlThree:
         switch (requestState) {
-          case None:
-            state = ElevArmState.SafeCoral;
-            break;
-          case CoralLevel1:
-            state = ElevArmState.LvlOne;
-            break;
-          case CoralLevel2:
-            state = ElevArmState.LvlTwo;
-            break;
-          case CoralLevel4:
-            state = ElevArmState.LvlFour;
+          case CoralLevel3:
             break;
           default:
+            state = ElevArmState.LvlThreeEMove;
             break;
         }
         break;
       case LvlFour:
         switch (requestState) {
-          case None:
-            state = ElevArmState.SafeCoral;
-            break;
-          case CoralLevel1:
-            state = ElevArmState.LvlOne;
-            break;
-          case CoralLevel2:
-            state = ElevArmState.LvlTwo;
-            break;
-          case CoralLevel3:
-            state = ElevArmState.LvlThree;
+          case CoralLevel4:
             break;
           default:
+            state = ElevArmState.LvlFourEMove;
             break;
         }
+        break;
+      case LvlOneEMove:
+        switch (requestState) {
+          case CoralLevel1:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlOne);
+            break;
+          case CoralLevel2:
+            state = ElevArmState.LvlTwoEMove;
+            break;
+          case CoralLevel3:
+            state = ElevArmState.LvlThreeEMove;
+          break;
+            case CoralLevel4:
+            state = ElevArmState.LvlFourEMove;
+            break;
+          default:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeCoral);
+            break;
+        }
+        break;
+      case LvlTwoEMove:
+        switch (requestState) {
+          case CoralLevel1:
+            state = ElevArmState.LvlOneEMove;
+            break;
+          case CoralLevel2:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlTwo);
+            break;
+          case CoralLevel3:
+            state = ElevArmState.LvlThreeEMove;
+          break;
+            case CoralLevel4:
+            state = ElevArmState.LvlFourEMove;
+            break;
+          default:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeCoral);
+            break;
+        }
+        break;
+      case LvlThreeEMove:
+        switch (requestState) {
+          case CoralLevel1:
+            state = ElevArmState.LvlOneEMove;
+            break;
+          case CoralLevel2:
+            state = ElevArmState.LvlTwoEMove;
+            break;
+          case CoralLevel3:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlThree);
+            break;
+          case CoralLevel4:
+            state = ElevArmState.LvlFourEMove;
+            break;
+          default:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeCoral);
+            break;
+        }
+        break;
+      case LvlFourEMove:
+        switch (requestState) {
+          case CoralLevel1:
+            state = ElevArmState.LvlOneEMove;
+            break;
+          case CoralLevel2:
+            state = ElevArmState.LvlTwoEMove;
+            break;
+          case CoralLevel3:
+            state = ElevArmState.LvlThreeEMove;
+          break;
+            case CoralLevel4:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlFour);
+            break;
+          default:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeCoral);
+            break;
+        }
+        break;
+      case PickBottomEMove:
+        switch (requestState){
+          case AlgaeTop:
+            state = ElevArmState.PickTopEMove;
+            break;
+          case AlgaeBottom:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.PickBottom);
+            break;
+          default:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeAlgae);
+            break;
+        }
+        break;
+      case PickTopEMove:
+        switch (requestState){
+          case AlgaeTop:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.PickTop);
+            break;
+          case AlgaeBottom:
+            state = ElevArmState.PickBottomEMove;
+            break;
+          default:
+            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeAlgae);
+            break;
+        }
+        break;
+      case UnjamStrat1:
+        switch (requestState) {
+          case UnjamStrat1:
+            break;
+          default:
+            state = ElevArmState.Hopper;
+            break;
+        }
+      case UnjamStrat2:
+        switch (requestState) {
+          case UnjamStrat2:
+            break;
+          default:
+            state=ElevArmState.Hopper;
+            break;
+        // if stuck in unjam position check out
+        }
+        break;
+      default:
         break;
       
     }
@@ -419,7 +519,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
         break;
     }
 
-    go(state.position());
+    if(state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2){
+      go(state.position());
+    } 
     if (shootLust && (state != ElevArmState.SafeCoral || state != ElevArmState.Intake)) {
       clawstate = ClawState.Vomit;
     }
@@ -479,6 +581,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
     return !hopperBeamBreak.get();
   }
 
+  public ElevArmState moveFromXToYIfAtPosition(ElevArmState x, ElevArmState y) {
+    if (atPosition()) {
+      return y;
+    }
+    return x;
+  }
+
   public boolean isCoralInClaw() {
     return !clawBeamBreak.get();
   }
@@ -505,13 +614,21 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case LvlTwo:
       case LvlThree:
       case LvlFour:
+      case LvlOneEMove:
+      case LvlTwoEMove:
+      case LvlThreeEMove:
+      case LvlFourEMove:
+      case UnjamStrat1:
+      case UnjamStrat2:
         return ControlMode.Coral;
 
       case Processor:
       case Barge:
-      case PickBottom:
-      case PickTop:
       case SafeAlgae:
+      case PickTop:
+      case PickBottom:
+      case PickTopEMove:
+      case PickBottomEMove:
         return ControlMode.Algae;
 
       case SafeClimb:
