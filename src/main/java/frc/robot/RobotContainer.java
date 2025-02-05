@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.commands.ShootCmd;
-import frc.robot.commands.RequesteStateCmd;
 import frc.robot.input.AnalogTrigger;
 import frc.robot.input.Keybind;
 import frc.robot.input.AnalogTrigger.Axis;
@@ -24,7 +23,6 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PigeonSubsystem;
 import frc.robot.subsystems.ClimberSubsystem.ClimbState;
-import frc.robot.subsystems.ElevClArmSubsystem.ClawState;
 import frc.robot.subsystems.ElevClArmSubsystem.ControlMode;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 
@@ -137,7 +135,7 @@ public class RobotContainer {
     //unjam
     leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
       .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat1));
-      
+
     // reg drive
     // snap to reef left
     // snap to reef right

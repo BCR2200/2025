@@ -241,20 +241,20 @@ public class ElevClArmSubsystem extends SubsystemBase {
         break;
       case SafeCoral:
         if (!coralInClaw) {
-          state = moveFromXToYIfAtPosition(state, ElevArmState.Hopper);
+          state = conditionalTransition(state, ElevArmState.Hopper);
         }
         switch (requestState) {
           case CoralLevel1:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlOneEMove);
+            state = conditionalTransition(state, ElevArmState.LvlOneEMove);
             break;
           case CoralLevel2:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlTwoEMove);
+            state = conditionalTransition(state, ElevArmState.LvlTwoEMove);
             break;
           case CoralLevel3:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlThreeEMove);
+            state = conditionalTransition(state, ElevArmState.LvlThreeEMove);
             break;
           case CoralLevel4:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlFourEMove);
+            state = conditionalTransition(state, ElevArmState.LvlFourEMove);
             break;
           default:
             break;
@@ -270,7 +270,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case SafeAlgae:
         switch (requestMode) {
           case Coral:
-            state = moveFromXToYIfAtPosition(state,ElevArmState.Hopper);
+            state = conditionalTransition(state,ElevArmState.Hopper);
             break;
           case Climb:
             state = ElevArmState.SafeClimb;
@@ -280,16 +280,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         switch (requestState) {
           case AlgaeTop:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.PickTopEMove);
+            state = conditionalTransition(state, ElevArmState.PickTopEMove);
             break;
           case AlgaeBottom:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.PickBottomEMove);
+            state = conditionalTransition(state, ElevArmState.PickBottomEMove);
             break;
           case Processor:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.Processor);
+            state = conditionalTransition(state, ElevArmState.Processor);
             break;
           case Barge:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.BargeEMove);
+            state = conditionalTransition(state, ElevArmState.BargeEMove);
             break;
           default:
             break;
@@ -380,7 +380,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case LvlOneEMove:
         switch (requestState) {
           case CoralLevel1:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlOne);
+            state = conditionalTransition(state, ElevArmState.LvlOne);
             break;
           case CoralLevel2:
             state = ElevArmState.LvlTwoEMove;
@@ -392,7 +392,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.LvlFourEMove;
             break;
           default:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeCoral);
+            state = conditionalTransition(state, ElevArmState.SafeCoral);
             break;
         }
         break;
@@ -402,7 +402,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.LvlOneEMove;
             break;
           case CoralLevel2:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlTwo);
+            state = conditionalTransition(state, ElevArmState.LvlTwo);
             break;
           case CoralLevel3:
             state = ElevArmState.LvlThreeEMove;
@@ -411,7 +411,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.LvlFourEMove;
             break;
           default:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeCoral);
+            state = conditionalTransition(state, ElevArmState.SafeCoral);
             break;
         }
         break;
@@ -424,13 +424,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.LvlTwoEMove;
             break;
           case CoralLevel3:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlThree);
+            state = conditionalTransition(state, ElevArmState.LvlThree);
             break;
           case CoralLevel4:
             state = ElevArmState.LvlFourEMove;
             break;
           default:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeCoral);
+            state = conditionalTransition(state, ElevArmState.SafeCoral);
             break;
         }
         break;
@@ -446,10 +446,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.LvlThreeEMove;
           break;
             case CoralLevel4:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.LvlFour);
+            state = conditionalTransition(state, ElevArmState.LvlFour);
             break;
           default:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeCoral);
+            state = conditionalTransition(state, ElevArmState.SafeCoral);
             break;
         }
         break;
@@ -459,23 +459,23 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.PickTopEMove;
             break;
           case AlgaeBottom:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.PickBottom);
+            state = conditionalTransition(state, ElevArmState.PickBottom);
             break;
           default:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeAlgae);
+            state = conditionalTransition(state, ElevArmState.SafeAlgae);
             break;
         }
         break;
       case PickTopEMove:
         switch (requestState){
           case AlgaeTop:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.PickTop);
+            state = conditionalTransition(state, ElevArmState.PickTop);
             break;
           case AlgaeBottom:
             state = ElevArmState.PickBottomEMove;
             break;
           default:
-            state = moveFromXToYIfAtPosition(state, ElevArmState.SafeAlgae);
+            state = conditionalTransition(state, ElevArmState.SafeAlgae);
             break;
         }
         break;
@@ -585,11 +585,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
     return !hopperBeamBreak.get();
   }
 
-  public ElevArmState moveFromXToYIfAtPosition(ElevArmState x, ElevArmState y) {
+  public ElevArmState conditionalTransition(ElevArmState from, ElevArmState to) {
     if (atPosition()) {
-      return y;
+      return to;
     }
-    return x;
+    return from;
   }
 
   public boolean isCoralInClaw() {
