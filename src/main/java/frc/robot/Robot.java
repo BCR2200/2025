@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.ClimberSubsystem;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -23,13 +24,16 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+  }
 
   @Override
   public void autonomousInit() {
@@ -41,10 +45,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+  }
 
   @Override
   public void teleopInit() {
@@ -54,10 +60,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+  }
 
   @Override
   public void testInit() {
@@ -65,8 +73,39 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    if (m_robotContainer.driverController.getHID().getPOV() == 0) {
+      m_robotContainer.e.leftElevatorMotor.setPercentOutput(0.1);
+    } else if (m_robotContainer.driverController.getHID().getPOV() == 180) {
+      m_robotContainer.e.leftElevatorMotor.setPercentOutput(-0.1);
+    }
+
+    if (m_robotContainer.driverController.getHID().getPOV() == 270) {
+      m_robotContainer.e.rightElevatorMotor.setPercentOutput(-0.1);
+    } else if (m_robotContainer.driverController.getHID().getPOV() == 90) {
+      m_robotContainer.e.rightElevatorMotor.setPercentOutput(0.1);
+    }
+
+    if (m_robotContainer.driverController.getHID().getXButton()) {
+      m_robotContainer.e.shoulderMotor.setPercentOutput(0.1);
+    } else if (m_robotContainer.driverController.getHID().getAButton()) {
+      m_robotContainer.e.shoulderMotor.setPercentOutput(-0.1);
+    }
+
+    if (m_robotContainer.driverController.getHID().getYButton()) {
+      m_robotContainer.climber.climbMotor.setPercentOutput(0.1);
+    } else if (m_robotContainer.driverController.getHID().getBButton()) {
+      m_robotContainer.climber.climbMotor.setPercentOutput(-0.1);
+    }
+
+    if (m_robotContainer.driverController.getHID().getRightTriggerAxis() > 0.1) {
+      m_robotContainer.e.clawMotor.setPercentOutput(0.1);
+    } else if (m_robotContainer.driverController.getHID().getLeftTriggerAxis() > 0.1) {
+      m_robotContainer.e.clawMotor.setPercentOutput(-0.1);
+    }
+  }
 
   @Override
-  public void testExit() {}
+  public void testExit() {
+  }
 }

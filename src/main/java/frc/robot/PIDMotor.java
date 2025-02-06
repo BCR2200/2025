@@ -95,8 +95,8 @@ public class PIDMotor {
             resetAll();
             sleep();
             // TODO: Once we are sure that all the motors are going in the right direction, set a reasonable current
-            //  limit for all motors and remove following line.
-            setCurrentLimit(20);
+            // limit for all motors and remove following line.
+            setCurrentLimit(10);
             sleep();
             putPIDF();
             sleep();

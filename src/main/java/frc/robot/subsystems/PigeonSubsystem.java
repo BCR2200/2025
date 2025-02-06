@@ -22,7 +22,7 @@ public class PigeonSubsystem extends SubsystemBase {
   public void periodic() {
     try {
       updateValues();
-      // printDashboard();
+      printDashboard();
     } catch (Exception e) {
       // SmartDashboard.putString("CTRE Last Error", e.getMessage());
     }

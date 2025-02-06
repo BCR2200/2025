@@ -6,7 +6,7 @@ import frc.robot.Constants;
 import frc.robot.PIDMotor;
 
 public class ClimberSubsystem extends SubsystemBase {
-    public PIDMotor climbMotor = PIDMotor.makeMotor(Constants.CLIMBER_ID, "Climber", 0, 0, 0, 0,0,0,0,0,0);
+    public PIDMotor climbMotor;
 
     public enum ClimbState {
         Down, Up;
@@ -21,7 +21,8 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public ClimberSubsystem() {
-        climbMotor.setCurrentLimit(30);
+        climbMotor = PIDMotor.makeMotor(Constants.CLIMBER_ID, "climber", 0, 0, 0, 0,0,0,0,0,0);
+        // climbMotor.setCurrentLimit(30);
     }
 
     /**
@@ -62,5 +63,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void printDashboard() {
         SmartDashboard.putBoolean("Climber At Position", this.atPosition());
+        climbMotor.putPIDF();
+        climbMotor.putPV();
     }
 }

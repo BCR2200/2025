@@ -28,13 +28,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
       this.elevatorPos = elevatorPos;
       this.armPos = armPos;
     }
+
+    @Override
+    public String toString() {
+        return "{E: " + elevatorPos + " A: " + armPos + "}";
+    }
   }
 
   public enum RequestState {
     None, CoralLevel1, CoralLevel2, CoralLevel3, CoralLevel4, UnjamStrat1, UnjamStrat2, Barge, Processor, AlgaeBottom, AlgaeTop;
   }
-  
- 
    
   public enum ControlMode {
     Coral, Algae, Climb;
@@ -128,36 +131,23 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   // see images\ZoneDiagram.png
-  public Zone zone1 = new Zone(1, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
-  public Zone zone2 = new Zone(2, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
-  public Zone zone3 = new Zone(3, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
-  public Zone zone4 = new Zone(4, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
-  public Zone zone5 = new Zone(5, new ElevArmPosition(1, 1), new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
+  // bad zones, should never go
+  public Zone armHitElevator = new Zone(new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
+  public Zone armHitBumper = new Zone(new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
 
   public static final class Zone {
-    final public int zoneIndex;
     final public ElevArmPosition min;
     final public ElevArmPosition max;
-    final public ElevArmPosition safe;
 
-    public Zone(int zone, ElevArmPosition min, ElevArmPosition max, ElevArmPosition safe) {
+    public Zone(ElevArmPosition min, ElevArmPosition max) {
       if (max.elevatorPos < min.elevatorPos) {
         throw new UncheckedIOException("Elevator max is less than min", null);
       }
       if (max.armPos < min.armPos) {
         throw new UncheckedIOException("Arm max is less than min", null);
       }
-      if (safe.elevatorPos > max.elevatorPos || safe.elevatorPos < min.elevatorPos) {
-        throw new UncheckedIOException("Elevator safe position is greater than max or less than min", null);
-      }
-      if (safe.armPos > max.armPos || safe.armPos < min.armPos) {
-        throw new UncheckedIOException("Arm safe position is greater than max or less than min", null);
-      }
-
-      zoneIndex = zone;
       this.min = min;
       this.max = max;
-      this.safe = safe;
     }
 
     public boolean isItIn(ElevArmPosition position) {
@@ -170,14 +160,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
     leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 0, 0, 0, 0, 0, 0, 0, 0, 0);
     rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 0, 0, 0, 0, 0, 0, 0, 0, 0);
     shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    
     leftElevatorMotor.follow(rightElevatorMotor, true);
 
-    leftElevatorMotor.setCurrentLimit(30);
-    rightElevatorMotor.setCurrentLimit(30);
-    shoulderMotor.setCurrentLimit(30);
-
-    clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    clawMotor.setCurrentLimit(30);
+    // leftElevatorMotor.setCurrentLimit(30);
+    // rightElevatorMotor.setCurrentLimit(30);
+    // shoulderMotor.setCurrentLimit(30);
+    // clawMotor.setCurrentLimit(30);
 
     clawBeamBreak = new DigitalInput(Constants.CLAW_BREAK_ID);
     hopperBeamBreak = new DigitalInput(Constants.HOPPER_ID);
@@ -185,6 +175,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    printDashboard();
     // if arm back, claws forward tracker
     boolean coralInClaw = !isCoralInClaw();
     boolean coralInHopper = !isCoralInHopper();
@@ -533,44 +524,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public void go(ElevArmPosition goal) {
     ElevArmPosition currentElevArmPos = new ElevArmPosition(rightElevatorMotor.getPosition(),
         shoulderMotor.getPosition());
-    Zone[] zones = { zone1, zone2, zone3, zone4, zone5 };
-    Zone currentZone = null;
-    for (Zone zone : zones) {
-      if (zone.isItIn(currentElevArmPos)) {
-        currentZone = zone;
-        break;
-      }
-    }
-    if (currentZone == null) {
-      System.out.println("What are you doing? CurrentElevArmPos isn't in a zone??");
-      return;
-    }
+    // Zone[] zones = { armHitElevator, armHitBumper };
 
-    Zone targetZone = null;
-    for (Zone zone : zones) {
-      if (zone.isItIn(goal)) {
-        targetZone = zone;
-        break;
-      }
-    }
-    if (targetZone == null) {
-      System.out.println("What are you doing? Target isn't in a zone??");
-      return;
-    }
-
-    int currentZoneIndex = currentZone.zoneIndex;
-    int targetZoneIndex = targetZone.zoneIndex;
-
-    // if not in the correct zone/adjacent zone
-    if (Math.abs(currentZoneIndex - targetZoneIndex) > 1) {
-      int nextZoneIndex = currentZoneIndex < targetZoneIndex ? currentZoneIndex + 1 : currentZoneIndex - 1;
-      Zone nextZone = zones[nextZoneIndex];
-
-      // go to triangle (safe) spots
-      rightElevatorMotor.setTarget(nextZone.safe.elevatorPos);
-      shoulderMotor.setTarget(nextZone.safe.armPos);
-
-      // wait for movement (next iteration of periodic()
+    if(armHitElevator.isItIn(goal) || armHitBumper.isItIn(goal)){
+      // DO NOT GO - Default to Safe
+      rightElevatorMotor.setTarget(SAFE_CORAL_POSITION.elevatorPos);
+      shoulderMotor.setTarget(SAFE_CORAL_POSITION.armPos);
+      System.out.println("Tried to kill itself! Current Position: " + currentElevArmPos.toString() + " Goal Position: " + goal.toString());
     } else {
       // in target or adjacent zone, move to direct
       rightElevatorMotor.setTarget(goal.elevatorPos);
@@ -639,11 +599,24 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public void printDashboard() {
     SmartDashboard.putString("ElevArm State:", state.toString());
+    SmartDashboard.putString("Requested State:", requestState.toString());
+
     SmartDashboard.putString("Control Mode:", getEMode().toString());
+    SmartDashboard.putString("Requested Mode:", requestMode.toString());
     SmartDashboard.putString("Claw State:", clawstate.toString());
+    SmartDashboard.putBoolean("Want to Shoot:", shootLust);
+
     SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHopper());
     SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
+
+    leftElevatorMotor.putPIDF();
+    rightElevatorMotor.putPIDF();
+    shoulderMotor.putPIDF();
     clawMotor.putPIDF();
+    
+    leftElevatorMotor.putPV();
+    rightElevatorMotor.putPV();
+    shoulderMotor.putPV();
     clawMotor.putPV();
   }
 }

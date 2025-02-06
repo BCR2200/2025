@@ -19,7 +19,7 @@ public class LimelightSubsystem extends SubsystemBase implements Runnable {
 
   @Override
   public void periodic() {
-    printDashboard();
+
   }
 
   String dashboardKey() {
@@ -32,7 +32,8 @@ public class LimelightSubsystem extends SubsystemBase implements Runnable {
       SmartDashboard.putNumber(dashboardKey() + "TX", tagTx);
       SmartDashboard.putNumber(dashboardKey() + "TY", tagTy);
       // SmartDashboard.putBoolean(dashboardKey() + "TV", tagTv);
-      // SmartDashboard.putBoolean(dashboardKey() + "Rotation Enabled", limelightRotation);
+      // SmartDashboard.putBoolean(dashboardKey() + "Rotation Enabled",
+      // limelightRotation);
     }
   }
 
@@ -52,6 +53,8 @@ public class LimelightSubsystem extends SubsystemBase implements Runnable {
         Thread.sleep(10);
       } catch (InterruptedException iex) {
       }
+
+      printDashboard();
     }
   }
 }
