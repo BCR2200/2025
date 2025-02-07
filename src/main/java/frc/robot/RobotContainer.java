@@ -82,6 +82,7 @@ public class RobotContainer {
     // processor (just shoot in safe?) maybe default to processor rather than
     // algaesafe
     rightTrigger = new AnalogTrigger(driverController, Axis.RT, 0.5);
+    leftTrigger = new AnalogTrigger(driverController, Axis.LT, 0.5);
 
     // select modes
     selectButton.trigger().and(startButton.trigger())

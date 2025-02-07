@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.*;
@@ -22,7 +23,7 @@ public class PIDMotor {
      * not used (YET):
      * g - output to overcome gravity (output)
      */
-    double p, i, d, s, v, a;
+    double p, i, d, s, v, a, g;
     double maxV;
     double maxA;
     double maxJerk;
@@ -33,7 +34,7 @@ public class PIDMotor {
     final TalonFXConfiguration talonFXConfigs;
     final TalonFX motor;
 
-    private PIDMotor(int deviceID, String name, double p, double i, double d, double s, double v, double a, double maxV,
+    private PIDMotor(int deviceID, String name, double p, double i, double d, double s, double v, double a, double g, double maxV,
             double maxA, double maxJerk) {
         this.name = name;
         this.p = p;
@@ -42,11 +43,12 @@ public class PIDMotor {
         this.s = s;
         this.v = v;
         this.a = a;
+        this.g = g;
         this.maxV = maxV;
         this.maxA = maxA;
         this.maxJerk = maxJerk;
 
-        motor = new TalonFX(deviceID);
+        motor = new TalonFX(deviceID, "*");
         talonFXConfigs = new TalonFXConfiguration();
     }
 
@@ -70,7 +72,12 @@ public class PIDMotor {
      */
     public static PIDMotor makeMotor(int deviceID, String name, double p, double i, double d, double s, double v,
             double a, double maxV, double maxA, double maxJerk) {
-        PIDMotor motor = new PIDMotor(deviceID, name, p, i, d, s, v, a, maxV, maxA, maxJerk);
+        return makeMotor(deviceID, name, p, i, d, s, v, a, 0, maxV, maxA, maxJerk);
+    }
+
+    public static PIDMotor makeMotor(int deviceID, String name, double p, double i, double d, double s, double v,
+            double a, double g, double maxV, double maxA, double maxJerk) {
+        PIDMotor motor = new PIDMotor(deviceID, name, p, i, d, s, v, a, g, maxV, maxA, maxJerk);
         motor.init();
         System.out.println("Finished initializing " + name);
         return motor;
@@ -96,14 +103,13 @@ public class PIDMotor {
             sleep();
             // TODO: Once we are sure that all the motors are going in the right direction, set a reasonable current
             // limit for all motors and remove following line.
-            setCurrentLimit(10);
+            setCurrentLimit(1);
             sleep();
             putPIDF();
             sleep();
             updatePIDF();
             sleep();
-            motor.setNeutralMode(NeutralModeValue.Brake);
-            setIdleBrakeMode();
+            setIdleCoastMode();
             initialized = true;
         }
     }
@@ -200,6 +206,7 @@ public class PIDMotor {
         talonFXConfigs.Slot0.kS = s; // Add 0.25 V output to overcome static friction
         talonFXConfigs.Slot0.kV = v; // A velocity target of 1 rps results in 0.12 V output
         talonFXConfigs.Slot0.kA = a; // An acceleration of 1 rps/s requires 0.01 V output
+        talonFXConfigs.Slot0.kG = g;
 
         // set Motion Magic settings
         var motionMagicConfigs = talonFXConfigs.MotionMagic;
@@ -259,7 +266,7 @@ public class PIDMotor {
      * 
      * @param state Whether or not to make this motor inverted.
      */
-    public void setInverted(boolean state) {
+    public void setInverted() {
         // motor.setInverted(state);
         motor.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
     }

@@ -46,26 +46,26 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public RequestState requestState;
   public ControlMode requestMode;
 
-  public final static ElevArmPosition FUNNEL_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition SAFE_CLIMB_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, 21);
+  public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(5, 45);
+  public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
+  public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(28, 45);
+  public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(5, 25);
+  public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(28, 25);
+  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(70, 36);
+  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(28, 41);
+  public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(50, 41);
+  public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(28, 21);
+  public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(5, 21);
+  public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(28, 21);
+  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(70, 21);
+  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(28, 41);
+  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(50, 41);
+  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(70, 21);
+  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(70, 41);
+  public final static ElevArmPosition PROCESSOR_POSITION = SAFE_ALGAE_POSITION;
 
   public enum ElevArmState {
     Hopper, Intake, SafeCoral, 
@@ -78,7 +78,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     public ElevArmPosition position() {
       return switch (this) {
-        case Hopper -> FUNNEL_POSITION;
+        case Hopper -> HOPPER_POSITION;
         case Intake -> INTAKE_POSITION;
         case SafeCoral -> SAFE_CORAL_POSITION;
         case SafeAlgae -> SAFE_ALGAE_POSITION;
@@ -112,7 +112,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public DigitalInput hopperBeamBreak;
 
   private ClawState clawstate = ClawState.Stop________HammerTime;
-  private ElevArmState state = ElevArmState.SafeCoral;
+  private ElevArmState state = ElevArmState.Hopper;
   public boolean shootLust = false;
 
   public enum ClawState {
@@ -157,28 +157,32 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public ElevClArmSubsystem() {
-    leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 40, 100, 0);
+    rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 40, 100, 0);
+    shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 2, 0, 0.1, 0.25, 0.12, 0.01, 40, 100, 0);
     clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    clawMotor.setInverted();
     
     leftElevatorMotor.follow(rightElevatorMotor, true);
 
-    // leftElevatorMotor.setCurrentLimit(30);
-    // rightElevatorMotor.setCurrentLimit(30);
-    // shoulderMotor.setCurrentLimit(30);
+    leftElevatorMotor.setCurrentLimit(15);
+    rightElevatorMotor.setCurrentLimit(15);
+    shoulderMotor.setCurrentLimit(10);
     // clawMotor.setCurrentLimit(30);
 
     clawBeamBreak = new DigitalInput(Constants.CLAW_BREAK_ID);
     hopperBeamBreak = new DigitalInput(Constants.HOPPER_ID);
+    requestState = RequestState.None;
+    requestMode = ControlMode.Coral;
+    
   }
 
   @Override
   public void periodic() {
     printDashboard();
     // if arm back, claws forward tracker
-    boolean coralInClaw = !isCoralInClaw();
-    boolean coralInHopper = !isCoralInHopper();
+    boolean coralInClaw = isCoralInClaw();
+    boolean coralInHopper = isCoralInHopper();
 
     switch (state) { // state transitions
       case Hopper:

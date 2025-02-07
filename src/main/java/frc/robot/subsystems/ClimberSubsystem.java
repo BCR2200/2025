@@ -22,7 +22,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public ClimberSubsystem() {
         climbMotor = PIDMotor.makeMotor(Constants.CLIMBER_ID, "climber", 0, 0, 0, 0,0,0,0,0,0);
-        // climbMotor.setCurrentLimit(30);
+        climbMotor.setCurrentLimit(1);
     }
 
     /**
