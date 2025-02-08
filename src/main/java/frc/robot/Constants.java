@@ -18,6 +18,6 @@ public class Constants {
     public static final int LED_STRIP_ID = 0;
 
     //Digital IO
-    public static final int HOPPER_ID = 2;
-    public static final int CLAW_BREAK_ID = 1;
+    public static final int HOPPER_ID = 1;
+    public static final int CLAW_BREAK_ID = 26;
 }

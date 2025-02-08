@@ -103,7 +103,7 @@ public class PIDMotor {
             sleep();
             // TODO: Once we are sure that all the motors are going in the right direction, set a reasonable current
             // limit for all motors and remove following line.
-            setCurrentLimit(10);
+            setCurrentLimit(11);
             sleep();
             putPIDF();
             sleep();
@@ -243,7 +243,7 @@ public class PIDMotor {
     public void setTarget(double target) {
         this.target = target;
         
-        final MotionMagicExpoVoltage m_request = new MotionMagicExpoVoltage(target);
+        final MotionMagicVoltage m_request = new MotionMagicVoltage(target);
 
         // set target position to target rotations
         motor.setControl(m_request);
@@ -266,9 +266,9 @@ public class PIDMotor {
      * 
      * @param state Whether or not to make this motor inverted.
      */
-    public void setInverted() {
+    public void setInverted(InvertedValue value) {
         // motor.setInverted(state);
-        talonFXConfigs.MotorOutput = new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive);
+        talonFXConfigs.MotorOutput = new MotorOutputConfigs().withInverted(value);
         motor.getConfigurator().apply(talonFXConfigs);
     }
 
