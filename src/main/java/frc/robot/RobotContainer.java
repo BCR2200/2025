@@ -73,8 +73,10 @@ public class RobotContainer {
     AnalogTrigger rightTrigger;
     AnalogTrigger leftTrigger;
 
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
+    double speedFactor = 0.2;
+
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor; // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor; // 3/4 of a rotation per second
                                                                                       // max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -184,8 +186,8 @@ public class RobotContainer {
                 ));
 
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        // driverController.b().whileTrue(drivetrain.applyRequest(
-                // () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
+        // driverController.leftTrigger().whileTrue(drivetrain.applyRequest(
+        //         () -> point.withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.

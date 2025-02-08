@@ -4,7 +4,13 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.Utils;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -14,13 +20,51 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
+  final Field2d m_field = new Field2d();
+  final Field2d m_field2 = new Field2d();
+
   public Robot() {
     m_robotContainer = new RobotContainer();
+    // Do this in either robot or subsystem init
+    SmartDashboard.putData("Field", m_field);
+    SmartDashboard.putData("Field Limelight", m_field2);
+
+    var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
+    m_robotContainer.drivetrain.resetPose(llMeasurement.pose);
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    
+    
+    /*
+    * This example of adding Limelight is very simple and may not be sufficient for on-field use.
+     * Users typically need to provide a standard deviation that scales with the distance to target
+     * and changes with number of tags available.
+     *
+     * This example is sufficient to show that vision integration is possible, though exact implementation
+     * of how to use vision should be tuned per-robot and to the team's specification.
+     */
+    
+     var driveState = m_robotContainer.drivetrain.getState();
+     
+     
+     double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+     
+     var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
+     m_field.setRobotPose(driveState.Pose);
+     m_field2.setRobotPose(llMeasurement.pose);
+     if (llMeasurement != null && llMeasurement.tagCount > 0 && omegaRps < 2.0) {
+       m_robotContainer.drivetrain.addVisionMeasurement(llMeasurement.pose, Utils.fpgaToCurrentTime(llMeasurement.timestampSeconds));
+      }
+     var llMeasurementRight = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-right");
+     m_field.setRobotPose(driveState.Pose);
+    //  m_field2.setRobotPose(llMeasurementRight.pose);
+     if (llMeasurementRight != null && llMeasurementRight.tagCount > 0 && omegaRps < 2.0) {
+       m_robotContainer.drivetrain.addVisionMeasurement(llMeasurementRight.pose, Utils.fpgaToCurrentTime(llMeasurementRight.timestampSeconds));
+      }
+
   }
 
   @Override
