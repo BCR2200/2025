@@ -8,7 +8,7 @@ public class ShootCmd extends Command {
 
   public ShootCmd(ElevClArmSubsystem e) {
     this.e = e;
-    // addRequirements(e);
+    // do not require, sets position to none lol
   }
 
   @Override
