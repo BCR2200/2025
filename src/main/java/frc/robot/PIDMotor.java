@@ -103,7 +103,7 @@ public class PIDMotor {
             sleep();
             // TODO: Once we are sure that all the motors are going in the right direction, set a reasonable current
             // limit for all motors and remove following line.
-            setCurrentLimit(1);
+            setCurrentLimit(10);
             sleep();
             putPIDF();
             sleep();
@@ -268,7 +268,8 @@ public class PIDMotor {
      */
     public void setInverted() {
         // motor.setInverted(state);
-        motor.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
+        talonFXConfigs.MotorOutput = new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive);
+        motor.getConfigurator().apply(talonFXConfigs);
     }
 
     /**
@@ -318,8 +319,9 @@ public class PIDMotor {
         // enable stator current limit
         limitConfigs.StatorCurrentLimit = limit;
         limitConfigs.StatorCurrentLimitEnable = true;
+        talonFXConfigs.CurrentLimits = limitConfigs;
 
-        motor.getConfigurator().apply(limitConfigs);
+        motor.getConfigurator().apply(talonFXConfigs);
     }
 
     public double getCurrent() {

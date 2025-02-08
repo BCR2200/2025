@@ -2,6 +2,9 @@ package frc.robot.subsystems;
 
 import java.io.UncheckedIOException;
 
+import com.ctre.phoenix6.configs.CANdiConfiguration;
+import com.ctre.phoenix6.hardware.CANdi;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,14 +34,15 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     @Override
     public String toString() {
-        return "{E: " + elevatorPos + " A: " + armPos + "}";
+      return "{E: " + elevatorPos + " A: " + armPos + "}";
     }
   }
 
   public enum RequestState {
-    None, CoralLevel1, CoralLevel2, CoralLevel3, CoralLevel4, UnjamStrat1, UnjamStrat2, Barge, Processor, AlgaeBottom, AlgaeTop;
+    None, CoralLevel1, CoralLevel2, CoralLevel3, CoralLevel4, UnjamStrat1, UnjamStrat2, Barge, Processor, AlgaeBottom,
+    AlgaeTop;
   }
-   
+
   public enum ControlMode {
     Coral, Algae, Climb;
   }
@@ -50,6 +54,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, 21);
   public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(5, 45);
+  public final static ElevArmPosition CORGAE_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(28, 45);
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(5, 25);
@@ -68,11 +73,12 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition PROCESSOR_POSITION = SAFE_ALGAE_POSITION;
 
   public enum ElevArmState {
-    Hopper, Intake, SafeCoral, 
+    Hopper, Intake, SafeCoral,
     UnjamStrat1, UnjamStrat2,
-    LvlOne, LvlTwo, LvlThree, LvlFour, 
-    LvlOneEMove, LvlTwoEMove, LvlThreeEMove, LvlFourEMove, 
-    SafeAlgae, PickBottom, PickTop, 
+    LvlOne, LvlTwo, LvlThree, LvlFour,
+    LvlOneEMove, LvlTwoEMove, LvlThreeEMove, LvlFourEMove,
+    CorgaeTransition,
+    SafeAlgae, PickBottom, PickTop,
     PickBottomEMove, PickTopEMove, Barge, BargeEMove, Processor,
     SafeClimb;
 
@@ -81,6 +87,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case Hopper -> HOPPER_POSITION;
         case Intake -> INTAKE_POSITION;
         case SafeCoral -> SAFE_CORAL_POSITION;
+        case CorgaeTransition -> CORGAE_POSITION;
         case SafeAlgae -> SAFE_ALGAE_POSITION;
         case SafeClimb -> SAFE_CLIMB_POSITION;
         case LvlOne -> LVL1_POSITION;
@@ -108,8 +115,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public PIDMotor shoulderMotor;
   public PIDMotor clawMotor;
 
-  public DigitalInput clawBeamBreak;
   public DigitalInput hopperBeamBreak;
+  public CANdi clawBeamBreak;
 
   private ClawState clawstate = ClawState.Stop________HammerTime;
   private ElevArmState state = ElevArmState.Hopper;
@@ -157,12 +164,15 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public ElevClArmSubsystem() {
-    leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 40, 100, 0);
-    rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 40, 100, 0);
+
+    leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2, 0, 0.1, 0.25, 0.12, 0.01,
+        0.2, 40, 100, 0);
+    rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2, 0, 0.1, 0.25, 0.12, 0.01,
+        0.2, 40, 100, 0);
     shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 2, 0, 0.1, 0.25, 0.12, 0.01, 40, 100, 0);
     clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 0, 0, 0, 0, 0, 0, 0, 0, 0);
     clawMotor.setInverted();
-    
+
     leftElevatorMotor.follow(rightElevatorMotor, true);
 
     leftElevatorMotor.setCurrentLimit(15);
@@ -170,11 +180,15 @@ public class ElevClArmSubsystem extends SubsystemBase {
     shoulderMotor.setCurrentLimit(10);
     // clawMotor.setCurrentLimit(30);
 
-    clawBeamBreak = new DigitalInput(Constants.CLAW_BREAK_ID);
     hopperBeamBreak = new DigitalInput(Constants.HOPPER_ID);
+
+    clawBeamBreak = new CANdi(Constants.CLAW_BREAK_ID, "*");
+    CANdiConfiguration configs = new CANdiConfiguration();
+    clawBeamBreak.getConfigurator().apply(configs);
+
     requestState = RequestState.None;
     requestMode = ControlMode.Coral;
-    
+
   }
 
   @Override
@@ -188,7 +202,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case Hopper:
         switch (requestMode) {
           case Algae:
-            state = ElevArmState.SafeAlgae;
+            state = ElevArmState.CorgaeTransition;
             break;
           case Climb:
             state = ElevArmState.SafeClimb;
@@ -208,28 +222,31 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         if (coralInHopper) {
           state = ElevArmState.Intake;
+          break;
         }
         if (coralInClaw) {
           state = ElevArmState.SafeCoral;
+          break;
         }
         break;
       case Intake:
         if (coralInClaw) {
           state = ElevArmState.SafeCoral;
+          break;
         }
         switch (requestState) {
           // case CoralLevel1:
-          //   state = ElevArmState.LvlOneEMove;
-          //   break;
+          // state = ElevArmState.LvlOneEMove;
+          // break;
           // case CoralLevel2:
-          //   state = ElevArmState.LvlTwoEMove;
-          //   break;
+          // state = ElevArmState.LvlTwoEMove;
+          // break;
           // case CoralLevel3:
-          //   state = ElevArmState.LvlThreeEMove;
-          //   break;
+          // state = ElevArmState.LvlThreeEMove;
+          // break;
           // case CoralLevel4:
-          //   state = ElevArmState.LvlFourEMove;
-          //   break;
+          // state = ElevArmState.LvlFourEMove;
+          // break;
           default:
             break;
         }
@@ -237,6 +254,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case SafeCoral:
         if (!coralInClaw) {
           state = conditionalTransition(state, ElevArmState.Hopper);
+          break;
         }
         switch (requestState) {
           case CoralLevel1:
@@ -262,10 +280,22 @@ public class ElevClArmSubsystem extends SubsystemBase {
             break;
         }
         break;
+      case CorgaeTransition:
+        switch (requestMode) {
+          case Algae:
+            state = conditionalTransition(state, ElevArmState.SafeAlgae);
+            break;
+          case Coral:
+            state = ElevArmState.SafeCoral;
+            break;
+          default:
+            break;
+        }
+        break;
       case SafeAlgae:
         switch (requestMode) {
           case Coral:
-            state = conditionalTransition(state,ElevArmState.Hopper);
+            state = ElevArmState.SafeCoral;
             break;
           case Climb:
             state = ElevArmState.SafeClimb;
@@ -294,8 +324,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
         switch (requestMode) {
           case Coral:
             state = ElevArmState.Hopper;
+            break;
           case Algae:
             state = ElevArmState.SafeAlgae;
+            break;
           default:
             break;
         }
@@ -382,8 +414,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
             break;
           case CoralLevel3:
             state = ElevArmState.LvlThreeEMove;
-          break;
-            case CoralLevel4:
+            break;
+          case CoralLevel4:
             state = ElevArmState.LvlFourEMove;
             break;
           default:
@@ -401,8 +433,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
             break;
           case CoralLevel3:
             state = ElevArmState.LvlThreeEMove;
-          break;
-            case CoralLevel4:
+            break;
+          case CoralLevel4:
             state = ElevArmState.LvlFourEMove;
             break;
           default:
@@ -439,8 +471,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
             break;
           case CoralLevel3:
             state = ElevArmState.LvlThreeEMove;
-          break;
-            case CoralLevel4:
+            break;
+          case CoralLevel4:
             state = conditionalTransition(state, ElevArmState.LvlFour);
             break;
           default:
@@ -449,7 +481,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         break;
       case PickBottomEMove:
-        switch (requestState){
+        switch (requestState) {
           case AlgaeTop:
             state = ElevArmState.PickTopEMove;
             break;
@@ -462,7 +494,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         break;
       case PickTopEMove:
-        switch (requestState){
+        switch (requestState) {
           case AlgaeTop:
             state = conditionalTransition(state, ElevArmState.PickTop);
             break;
@@ -482,19 +514,31 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.Hopper;
             break;
         }
+        break;
       case UnjamStrat2:
         switch (requestState) {
           case UnjamStrat2:
             break;
           default:
-            state=ElevArmState.Hopper;
+            state = ElevArmState.Hopper;
             break;
-        // if stuck in unjam position check out
+          // if stuck in unjam position check out
         }
         break;
-      default:
+      case BargeEMove:
+        switch (requestState) {
+          case Barge:
+            state = conditionalTransition(state, ElevArmState.Barge);
+            break;
+          default:
+            state = conditionalTransition(state, ElevArmState.SafeAlgae);
+            break;
+        }
         break;
-      
+      // default:
+      // System.err.println("something's busted, no state????");
+      // break;
+
     }
 
     switch (state) { // in state what are we doing
@@ -511,13 +555,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
         break;
     }
 
-    if(state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2){
+    if (state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2) {
       go(state.position());
-    } 
-    if(shootLust && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral && state != ElevArmState.Intake){
+    }
+    if (shootLust && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral
+        && state != ElevArmState.Intake) {
       clawstate = ClawState.Poop;
     }
-    if(shootLust && getEMode() == ControlMode.Algae && state != ElevArmState.SafeAlgae){
+    if (shootLust && getEMode() == ControlMode.Algae && state != ElevArmState.SafeAlgae) {
       clawstate = ClawState.Vomit;
     }
 
@@ -528,13 +573,19 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public void go(ElevArmPosition goal) {
     ElevArmPosition currentElevArmPos = new ElevArmPosition(rightElevatorMotor.getPosition(),
         shoulderMotor.getPosition());
-    // Zone[] zones = { armHitElevator, armHitBumper };
 
-    if(armHitElevator.isItIn(goal) || armHitBumper.isItIn(goal)){
+    if (armHitElevator.isItIn(currentElevArmPos) || armHitBumper.isItIn(currentElevArmPos)) {
+      // current
+      System.out
+          .println("Currently killing itself! Current Position: " + currentElevArmPos.toString() + " Goal Position: "
+              + goal.toString());
+    }
+    if (armHitElevator.isItIn(goal) || armHitBumper.isItIn(goal)) {
       // DO NOT GO - Default to Safe
       rightElevatorMotor.setTarget(SAFE_CORAL_POSITION.elevatorPos);
       shoulderMotor.setTarget(SAFE_CORAL_POSITION.armPos);
-      System.out.println("Tried to kill itself! Current Position: " + currentElevArmPos.toString() + " Goal Position: " + goal.toString());
+      System.out.println("Tried to kill itself! Current Position: " + currentElevArmPos.toString() + " Goal Position: "
+          + goal.toString());
     } else {
       // in target or adjacent zone, move to direct
       rightElevatorMotor.setTarget(goal.elevatorPos);
@@ -554,7 +605,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public boolean isCoralInClaw() {
-    return !clawBeamBreak.get();
+    // connected to pin 1
+    return clawBeamBreak.getS1Closed().getValue();
   }
 
   public boolean atPosition() {
@@ -617,7 +669,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     rightElevatorMotor.putPIDF();
     shoulderMotor.putPIDF();
     clawMotor.putPIDF();
-    
+
     leftElevatorMotor.putPV();
     rightElevatorMotor.putPV();
     shoulderMotor.putPV();
