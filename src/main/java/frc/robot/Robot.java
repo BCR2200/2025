@@ -4,8 +4,10 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 
+// import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -13,7 +15,10 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.ClimberSubsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -114,6 +119,12 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
+    m_robotContainer.testController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    m_robotContainer.testController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+    m_robotContainer.testController.y().whileTrue(m_robotContainer.drivetrain.sysIdQuasistatic(Direction.kForward));
+    m_robotContainer.testController.b().whileTrue(m_robotContainer.drivetrain.sysIdQuasistatic(Direction.kReverse));
+    m_robotContainer.testController.a().whileTrue(m_robotContainer.drivetrain.sysIdDynamic(Direction.kForward));
+    m_robotContainer.testController.x().whileTrue(m_robotContainer.drivetrain.sysIdDynamic(Direction.kReverse));
   }
 
   @Override
@@ -126,41 +137,46 @@ public class Robot extends TimedRobot {
     //   m_robotContainer.e.leftElevatorMotor.setPercentOutput(0);
     // }
 
-    if (m_robotContainer.driverController.getHID().getPOV() == 270) {
-      m_robotContainer.e.rightElevatorMotor.setPercentOutput(-0.1);
-    } else if (m_robotContainer.driverController.getHID().getPOV() == 90) {
-      m_robotContainer.e.rightElevatorMotor.setPercentOutput(0.1);
-    } else{
-      m_robotContainer.e.rightElevatorMotor.setPercentOutput(0);
+    // if (m_robotContainer.driverController.getHID().getPOV() == 270) {
+    //   m_robotContainer.e.rightElevatorMotor.setPercentOutput(-0.1);
+    // } else if (m_robotContainer.driverController.getHID().getPOV() == 90) {
+    //   m_robotContainer.e.rightElevatorMotor.setPercentOutput(0.1);
+    // } else{
+    //   m_robotContainer.e.rightElevatorMotor.setPercentOutput(0);
       
-    }
+    // }
 
-    if (m_robotContainer.driverController.getHID().getXButton()) {
-      m_robotContainer.e.shoulderMotor.setPercentOutput(0.1);
-    } else if (m_robotContainer.driverController.getHID().getAButton()) {
-      m_robotContainer.e.shoulderMotor.setPercentOutput(-0.1);
-    } else{
-      m_robotContainer.e.shoulderMotor.setPercentOutput(0);
+    // if (m_robotContainer.driverController.getHID().getXButton()) {
+    //   m_robotContainer.e.shoulderMotor.setPercentOutput(0.1);
+    // } else if (m_robotContainer.driverController.getHID().getAButton()) {
+    //   m_robotContainer.e.shoulderMotor.setPercentOutput(-0.1);
+    // } else{
+    //   m_robotContainer.e.shoulderMotor.setPercentOutput(0);
 
-    }
+    // }
 
-    if (m_robotContainer.driverController.getHID().getYButton()) {
-      m_robotContainer.climber.climbMotor.setPercentOutput(0.1);
-    } else if (m_robotContainer.driverController.getHID().getBButton()) {
-      m_robotContainer.climber.climbMotor.setPercentOutput(-0.1);
-    } else{
-      m_robotContainer.climber.climbMotor.setPercentOutput(0);
+    // if (m_robotContainer.driverController.getHID().getYButton()) {
+    //   m_robotContainer.climber.climbMotor.setPercentOutput(0.1);
+    // } else if (m_robotContainer.driverController.getHID().getBButton()) {
+    //   m_robotContainer.climber.climbMotor.setPercentOutput(-0.1);
+    // } else{
+    //   m_robotContainer.climber.climbMotor.setPercentOutput(0);
 
-    }
+    // }
 
-    if (m_robotContainer.driverController.getHID().getRightTriggerAxis() > 0.1) {
-      m_robotContainer.e.clawMotor.setPercentOutput(0.1);
-    } else if (m_robotContainer.driverController.getHID().getLeftTriggerAxis() > 0.1) {
-      m_robotContainer.e.clawMotor.setPercentOutput(-0.1);
-    } else{
-      m_robotContainer.e.clawMotor.setPercentOutput(0);
+    // if (m_robotContainer.driverController.getHID().getRightTriggerAxis() > 0.1) {
+    //   m_robotContainer.e.clawMotor.setPercentOutput(0.1);
+    // } else if (m_robotContainer.driverController.getHID().getLeftTriggerAxis() > 0.1) {
+    //   m_robotContainer.e.clawMotor.setPercentOutput(-0.1);
+    // } else{
+    //   m_robotContainer.e.clawMotor.setPercentOutput(0);
 
-    }
+    // }
+
+    // Run SysId routines when holding back/start and X/Y.
+    // Note that each routine should be run exactly once in a single log.
+    
+    
   }
 
   @Override

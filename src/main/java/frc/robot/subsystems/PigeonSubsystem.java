@@ -30,7 +30,7 @@ public class PigeonSubsystem extends SubsystemBase {
 
   public void updateValues() {
     X = pigeon.getPitch().getValueAsDouble();
-    Y = pigeon.getYaw().getValueAsDouble();
+    Y  = pigeon.getYaw().getValueAsDouble();
     Z = pigeon.getRoll().getValueAsDouble();
     accelX = pigeon.getAccelerationX().getValueAsDouble();
     accelY = pigeon.getAccelerationY().getValueAsDouble();

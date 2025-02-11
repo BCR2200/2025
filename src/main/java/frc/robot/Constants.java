@@ -12,6 +12,8 @@ public class Constants {
     public static final int CLIMBER_ID = 25;
     
     public static final int DRIVER_CONTROLLER_PORT = 0;
+    public static final int CODRIVER_CONTROLLER_PORT = 1;
+    public static final int TEST_CONTROLLER_PORT = 2;
     
     public static final int CLIMBER_DOWN_HEIGHT = 0;
     public static final int CLIMBER_UP_HEIGHT = 0;
