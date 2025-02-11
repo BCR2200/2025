@@ -687,18 +687,18 @@ public class ElevClArmSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHopper());
     SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
     
-    SmartDashboard.putNumber("Claw Start Pos:", clawStartPosition);
-    SmartDashboard.putNumber("Claw Target Pos:", clawTargetPosition);
-    SmartDashboard.putBoolean("Position Control:", positionControl);
+    // SmartDashboard.putNumber("Claw Start Pos:", clawStartPosition);
+    // SmartDashboard.putNumber("Claw Target Pos:", clawTargetPosition);
+    // SmartDashboard.putBoolean("Position Control:", positionControl);
 
-    leftElevatorMotor.putPIDF();
-    rightElevatorMotor.putPIDF();
-    shoulderMotor.putPIDF();
-    clawMotor.putPIDF();
+    // leftElevatorMotor.putPIDF();
+    // rightElevatorMotor.putPIDF();
+    // shoulderMotor.putPIDF();
+    // clawMotor.putPIDF();
 
-    leftElevatorMotor.putPV();
+   // leftElevatorMotor.putPV();
     rightElevatorMotor.putPV();
     shoulderMotor.putPV();
-    clawMotor.putPV();
+   // clawMotor.putPV();
   }
 }
