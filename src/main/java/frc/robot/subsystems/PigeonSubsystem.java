@@ -39,13 +39,13 @@ public class PigeonSubsystem extends SubsystemBase {
   }
 
   public void printDashboard() {
-    SmartDashboard.putNumber("Pigeon X", X);
+    // SmartDashboard.putNumber("Pigeon X", X);
     SmartDashboard.putNumber("Pigeon Y", Y);
-    SmartDashboard.putNumber("Pigeon Z", Z);
-    SmartDashboard.putNumber("Pigeon Acc X", accelX);
-    SmartDashboard.putNumber("Pigeon Acc Y", accelY);
-    SmartDashboard.putNumber("Pigeon Acc Z", accelZ);
-    SmartDashboard.putNumber("Pigeon Current Temp [C]", temp);
+    // SmartDashboard.putNumber("Pigeon Z", Z);
+    // SmartDashboard.putNumber("Pigeon Acc X", accelX);
+    // SmartDashboard.putNumber("Pigeon Acc Y", accelY);
+    // SmartDashboard.putNumber("Pigeon Acc Z", accelZ);
+    // SmartDashboard.putNumber("Pigeon Current Temp [C]", temp);
   }
 
   public double getRotationAngleFromZero(){

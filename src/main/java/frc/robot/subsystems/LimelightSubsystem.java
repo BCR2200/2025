@@ -29,8 +29,8 @@ public class LimelightSubsystem extends SubsystemBase implements Runnable {
   // Prints various values of every target
   public void printDashboard() {
     synchronized (this) {
-      SmartDashboard.putNumber(dashboardKey() + "TX", tagTx);
-      SmartDashboard.putNumber(dashboardKey() + "TY", tagTy);
+      // SmartDashboard.putNumber(dashboardKey() + "TX", tagTx);
+      // SmartDashboard.putNumber(dashboardKey() + "TY", tagTy);
       // SmartDashboard.putBoolean(dashboardKey() + "TV", tagTv);
       // SmartDashboard.putBoolean(dashboardKey() + "Rotation Enabled",
       // limelightRotation);
@@ -50,7 +50,7 @@ public class LimelightSubsystem extends SubsystemBase implements Runnable {
         tagTv = LimelightHelpers.getTV(name);
       }
       try {
-        Thread.sleep(10);
+        Thread.sleep(20);
       } catch (InterruptedException iex) {
       }
 

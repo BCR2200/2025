@@ -25,8 +25,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   // -> claw break -> go to safe coral :thumbsup:
 
   public static class ElevArmPosition {
-    public final double elevatorPos;
-    public final double armPos;
+    public  double elevatorPos;
+    public  double armPos;
 
     public ElevArmPosition(double elevatorPos, double armPos) {
       this.elevatorPos = elevatorPos;
@@ -53,9 +53,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public static double SAFE_ARM_ELEVATOR = 20.5;
   
-    public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
-    public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
-    public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_ARM_ELEVATOR);
+  public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
+  public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_ARM_ELEVATOR);
   public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(5, 45);
   public final static ElevArmPosition CORGAE_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
@@ -591,22 +591,23 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
   }
 
+  ElevArmPosition currentPosStatic = new ElevArmPosition(0, 0);
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
-    ElevArmPosition currentElevArmPos = new ElevArmPosition(rightElevatorMotor.getPosition(),
-        shoulderMotor.getPosition());
+    currentPosStatic.elevatorPos = rightElevatorMotor.getPosition();
+    currentPosStatic.armPos = shoulderMotor.getPosition();
 
-    if (armHitElevator.isItIn(currentElevArmPos) || armHitBumper.isItIn(currentElevArmPos)) {
+    if (armHitElevator.isItIn(currentPosStatic) || armHitBumper.isItIn(currentPosStatic)) {
       // current
       System.out
-          .println("Currently killing itself! Current Position: " + currentElevArmPos.toString() + " Goal Position: "
+          .println("Currently killing itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
               + goal.toString());
     }
     if (armHitElevator.isItIn(goal) || armHitBumper.isItIn(goal)) {
       // DO NOT GO - Default to Safe
       rightElevatorMotor.setTarget(SAFE_CORAL_POSITION.elevatorPos);
       shoulderMotor.setTarget(SAFE_CORAL_POSITION.armPos);
-      System.out.println("Tried to kill itself! Current Position: " + currentElevArmPos.toString() + " Goal Position: "
+      System.out.println("Tried to kill itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
           + goal.toString());
     } else {
       // in target or adjacent zone, move to direct

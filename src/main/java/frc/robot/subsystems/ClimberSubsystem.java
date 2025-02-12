@@ -62,8 +62,8 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void printDashboard() {
-        SmartDashboard.putBoolean("Climber At Position", this.atPosition());
-        climbMotor.putPIDF();
+        // SmartDashboard.putBoolean("Climber At Position", this.atPosition());
+        // climbMotor.putPIDF();
         climbMotor.putPV();
     }
 }

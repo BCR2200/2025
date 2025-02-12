@@ -145,8 +145,7 @@ public class RobotContainer {
                 xButton = new Keybind(driverController, Button.X);
                 yButton = new Keybind(driverController, Button.Y);
 
-                // processor (just shoot in safe?) maybe default to processor rather than
-                // algaesafe
+                // processor (just shoot in safe?) maybe default to processor rather than algaesafe
                 rightTrigger = new AnalogTrigger(driverController, Axis.RT, 0.5);
                 leftTrigger = new AnalogTrigger(driverController, Axis.LT, 0.5);
 

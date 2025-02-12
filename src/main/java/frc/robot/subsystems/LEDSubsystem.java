@@ -262,7 +262,8 @@ public class LEDSubsystem extends SubsystemBase implements Runnable {
         disableChooser.addOption("Fire", Integer.valueOf(15));
 
         SmartDashboard.putData(disableChooser);
-        new Thread(this, "LED Thread").start();
+        // TODO re-enable this if we want LEDs. Disabling to try to speed up robot code. 
+        // new Thread(this, "LED Thread").start();
     }
 
     private class Strip {
