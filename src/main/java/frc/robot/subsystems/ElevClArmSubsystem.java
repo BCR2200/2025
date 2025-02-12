@@ -56,23 +56,23 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_ARM_ELEVATOR);
-  public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(5, 45);
+  public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(6, 45);
   public final static ElevArmPosition CORGAE_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(28, 45);
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(13, 25.4);
   public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(37.5, 24.7);
   public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(102, 34.7);
-  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(28, 41);
-  public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(50, 41);
+  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(18.6, 38);
+  public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(53.5, 41);
   public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(28, SAFE_ARM_ELEVATOR);
   public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(13, SAFE_ARM_ELEVATOR);
   public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(37.5 , SAFE_ARM_ELEVATOR);
   public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(102, SAFE_ARM_ELEVATOR);
-  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(28, 41);
-  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(50, 41);
+  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(18.6, 45);
+  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, 45);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(70, 20.5);
-  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(70, 41);
+  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(70, 45);
   public final static ElevArmPosition PROCESSOR_POSITION = SAFE_ALGAE_POSITION;
 
   public enum ElevArmState {
@@ -135,10 +135,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
     public double speed() {
       return switch (this) {
         case Eat -> 0.15;
-        case EatAlgae -> 0.5;
-        case Poop -> 1;
+        case EatAlgae -> 1.0;
+        case Poop -> 1.0;
         case Stop________HammerTime -> 0.0;
-        case Vomit -> -1;
+        case Vomit -> -1.0;
         default -> 0.0;
       };
     }
@@ -558,6 +558,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
         clawstate = ClawState.Eat;
         break;
       case SafeAlgae:
+      case PickBottom:
+      case PickTop:
+      case PickBottomEMove:
+      case PickTopEMove:
+      case BargeEMove:
         clawstate = ClawState.EatAlgae;
         break;
     }
@@ -589,6 +594,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
     } else {
       clawMotor.setTarget(clawTargetPosition);
     }
+
+    if(getEMode() == ControlMode.Algae && requestMode != ControlMode.Coral){
+      clawMotor.setCurrentLimit(30);
+    } 
+    
   }
 
   ElevArmPosition currentPosStatic = new ElevArmPosition(0, 0);
