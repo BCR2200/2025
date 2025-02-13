@@ -102,12 +102,12 @@ public class RobotContainer {
 
         /* Setting up bindings for necessary control of the swerve drive platform */
         private final SwerveRequest.FieldCentric driveFC = new SwerveRequest.FieldCentric()
-                        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+                        .withDeadband(0.0).withRotationalDeadband(0.0) // Add a 10% deadband
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
                                                                                  // motors
 
         private final SwerveRequest.FieldCentricFacingAngle driveFCFA = new SwerveRequest.FieldCentricFacingAngle()
-                        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+                        .withDeadband(0.0).withRotationalDeadband(0.0) // Add a 10% deadband
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
                                                                                  // motors
 
@@ -209,15 +209,13 @@ public class RobotContainer {
                                 // Drivetrain will execute this command periodically
 
                                 drivetrain.applyRequest(() -> {
-                                        return driveFC.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive
-                                                                                                              // forward
-                                                                                                              // with
-                                                                                                              // negative
-                                                                                                              // Y
-                                                                                                              // (forward)
-                                                        .withVelocityY(-driverController.getLeftX() * MaxSpeed)
-                                                        .withRotationalRate(
-                                                                        -driverController.getRightX() * MaxAngularRate);
+                                        double rotate = ExtraMath.deadzone(-driverController.getRightX() * MaxAngularRate, 0.1);
+                                        double horizontal = ExtraMath.deadzone(-driverController.getLeftX() * MaxSpeed, 0.1);
+                                        double vertical = ExtraMath.deadzone(-driverController.getLeftY() * MaxSpeed, 0.1);
+
+                                        return driveFC.withVelocityX(vertical) // Drive
+                                                      .withVelocityY(horizontal)
+                                                      .withRotationalRate(rotate);
                                 }));
 
                 // it's drivin time

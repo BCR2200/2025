@@ -21,8 +21,8 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public ClimberSubsystem() {
-        climbMotor = PIDMotor.makeMotor(Constants.CLIMBER_ID, "climber", 0, 0, 0, 0,0,0,0,0,0);
-        climbMotor.setCurrentLimit(1);
+        climbMotor = PIDMotor.makeMotor(Constants.CLIMBER_ID, "climber", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
+        climbMotor.setCurrentLimit(15);
     }
 
     /**
@@ -40,7 +40,7 @@ public class ClimberSubsystem extends SubsystemBase {
      * @return True/False.
      */
     public boolean atPosition() {
-        return climbMotor.atPosition(5);
+        return climbMotor.atPosition(1);
     }
 
     /**
@@ -62,7 +62,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void printDashboard() {
-        // SmartDashboard.putBoolean("Climber At Position", this.atPosition());
+        SmartDashboard.putBoolean("Climber At Position", this.atPosition());
         // climbMotor.putPIDF();
         climbMotor.putPV();
     }
