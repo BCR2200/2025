@@ -37,7 +37,6 @@ public class LEDSubsystem extends SubsystemBase implements Runnable {
 
 
 
-    LimelightSubsystem limelight;
     PowerDistribution pdp;
     ElevClArmSubsystem arm;
 
@@ -78,7 +77,6 @@ public class LEDSubsystem extends SubsystemBase implements Runnable {
     RobotContainer robot;
 
     public LEDSubsystem(RobotContainer robot) {
-        this.limelight = robot.limelightLeft;
         this.pdp = robot.pdp;
         this.arm = robot.e;
         this.robot = robot;
