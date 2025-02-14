@@ -5,10 +5,6 @@
 package frc.robot;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -20,7 +16,6 @@ import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.commands.ShootCmd;
 import frc.robot.drive.CommandSwerveDrivetrain;
-import frc.robot.drive.ProfiledFieldCentricFacingAngle;
 import frc.robot.drive.Telemetry;
 import frc.robot.drive.TunerConstants;
 import frc.robot.input.AnalogTrigger;
@@ -39,24 +34,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.io.IOException;
-
-import org.json.simple.parser.ParseException;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
-import frc.robot.drive.TunerConstants;
-import frc.robot.drive.CommandSwerveDrivetrain;
 
 public class RobotContainer {
         public final CommandXboxController driverController = new CommandXboxController(
@@ -88,13 +68,9 @@ public class RobotContainer {
         AnalogTrigger climbTrigger;
         AnalogTrigger unclimbTrigger;
 
-        enum DriveMode {
-                DriverControlled, Limelight
-        }
         enum SnapButton {
                 Left, Right, Center, None
         }
-        DriveMode driveMode = DriveMode.DriverControlled;
         SnapButton snap = SnapButton.None;
 
 
@@ -111,21 +87,21 @@ public class RobotContainer {
 
         /* Setting up bindings for necessary control of the swerve drive platform */
         private final SwerveRequest.FieldCentric driveFC = new SwerveRequest.FieldCentric()
-                        .withDeadband(0.0).withRotationalDeadband(0.0) // Add a 10% deadband
+                        // .withDeadband(0.0).withRotationalDeadband(0.0) // deadband added later
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
 
         private final SwerveRequest.RobotCentric driveRC = new SwerveRequest.RobotCentric()
-                        .withDeadband(0.0).withRotationalDeadband(0.0) // Add a 10% deadband
+                        // .withDeadband(0.0).withRotationalDeadband(0.0) // deadband added later
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
                                                                                  // motors
 
         private final SwerveRequest.FieldCentricFacingAngle driveFCFA = new SwerveRequest.FieldCentricFacingAngle()
-                        .withDeadband(0.0).withRotationalDeadband(0.0) // Add a 10% deadband
+                        // .withDeadband(0.0).withRotationalDeadband(0.0) // deadband added later
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
                                                                                  // motors
 
-        private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-        private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+        // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+        // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -231,43 +207,51 @@ public class RobotContainer {
                 // and Y is defined as to the left according to WPILib convention.
                 drivetrain.setDefaultCommand(
                                 // Drivetrain will execute this command periodically
-
                                 drivetrain.applyRequest(() -> {
                                         if(snap != SnapButton.None){
                                                 double tx,ty,yaw;
-                                                double targetTx,targetTy,targetYaw;
+                                                double targetTx,targetTy = 0.587, targetYaw = 0; // define unchanging values
                                                 double[] botPose;
 
-                                                if(snap == SnapButton.Right){
-                                                        botPose = LimelightHelpers.getBotPose_TargetSpace("limelight-left");
-                                                        targetTx = 0.160;
-                                                        targetTy = 0.587;
-                                                        targetYaw = 0.0;
-                                                        
-                                                } else if (snap == SnapButton.Left){
-                                                        botPose = LimelightHelpers.getBotPose_TargetSpace("limelight-right");
-                                                        targetTx = -0.17;
-                                                        targetTy = 0.587;
-                                                        targetYaw = 0.0;
-                                                } else {
-                                                        botPose = LimelightHelpers.getBotPose_TargetSpace("limelight-left");
-                                                        targetTx = 0.0;
-                                                        targetTy = 0.587;
-                                                        targetYaw = 0.0;
+                                                String primaryCam, fallbackCam;
+
+                                                switch (snap) {
+                                                        case Right:
+                                                                primaryCam = "limelight-left";
+                                                                fallbackCam = "limelight-right";
+                                                                targetTx = 0.160;
+                                                                // targetTy = 0.587;
+                                                                // targetYaw = 0;
+                                                                break;
+                                                        case Left:
+                                                                primaryCam = "limelight-right";
+                                                                fallbackCam = "limelight-left";
+                                                                targetTx = -0.17;
+                                                                break;
+                                                        default:
+                                                                primaryCam = "limelight-left";
+                                                                fallbackCam = "limelight-right";
+                                                                targetTx = 0.0;
                                                 }
+
+                                                botPose = getValidBotPose(primaryCam, fallbackCam);
+
                                                 tx = botPose[0]; // meters
                                                 ty = -botPose[2]; // meters - secretly grabbing tz - away is more negative
                                                 yaw = botPose[4]; // degrees
                                                 
+                                                // vector's represent needed movement from the robot to the tag in targetspace
                                                 double vectorX = targetTx-tx;
                                                 double vectorY = targetTy-ty;
                                                 double vectorYaw = targetYaw-yaw;
-                                                double pt = 3.5;
-                                                double pr = 0.1;
 
-                                                return driveRC.withVelocityX(ExtraMath.clamp(ExtraMath.deadzone(vectorY * -pt, .05), -0.5, 0.5)) // Drive
-                                                .withVelocityY(ExtraMath.clamp(ExtraMath.deadzone(vectorX * -pt, .05), -0.5, 0.5))
-                                                .withRotationalRate(ExtraMath.clamp(ExtraMath.deadzone(vectorYaw * -pr,.1), -1, 1));
+                                                double pt = 3.5; // translation p value
+                                                double pr = 0.1; // rotation p
+
+                                                // Y goes in X and X goes in y because of comment above setDefaultCommand
+                                                return driveRC.withVelocityX(clampedDeadzone(vectorY * -pt, 0.5, .05)) // Drive
+                                                .withVelocityY(clampedDeadzone(vectorX * -pt, .05, .05))
+                                                .withRotationalRate(clampedDeadzone(vectorYaw * -pr, 1, .1));
                                         } else{
                                                 double rotate = ExtraMath.deadzone(-driverController.getRightX() * MaxAngularRate, 0.1);
                                                 double horizontal = ExtraMath.deadzone(-driverController.getLeftX() * MaxSpeed, 0.1);
@@ -324,6 +308,48 @@ public class RobotContainer {
 
                 // Drive, Limelight
         }
+
+        /**
+         * Applies a deadzone to the input value, then clamps it within the specified min and max range.
+         *
+         * @param value    The input value to be processed.
+         * @param min      The minimum allowed value after clamping.
+         * @param max      The maximum allowed value after clamping.
+         * @param deadzone The threshold below which the value is set to zero.
+         * @return The adjusted value after applying the deadzone and clamping.
+         */
+        private double clampedDeadzone(double value, double min, double max, double deadzone) {
+                return ExtraMath.clamp(ExtraMath.deadzone(value, deadzone), min, max);
+        }
+        
+        /**
+         * Overload that assumes a symmetric clamping range.
+         * The value is clamped within [-amp, amp] after applying the deadzone.
+         *
+         * @param value    The input value to be processed.
+         * @param amp      The absolute maximum amplitude for clamping (range: -amp to amp).
+         * @param deadzone The threshold below which the value is set to zero.
+         * @return The adjusted value after applying the deadzone and clamping.
+         */
+        private double clampedDeadzone(double value, double amp, double deadzone) {
+                return ExtraMath.clamp(ExtraMath.deadzone(value, deadzone), -amp, amp);
+        }
+    
+
+        private double[] getValidBotPose(String primary, String fallback) {
+                double[] botPose = LimelightHelpers.getBotPose_TargetSpace(primary);
+                return doesBotPoseExist(botPose) ? botPose : LimelightHelpers.getBotPose_TargetSpace(fallback);
+        }
+
+        boolean doesBotPoseExist(double[] botPose) {
+                for (double value : botPose) {
+                    if (value != 0.0) {
+                        return false;
+                    }
+                }
+                return true;
+        }
+            
 
         public Command getAutonomousCommand() {
                 return Commands.print("No autonomous command configured");

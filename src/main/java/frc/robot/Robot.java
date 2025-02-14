@@ -4,25 +4,17 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-// import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.ClimberSubsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -41,8 +33,12 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Field Limelight-Right", m_field3);
 
     LimelightHelpers.SetRobotOrientation("limelight-left", -90, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // why are we saying yaw = -90? shouldn't it be m_robotContainer.gyro.Y, below too?
 
     var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
+    // if(llMeasurement.rawFiducials.length == 0){
+    //   llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+    // }
     m_robotContainer.drivetrain.resetPose(llMeasurement.pose);
   }
 
