@@ -80,10 +80,6 @@ public class Robot extends TimedRobot {
     var driveState = m_robotContainer.drivetrain.getState();
 
     double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
-    // Calculate current YAW and send to Limelights
-    // double robotYaw = m_robotContainer.gyro.Y - 90;
-    // LimelightHelpers.SetRobotOrientation("limelight-left", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
-    // LimelightHelpers.SetRobotOrientation("limelight-right", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     // Get left side Limelight measurment and add to Pose Estimator
     LimelightHelpers.PoseEstimate limelightMeasurementLeft = LimelightHelpers

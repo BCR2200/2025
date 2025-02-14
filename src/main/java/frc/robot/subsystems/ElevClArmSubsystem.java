@@ -7,6 +7,7 @@ import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -149,6 +150,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public Zone armHitElevator = new Zone(new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
   public Zone armHitBumper = new Zone(new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
 
+  Timer intakeTimer;
+
   public static final class Zone {
     final public ElevArmPosition min;
     final public ElevArmPosition max;
@@ -194,6 +197,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     requestState = RequestState.None;
     requestMode = ControlMode.Coral;
 
+    intakeTimer = new Timer();
   }
 
   @Override
@@ -227,6 +231,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         if (coralInHopper) {
           state = ElevArmState.Intake;
+          intakeTimer.restart();
           break;
         }
         if (coralInClaw) {
@@ -240,6 +245,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
           clawStartPosition = clawMotor.getPosition();
           positionControl = true;
           break;
+        }
+        if(intakeTimer.get() > 2.5){
+          // something triggered intake accidentally
+          state = ElevArmState.Hopper;
         }
         switch (requestState) {
           // case CoralLevel1:
@@ -548,7 +557,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     }
 
-    switch (state) { // in state what are we doing
+    switch (state) { // in state what are we doing with claw
       case Hopper:
       case SafeCoral:
       default:

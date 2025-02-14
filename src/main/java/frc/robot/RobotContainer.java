@@ -239,9 +239,6 @@ public class RobotContainer {
                 }));
                 // driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
                 
-                MedianFilter filterTx = new MedianFilter(3);
-                MedianFilter filterTy = new MedianFilter(3);
-                
                 driveFCFA.HeadingController.setPID(7, 0, 0);
                 
                 
@@ -292,21 +289,6 @@ public class RobotContainer {
                                                         double vectorX = targetTx-tx;
                                                         double vectorY = targetTy-ty;
                                                         double vectorYaw = targetYaw-yaw;
-
-                                                        SmartDashboard.putNumber("before tx", vectorX);
-                                                        
-                                                        if(firstPass){
-                                                                for(int i = 0; i<5; ++i){
-                                                                        // filterTx.calculate(vectorX);
-                                                                        // filterTy.calculate(vectorY);
-                                                                }
-                                                                firstPass = false;
-                                                        }
-                                                        
-                                                        // vectorX = filterTx.calculate(vectorX);
-                                                        // vectorY = filterTy.calculate(vectorY);
-                                                        
-                                                        SmartDashboard.putNumber("after tx", tx);
                                                         
                                                         double pt = 2.5; // translation p value
                                                         double pr = 0.1; // rotation p
@@ -316,13 +298,11 @@ public class RobotContainer {
                                                         .withVelocityY(clampedDeadzone(vectorX * -pt, 1, .03))
                                                         .withRotationalRate(clampedDeadzone(vectorYaw * -pr, 1, .1));
                                                 } else {
-                                                        firstPass = true;
                                                         return driveFC.withVelocityX(0) // Drive
                                                         .withVelocityY(0)
                                                         .withRotationalRate(0);
                                                 }
                                         } else{
-                                                firstPass = true;
                                                 double rotate = ExtraMath.deadzone(-driverController.getRightX() * MaxAngularRate, 0.1);
                                                 double horizontal = ExtraMath.deadzone(-driverController.getLeftX() * MaxSpeed, 0.1);
                                                 double vertical = ExtraMath.deadzone(-driverController.getLeftY() * MaxSpeed, 0.1);
