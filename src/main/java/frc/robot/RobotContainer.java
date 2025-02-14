@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.filter.LinearFilter;
@@ -132,7 +133,7 @@ public class RobotContainer {
                                                                                  // motors
 
         // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-        // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+        public final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
         
@@ -302,6 +303,9 @@ public class RobotContainer {
                 drivetrain.setDefaultCommand(
                         // Drivetrain will execute this command periodically
                         drivetrain.applyRequest(() -> {
+                                        if(climber.climbMotor.getPosition() < -140){
+                                                return point.withModuleDirection(Rotation2d.fromDegrees(0)); // point wheels to 0 when climbed for easier manipulation post match
+                                        }
                                         //limelight snaps
                                         if(snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center){
                                                 double tx,ty,yaw;

@@ -49,7 +49,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     Coral, Algae, Climb;
   }
 
-  public RequestState requestState;
+  public RequestState requestState = RequestState.None;
   public ControlMode requestMode;
 
   public static double SAFE_ARM_ELEVATOR = 20.5;

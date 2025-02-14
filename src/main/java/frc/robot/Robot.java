@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.VecBuilder;
@@ -119,12 +120,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
+    m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Coast);
   }
 
   @Override
   public void disabledPeriodic() {
     if(climbToCoast.get() > 6 && climbToCoast.get() < 7){
-      m_robotContainer.climber.climbMotor.setIdleCoastMode();
+      m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
     }
   }
 
@@ -140,6 +142,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Brake);
   }
 
   @Override
@@ -155,10 +158,12 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Brake);
   }
 
   @Override
   public void teleopPeriodic() {
+    
   }
 
   @Override
