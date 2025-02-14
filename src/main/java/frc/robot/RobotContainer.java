@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -66,6 +67,11 @@ public class RobotContainer {
         Keybind bButton;
         Keybind xButton;
         Keybind yButton;
+        
+        Keybind snapA;
+        Keybind snapB;
+        Keybind snapX;
+        Keybind snapY;
 
         DPadButton rightDpad;
         DPadButton leftDpad;
@@ -78,18 +84,26 @@ public class RobotContainer {
         // shoot keybind
         AnalogTrigger rightTrigger;
         AnalogTrigger leftTrigger;
-        AnalogTrigger climbTrigger;
-        AnalogTrigger unclimbTrigger;
+        AnalogTrigger feederRightTrigger;
+        AnalogTrigger feederLeftTrigger;
 
         enum SnapButton {
-                Left, Right, Center, None
+                Left, Right, Center, LeftFeeder, RightFeeder, ReefF, ReefFR, ReefFL, ReefBL, ReefBR, ReefB, None
         }
         SnapButton snap = SnapButton.None;
 
 
         double speedFactor = 1.0;
 
-        Rotation2d direction = new Rotation2d();
+        static Rotation2d LeftFeederAngle = Rotation2d.fromDegrees(90 - 144.011);
+        static Rotation2d RightFeederAngle = Rotation2d.fromDegrees(144.011 - 90); // measurements stolen from spectrum
+        static Rotation2d ReefFAngle = Rotation2d.fromDegrees(0); 
+        static Rotation2d ReefFRAngle = Rotation2d.fromDegrees(60); 
+        static Rotation2d ReefFLAngle = Rotation2d.fromDegrees(-60); 
+        static Rotation2d ReefBLAngle = Rotation2d.fromDegrees(-120); 
+        static Rotation2d ReefBRAngle = Rotation2d.fromDegrees(120); 
+        static Rotation2d ReefBAngle = Rotation2d.fromDegrees(180); 
+        Rotation2d direction;
 
         private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor; // kSpeedAt12Volts
                                                                                                     // desired top speed
@@ -117,9 +131,9 @@ public class RobotContainer {
         // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
-
+        
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        boolean firstPass = true;
+        double heightFactor;
 
         public RobotContainer() {
                 gyro = new PigeonSubsystem();
@@ -145,6 +159,11 @@ public class RobotContainer {
                 xButton = new Keybind(codriverController, Button.X);
                 yButton = new Keybind(codriverController, Button.Y);
 
+                snapA = new Keybind(driverController, Button.A);
+                snapB = new Keybind(driverController, Button.B);
+                snapX = new Keybind(driverController, Button.X);
+                snapY = new Keybind(driverController, Button.Y);
+
                 leftDpad = new DPadButton(driverController, DPad.Left);
                 rightDpad = new DPadButton(driverController, DPad.Right);
                 upDpad = new DPadButton(driverController, DPad.Up);
@@ -153,8 +172,8 @@ public class RobotContainer {
                 // processor (just shoot in safe?) maybe default to processor rather than algaesafe
                 rightTrigger = new AnalogTrigger(codriverController, Axis.RT, 0.5);
                 leftTrigger = new AnalogTrigger(codriverController, Axis.LT, 0.5);
-                climbTrigger = new AnalogTrigger(driverController, Axis.RT, 0.5);
-                unclimbTrigger = new AnalogTrigger(driverController, Axis.LT, 0.5);
+                feederRightTrigger = new AnalogTrigger(driverController, Axis.RT, 0.5);
+                feederLeftTrigger = new AnalogTrigger(driverController, Axis.LT, 0.5);
                 
 
                 // select modes
@@ -176,10 +195,32 @@ public class RobotContainer {
                 //                 .whileTrue(new ClimberCmd(climber, ClimbState.Down));
                 // leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Climb)
                 //                 .whileTrue(new ClimberCmd(climber, ClimbState.Up));
-                climbTrigger.trigger()
-                                .whileTrue(new ClimberCmd(climber, ClimbState.Down));
-                unclimbTrigger.trigger()
-                                .whileTrue(new ClimberCmd(climber, ClimbState.Up));
+                feederRightTrigger.trigger()
+                                .whileTrue(new InstantCommand(() -> snap = SnapButton.LeftFeeder));
+                feederLeftTrigger.trigger()
+                                .whileTrue(new InstantCommand(() -> snap = SnapButton.RightFeeder));
+                
+                
+                snapA.trigger().and(snapB.trigger().negate().and(snapX.trigger().negate().and(snapY.trigger().negate()
+                        ))).whileTrue(new InstantCommand(() -> snap = SnapButton.ReefF));
+                snapY.trigger().and(snapB.trigger().negate().and(snapX.trigger().negate().and(snapA.trigger().negate()
+                        ))).whileTrue(new InstantCommand(() -> snap = SnapButton.ReefB));
+
+                // for b and x allow just button or combo a
+                snapB.trigger().and(snapX.trigger().negate().and(snapY.trigger().negate() 
+                        )).whileTrue(new InstantCommand(() -> snap = SnapButton.ReefFR));
+                snapX.trigger().and(snapB.trigger().negate().and(snapY.trigger().negate()
+                        )).whileTrue(new InstantCommand(() -> snap = SnapButton.ReefFL));
+
+                // combo buttons!
+                snapB.trigger().and(snapY.trigger().and(snapX.trigger().negate().and(snapA.trigger().negate()
+                        ))).whileTrue(new InstantCommand(() -> snap = SnapButton.ReefBR));
+                snapX.trigger().and(snapY.trigger().and(snapB.trigger().negate().and(snapA.trigger().negate()
+                        ))).whileTrue(new InstantCommand(() -> snap = SnapButton.ReefBL));
+
+                snapA.trigger().negate().and(snapB.trigger().negate().and(snapX.trigger().negate().and(snapY.trigger().negate().and(feederLeftTrigger.trigger().negate().and(feederRightTrigger.trigger().negate()
+                        ))))).whileTrue(new InstantCommand(() -> snap = SnapButton.None));
+                
 
                 // request states for elevclarm
                 // include negative feedback (rumble) for unavailable changes of state/mode
@@ -247,8 +288,8 @@ public class RobotContainer {
                 drivetrain.setDefaultCommand(
                         // Drivetrain will execute this command periodically
                         drivetrain.applyRequest(() -> {
-                                        SmartDashboard.putBoolean("first pass", firstPass);
-                                        if(snap != SnapButton.None){
+                                        //limelight snaps
+                                        if(snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center){
                                                 double tx,ty,yaw;
                                                 double targetTx,targetTy = 0.587, targetYaw = 0; // define unchanging values
                                                 double[] botPose;
@@ -302,14 +343,59 @@ public class RobotContainer {
                                                         .withVelocityY(0)
                                                         .withRotationalRate(0);
                                                 }
-                                        } else{
-                                                double rotate = ExtraMath.deadzone(-driverController.getRightX() * MaxAngularRate, 0.1);
-                                                double horizontal = ExtraMath.deadzone(-driverController.getLeftX() * MaxSpeed, 0.1);
-                                                double vertical = ExtraMath.deadzone(-driverController.getLeftY() * MaxSpeed, 0.1);
-                                                
-                                                return driveFC.withVelocityX(vertical) // Drive
-                                                .withVelocityY(horizontal)
-                                                .withRotationalRate(rotate);
+                                        } else {
+                                                if(e.rightElevatorMotor.getPosition() > 10){
+                                                        heightFactor = (1/e.rightElevatorMotor.getPosition()) * 15;
+                                                        if(heightFactor < 0.1){
+                                                                heightFactor = 0.1;
+                                                        }
+                                                } else {
+                                                        heightFactor = 1;
+                                                }
+
+                                                double rotate = ExtraMath.deadzone(-driverController.getRightX() * heightFactor * MaxAngularRate, 0.1);
+                                                double horizontal = ExtraMath.deadzone(-driverController.getLeftX() * heightFactor * MaxSpeed, 0.1);
+                                                double vertical = ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
+                                                // field snaps
+                                                if(snap != SnapButton.None){
+                                                        switch (snap) {
+                                                                case LeftFeeder:
+                                                                        direction = RightFeederAngle;
+                                                                        break;
+                                                                case RightFeeder:
+                                                                        direction = LeftFeederAngle;
+                                                                        break;
+                                                                case ReefB:
+                                                                        direction = ReefBAngle;
+                                                                        break;
+                                                                case ReefBL:
+                                                                        direction = ReefBLAngle;
+                                                                        break;
+                                                                case ReefBR:
+                                                                        direction = ReefBRAngle;
+                                                                        break;
+                                                                case ReefFL:
+                                                                        direction = ReefFLAngle;
+                                                                        break;
+                                                                case ReefFR:
+                                                                        direction = ReefFRAngle;
+                                                                        break;
+                                                                default:
+                                                                case ReefF:
+                                                                        direction = ReefFAngle;
+                                                                        break;
+                                                        }
+
+                                                        SmartDashboard.putString("direction", direction.toString());
+
+                                                        return driveFCFA.withVelocityX(vertical) // Drive with rotation2d
+                                                                .withVelocityY(horizontal)
+                                                                .withTargetDirection(direction);
+                                                } else {
+                                                        return driveFC.withVelocityX(vertical) // Drive with stick rotation
+                                                                .withVelocityY(horizontal)
+                                                                .withRotationalRate(rotate);
+                                                }
                                         }
                                 }));
 

@@ -489,10 +489,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.LvlThreeEMove;
             break;
           case CoralLevel4:
-            state = conditionalTransition(state, ElevArmState.LvlFour);
+            state = conditionalTransition(state, ElevArmState.LvlFour, 30);
             break;
           default:
-            state = conditionalTransition(state, ElevArmState.SafeCoral);
+            state = conditionalTransition(state, ElevArmState.SafeCoral, 7);
             break;
         }
         break;
@@ -646,6 +646,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
     return from;
   }
 
+  public ElevArmState conditionalTransition(ElevArmState from, ElevArmState to, double epsilon) {
+    if (atPosition(epsilon)) {
+      return to;
+    }
+    return from;
+  }
+
   public boolean isCoralInClaw() {
     // connected to pin 1
     return clawBeamBreak.getS1Closed().getValue();
@@ -653,6 +660,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public boolean atPosition() {
     return rightElevatorMotor.atPosition(0.25) && shoulderMotor.atPosition(0.25);
+  }
+  public boolean atPosition(double epsilon) {
+    return rightElevatorMotor.atPosition(epsilon) && shoulderMotor.atPosition(epsilon);
   }
 
   public void requestState(RequestState state) {
