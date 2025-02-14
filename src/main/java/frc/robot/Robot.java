@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,6 +28,8 @@ public class Robot extends TimedRobot {
   final Field2d m_field = new Field2d();
   final Field2d m_field2 = new Field2d();
   final Field2d m_field3 = new Field2d();
+
+  Timer climbToCoast;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
@@ -53,6 +56,8 @@ public class Robot extends TimedRobot {
     
     var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
     m_robotContainer.drivetrain.resetPose(llMeasurement.pose);
+
+    climbToCoast = new Timer();
   }
 
   @Override
@@ -118,10 +123,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    if(climbToCoast.get() > 6 && climbToCoast.get() < 7){
+      m_robotContainer.climber.climbMotor.setIdleCoastMode();
+    }
   }
 
   @Override
   public void disabledExit() {
+    m_robotContainer.climber.climbMotor.setIdleBrakeMode();
   }
 
   @Override
@@ -154,6 +163,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopExit() {
+    climbToCoast.restart();
   }
 
   @Override

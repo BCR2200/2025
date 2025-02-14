@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.commands.ShootCmd;
+import frc.robot.commands.SuckCmd;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
 import frc.robot.drive.TunerConstants;
@@ -77,6 +78,9 @@ public class RobotContainer {
         DPadButton leftDpad;
         DPadButton upDpad;
         DPadButton downDpad;
+        
+        DPadButton climb;
+        DPadButton unclimb;
 
         double dpadShiftX;
         double dpadShiftY;
@@ -168,6 +172,9 @@ public class RobotContainer {
                 rightDpad = new DPadButton(driverController, DPad.Right);
                 upDpad = new DPadButton(driverController, DPad.Up);
                 downDpad = new DPadButton(driverController, DPad.Down);
+                
+                climb = new DPadButton(codriverController, DPad.Up);
+                unclimb = new DPadButton(codriverController, DPad.Down);
 
                 // processor (just shoot in safe?) maybe default to processor rather than algaesafe
                 rightTrigger = new AnalogTrigger(codriverController, Axis.RT, 0.5);
@@ -177,29 +184,33 @@ public class RobotContainer {
                 
 
                 // select modes
-                // selectButton.trigger().and(startButton.trigger())
-                //                 .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Climb)));
+                selectButton.trigger().and(startButton.trigger())
+                                .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Climb)));
                 startButton.trigger().and(selectButton.trigger().negate())
-                                .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Coral)));
+                                .onTrue(new InstantCommand(() -> {
+                                        if(e.getEMode() != ControlMode.Climb){
+                                                e.requestMode(ControlMode.Coral);
+                                        }
+                                }));
                 selectButton.trigger().and(startButton.trigger().negate())
-                                .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Algae)));
+                                .onTrue(new InstantCommand(() -> {
+                                        if(e.getEMode() != ControlMode.Climb){
+                                                e.requestMode(ControlMode.Algae);
+                                        }
+                                }));
 
                 // shoot
                 rightTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
                                 .whileTrue(new ShootCmd(e));
                 rightTrigger.trigger().and(() -> e.getEMode() == ControlMode.Algae)
                                 .whileTrue(new ShootCmd(e));
+                leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+                                .whileTrue(new SuckCmd(e));
 
-                // climb up and down with modes for one controller
-                // rightTrigger.trigger().and(() -> e.getEMode() == ControlMode.Climb)
-                //                 .whileTrue(new ClimberCmd(climber, ClimbState.Down));
-                // leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Climb)
-                //                 .whileTrue(new ClimberCmd(climber, ClimbState.Up));
                 feederRightTrigger.trigger()
                                 .whileTrue(new InstantCommand(() -> snap = SnapButton.LeftFeeder));
                 feederLeftTrigger.trigger()
                                 .whileTrue(new InstantCommand(() -> snap = SnapButton.RightFeeder));
-                
                 
                 snapA.trigger().and(snapB.trigger().negate().and(snapX.trigger().negate().and(snapY.trigger().negate()
                         ))).whileTrue(new InstantCommand(() -> snap = SnapButton.ReefF));
@@ -251,6 +262,9 @@ public class RobotContainer {
                 xButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
                 .whileTrue(new RequesteStateCmd(e, RequestState.Processor));
 
+                climb.trigger().and(() -> e.getEMode() == ControlMode.Climb).whileTrue(new ClimberCmd(climber, ClimbState.Up));
+                unclimb.trigger().and(() -> e.getEMode() == ControlMode.Climb).whileTrue(new ClimberCmd(climber, ClimbState.Down));
+
                 leftDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = -0.05));
                 rightDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = 0.05));
                 upDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = -0.05));
@@ -260,8 +274,8 @@ public class RobotContainer {
                 upDpad.trigger().negate().and(downDpad.trigger().negate()).whileTrue(new InstantCommand(() -> dpadShiftY = 0));
                 
                 // unjam
-                leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
-                .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat1));
+                // leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+                // .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat1));
                 
                 driverController.leftBumper().and(driverController.rightBumper().negate()).onTrue(new InstantCommand(() -> snap = SnapButton.Left));
                 driverController.rightBumper().and(driverController.leftBumper().negate()).onTrue(new InstantCommand(() -> snap = SnapButton.Right));
@@ -385,8 +399,6 @@ public class RobotContainer {
                                                                         direction = ReefFAngle;
                                                                         break;
                                                         }
-
-                                                        SmartDashboard.putString("direction", direction.toString());
 
                                                         return driveFCFA.withVelocityX(vertical) // Drive with rotation2d
                                                                 .withVelocityY(horizontal)

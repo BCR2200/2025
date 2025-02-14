@@ -63,13 +63,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(28, 45);
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17, 25.4);
   public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5, 24.7);
-  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(94, 32.5);
+  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(100, 32.5);
   public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(18.6, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(53.5, 41);
   public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(28, SAFE_ARM_ELEVATOR);
   public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_ARM_ELEVATOR);
   public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_ARM_ELEVATOR);
-  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(94, SAFE_ARM_ELEVATOR);
+  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(100, SAFE_ARM_ELEVATOR);
   public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(18.6, 45);
   public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, 45);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(70, 20.5);
@@ -125,13 +125,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
   private ClawState clawstate = ClawState.Stop________HammerTime;
   private ElevArmState state = ElevArmState.Hopper;
   public boolean shootLust = false;
+  public boolean suck = false;
 
   public boolean positionControl;
   public double clawStartPosition;
   public double clawTargetPosition;
 
   public enum ClawState {
-    Eat, Stop________HammerTime, Vomit, EatAlgae, Poop;
+    Eat, Stop________HammerTime, Vomit, EatAlgae, Poop, Drool;
 
     public double speed() {
       return switch (this) {
@@ -140,6 +141,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case Poop -> 1.0;
         case Stop________HammerTime -> 0.0;
         case Vomit -> -1.0;
+        case Drool -> -0.3;
         default -> 0.0;
       };
     }
@@ -583,6 +585,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
         && state != ElevArmState.Intake) {
       positionControl = false;
       clawstate = ClawState.Poop;
+    }
+    if (suck && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral
+        && state != ElevArmState.Intake) {
+      positionControl = false;
+      clawstate = ClawState.Drool;
     }
     if (shootLust && getEMode() == ControlMode.Algae && state != ElevArmState.SafeAlgae) {
       clawstate = ClawState.Vomit;

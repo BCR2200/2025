@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.lang.Thread.State;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -9,20 +11,34 @@ public class ClimberSubsystem extends SubsystemBase {
     public PIDMotor climbMotor;
 
     public enum ClimbState {
-        Down, Up;
+        Down, Up, Off;
+    }
 
-        public double height(){
-            switch(this){
-                case Down: return Constants.CLIMBER_DOWN_HEIGHT; // constant pain
-                case Up: return Constants.CLIMBER_UP_HEIGHT;
-                default: return 0;
-            }
+    public ClimbState climbState = ClimbState.Off;
+
+    public double speed() {
+        switch (climbState) {
+            case Up:
+                if(climbMotor.getPosition() > 0){ // negative stuff
+                    return 0.0;
+                } else {
+                    return 0.5;
+                }
+            case Down:
+                if(climbMotor.getPosition() < Constants.CLIMBER_MAX_HEIGHT){
+                    return 0.0;
+                } else {
+                    return -0.5;
+                }
+            default:
+                return 0.0;
         }
     }
 
     public ClimberSubsystem() {
         climbMotor = PIDMotor.makeMotor(Constants.CLIMBER_ID, "climber", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
         climbMotor.setCurrentLimit(15);
+        climbMotor.setIdleBrakeMode();
     }
 
     /**
@@ -52,18 +68,17 @@ public class ClimberSubsystem extends SubsystemBase {
         climbMotor.setTarget(newHeight);
     }
 
-    public void setHeight(ClimbState state) {
-        setHeight(state.height());
-    }
-
     @Override
     public void periodic() {
+        climbMotor.setPercentOutput(speed());
         printDashboard();
     }
 
     public void printDashboard() {
-        SmartDashboard.putBoolean("Climber At Position", this.atPosition());
+        // SmartDashboard.putBoolean("Climber At Position", this.atPosition());
         // climbMotor.putPIDF();
         climbMotor.putPV();
+        SmartDashboard.putNumber("speed", speed());
+        SmartDashboard.putString("climbstate", climbState.toString());
     }
 }

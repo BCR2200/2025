@@ -16,7 +16,7 @@ public class ClimberCmd extends Command {
 
   @Override
   public void initialize() {
-    climber.setHeight(state);
+    climber.climbState = state;
   }
 
   @Override
@@ -24,10 +24,11 @@ public class ClimberCmd extends Command {
 
   @Override
   public void end(boolean interrupted) {
+    climber.climbState = ClimbState.Off;
   }
 
   @Override
   public boolean isFinished() {
-    return climber.atPosition();
+    return false;
   }
 }
