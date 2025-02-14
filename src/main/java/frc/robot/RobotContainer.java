@@ -4,10 +4,21 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -19,24 +30,18 @@ import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
 import frc.robot.drive.TunerConstants;
 import frc.robot.input.AnalogTrigger;
-import frc.robot.input.Keybind;
+import frc.robot.input.DPadButton;
 import frc.robot.input.AnalogTrigger.Axis;
+import frc.robot.input.DPadButton.DPad;
+import frc.robot.input.Keybind;
 import frc.robot.input.Keybind.Button;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.ElevClArmSubsystem;
-import frc.robot.subsystems.LEDSubsystem;
-import frc.robot.subsystems.PigeonSubsystem;
 import frc.robot.subsystems.ClimberSubsystem.ClimbState;
+import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.ControlMode;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
-
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-
-import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.PigeonSubsystem;
 
 public class RobotContainer {
         public final CommandXboxController driverController = new CommandXboxController(
@@ -61,6 +66,14 @@ public class RobotContainer {
         Keybind bButton;
         Keybind xButton;
         Keybind yButton;
+
+        DPadButton rightDpad;
+        DPadButton leftDpad;
+        DPadButton upDpad;
+        DPadButton downDpad;
+
+        double dpadShiftX;
+        double dpadShiftY;
 
         // shoot keybind
         AnalogTrigger rightTrigger;
@@ -106,6 +119,7 @@ public class RobotContainer {
         private final Telemetry logger = new Telemetry(MaxSpeed);
 
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        boolean firstPass = true;
 
         public RobotContainer() {
                 gyro = new PigeonSubsystem();
@@ -130,6 +144,11 @@ public class RobotContainer {
                 bButton = new Keybind(codriverController, Button.B);
                 xButton = new Keybind(codriverController, Button.X);
                 yButton = new Keybind(codriverController, Button.Y);
+
+                leftDpad = new DPadButton(driverController, DPad.Left);
+                rightDpad = new DPadButton(driverController, DPad.Right);
+                upDpad = new DPadButton(driverController, DPad.Up);
+                downDpad = new DPadButton(driverController, DPad.Down);
 
                 // processor (just shoot in safe?) maybe default to processor rather than algaesafe
                 rightTrigger = new AnalogTrigger(codriverController, Axis.RT, 0.5);
@@ -190,6 +209,14 @@ public class RobotContainer {
                 // processor
                 xButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
                 .whileTrue(new RequesteStateCmd(e, RequestState.Processor));
+
+                leftDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = -0.05));
+                rightDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = 0.05));
+                upDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = -0.05));
+                downDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = 0.05));
+
+                leftDpad.trigger().negate().and(rightDpad.trigger().negate()).whileTrue(new InstantCommand(() -> dpadShiftX = 0));
+                upDpad.trigger().negate().and(downDpad.trigger().negate()).whileTrue(new InstantCommand(() -> dpadShiftY = 0));
                 
                 // unjam
                 leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
@@ -200,14 +227,30 @@ public class RobotContainer {
                 driverController.leftBumper().and(driverController.rightBumper()).onTrue(new InstantCommand(() -> snap = SnapButton.Center));
                 driverController.leftBumper().negate().and(driverController.rightBumper().negate()).onTrue(new InstantCommand(() -> snap = SnapButton.None));
                 
-
+                driverController.start().and(driverController.back().negate()).onTrue(new InstantCommand(() -> {
+                        Alliance alliance = DriverStation.getAlliance().orElse(null);
+                        if (alliance == Alliance.Red) {
+                                drivetrain.setOperatorPerspectiveForward(new Rotation2d(Math.PI));
+                        } else {
+                                drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
+                        }
+                        var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
+                        drivetrain.resetPose(llMeasurement.pose);
+                }));
+                // driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+                
+                MedianFilter filterTx = new MedianFilter(3);
+                MedianFilter filterTy = new MedianFilter(3);
+                
                 driveFCFA.HeadingController.setPID(7, 0, 0);
+                
                 
                 // Note that X is defined as forward according to WPILib convention,
                 // and Y is defined as to the left according to WPILib convention.
                 drivetrain.setDefaultCommand(
-                                // Drivetrain will execute this command periodically
-                                drivetrain.applyRequest(() -> {
+                        // Drivetrain will execute this command periodically
+                        drivetrain.applyRequest(() -> {
+                                        SmartDashboard.putBoolean("first pass", firstPass);
                                         if(snap != SnapButton.None){
                                                 double tx,ty,yaw;
                                                 double targetTx,targetTy = 0.587, targetYaw = 0; // define unchanging values
@@ -234,32 +277,59 @@ public class RobotContainer {
                                                                 targetTx = 0.0;
                                                 }
 
+                                                targetTx = targetTx + dpadShiftX;
+                                                targetTy = targetTy + dpadShiftY;
+
                                                 botPose = getValidBotPose(primaryCam, fallbackCam);
 
-                                                tx = botPose[0]; // meters
-                                                ty = -botPose[2]; // meters - secretly grabbing tz - away is more negative
-                                                yaw = botPose[4]; // degrees
-                                                
-                                                // vector's represent needed movement from the robot to the tag in targetspace
-                                                double vectorX = targetTx-tx;
-                                                double vectorY = targetTy-ty;
-                                                double vectorYaw = targetYaw-yaw;
+                                                if(botPose != null){
+                                                        tx = botPose[0]; // meters
+                                                        ty = -botPose[2]; // meters - secretly grabbing tz - away is more negative
+                                                        yaw = botPose[4]; // degrees
 
-                                                double pt = 3.5; // translation p value
-                                                double pr = 0.1; // rotation p
+                                                        
+                                                        // vector's represent needed movement from the robot to the tag in targetspace
+                                                        double vectorX = targetTx-tx;
+                                                        double vectorY = targetTy-ty;
+                                                        double vectorYaw = targetYaw-yaw;
 
-                                                // Y goes in X and X goes in y because of comment above setDefaultCommand
-                                                return driveRC.withVelocityX(clampedDeadzone(vectorY * -pt, 0.5, .05)) // Drive
-                                                .withVelocityY(clampedDeadzone(vectorX * -pt, .05, .05))
-                                                .withRotationalRate(clampedDeadzone(vectorYaw * -pr, 1, .1));
+                                                        SmartDashboard.putNumber("before tx", vectorX);
+                                                        
+                                                        if(firstPass){
+                                                                for(int i = 0; i<5; ++i){
+                                                                        // filterTx.calculate(vectorX);
+                                                                        // filterTy.calculate(vectorY);
+                                                                }
+                                                                firstPass = false;
+                                                        }
+                                                        
+                                                        // vectorX = filterTx.calculate(vectorX);
+                                                        // vectorY = filterTy.calculate(vectorY);
+                                                        
+                                                        SmartDashboard.putNumber("after tx", tx);
+                                                        
+                                                        double pt = 2.5; // translation p value
+                                                        double pr = 0.1; // rotation p
+                                                        
+                                                        // Y goes in X and X goes in y because of comment above setDefaultCommand
+                                                        return driveRC.withVelocityX(clampedDeadzone(vectorY * -pt, 1, .03)) // Drive
+                                                        .withVelocityY(clampedDeadzone(vectorX * -pt, 1, .03))
+                                                        .withRotationalRate(clampedDeadzone(vectorYaw * -pr, 1, .1));
+                                                } else {
+                                                        firstPass = true;
+                                                        return driveFC.withVelocityX(0) // Drive
+                                                        .withVelocityY(0)
+                                                        .withRotationalRate(0);
+                                                }
                                         } else{
+                                                firstPass = true;
                                                 double rotate = ExtraMath.deadzone(-driverController.getRightX() * MaxAngularRate, 0.1);
                                                 double horizontal = ExtraMath.deadzone(-driverController.getLeftX() * MaxSpeed, 0.1);
                                                 double vertical = ExtraMath.deadzone(-driverController.getLeftY() * MaxSpeed, 0.1);
-
+                                                
                                                 return driveFC.withVelocityX(vertical) // Drive
-                                                        .withVelocityY(horizontal)
-                                                        .withRotationalRate(rotate);
+                                                .withVelocityY(horizontal)
+                                                .withRotationalRate(rotate);
                                         }
                                 }));
 
@@ -299,7 +369,6 @@ public class RobotContainer {
 
                 // reset the field-centric heading on start
                 // start is the right menu button
-                driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
                 drivetrain.registerTelemetry(logger::telemeterize);
                 // reg drive
@@ -338,16 +407,23 @@ public class RobotContainer {
 
         private double[] getValidBotPose(String primary, String fallback) {
                 double[] botPose = LimelightHelpers.getBotPose_TargetSpace(primary);
-                return doesBotPoseExist(botPose) ? botPose : LimelightHelpers.getBotPose_TargetSpace(fallback);
+                if(doesBotPoseExist(botPose)){
+                        return botPose;
+                }
+                botPose = LimelightHelpers.getBotPose_TargetSpace(fallback);
+                if(doesBotPoseExist(botPose)){
+                        return botPose;
+                }
+                return null;
         }
 
         boolean doesBotPoseExist(double[] botPose) {
                 for (double value : botPose) {
                     if (value != 0.0) {
-                        return false;
+                        return true;
                     }
                 }
-                return true;
+                return false;
         }
             
 

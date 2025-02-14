@@ -9,8 +9,11 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,13 +35,23 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Field Limelight", m_field2);
     SmartDashboard.putData("Field Limelight-Right", m_field3);
 
-    LimelightHelpers.SetRobotOrientation("limelight-left", -90, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // LimelightHelpers.SetRobotOrientation("limelight-left", -90, 0.0, 0.0, 0.0, 0.0, 0.0);
     // why are we saying yaw = -90? shouldn't it be m_robotContainer.gyro.Y, below too?
 
-    var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
     // if(llMeasurement.rawFiducials.length == 0){
-    //   llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
-    // }
+      //   llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+      // }
+
+    
+      Alliance alliance = DriverStation.getAlliance().orElse(null);
+      if (alliance == Alliance.Red) {
+          m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(Math.PI));
+      } else {
+          m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
+      }
+      
+    
+    var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
     m_robotContainer.drivetrain.resetPose(llMeasurement.pose);
   }
 
@@ -68,15 +81,15 @@ public class Robot extends TimedRobot {
 
     double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
     // Calculate current YAW and send to Limelights
-    double robotYaw = m_robotContainer.gyro.Y - 90;
-    LimelightHelpers.SetRobotOrientation("limelight-left", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
-    LimelightHelpers.SetRobotOrientation("limelight-right", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // double robotYaw = m_robotContainer.gyro.Y - 90;
+    // LimelightHelpers.SetRobotOrientation("limelight-left", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // LimelightHelpers.SetRobotOrientation("limelight-right", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     // Get left side Limelight measurment and add to Pose Estimator
     LimelightHelpers.PoseEstimate limelightMeasurementLeft = LimelightHelpers
-        .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
+        .getBotPoseEstimate_wpiBlue("limelight-left");
     LimelightHelpers.PoseEstimate limelightMeasurementRight = LimelightHelpers
-        .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+        .getBotPoseEstimate_wpiBlue("limelight-right");
 
     if (limelightMeasurementLeft != null && limelightMeasurementLeft.tagCount > 0 && omegaRps < 2.0) {
 
