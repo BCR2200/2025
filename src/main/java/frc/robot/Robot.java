@@ -150,7 +150,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putString("Snap", m_robotContainer.snap.toString());
   }
 
   @Override
