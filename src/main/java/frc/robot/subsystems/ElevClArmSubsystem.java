@@ -66,14 +66,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17, 25.4);
   public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5, 24.7);
   public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(100, 32.5);
-  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(18.6, 38);
+  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(20, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(53.5, 41);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(70, 20.5);
   public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(28, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(100, SAFE_CORAL_ARM);
-  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(18.6, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(20, SAFE_ALGAE_ARM);
   public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, SAFE_ALGAE_ARM);
   public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(70, SAFE_ALGAE_ARM);
 
@@ -221,6 +221,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         switch (requestMode) {
           case Algae:
             state = ElevArmState.CorgaeTransition;
+            clawMotor.setCurrentLimit(25);
             break;
           case Climb:
             state = ElevArmState.SafeClimb;
@@ -322,9 +323,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
         switch (requestMode) {
           case Coral:
             state = ElevArmState.SafeCoral;
+            clawMotor.setCurrentLimit(30);
             break;
           case Climb:
             state = ElevArmState.SafeClimb;
+            clawMotor.setCurrentLimit(30);
             break;
           default:
             break;
@@ -633,10 +636,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
       clawMotor.setTarget(clawTargetPosition);
     }
 
-    if(getEMode() == ControlMode.Algae && requestMode != ControlMode.Coral){
-      clawMotor.setCurrentLimit(10);
-    } 
-    
   }
 
   ElevArmPosition currentPosStatic = new ElevArmPosition(0, 0);

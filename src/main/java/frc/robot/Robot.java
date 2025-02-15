@@ -57,7 +57,9 @@ public class Robot extends TimedRobot {
       
     
     var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-    m_robotContainer.drivetrain.resetPose(llMeasurement.pose);
+    if(llMeasurement != null){
+      m_robotContainer.drivetrain.resetPose(llMeasurement.pose);
+    }
 
     climbToCoast = new Timer();
   }
@@ -84,43 +86,43 @@ public class Robot extends TimedRobot {
      * specification.
      */
 
-    var driveState = m_robotContainer.drivetrain.getState();
-    double robotYaw = m_robotContainer.gyro.Y - 90; // TODO ???????
-    LimelightHelpers.SetRobotOrientation("limelight-left", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
-    LimelightHelpers.SetRobotOrientation("limelight-right", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // var driveState = m_robotContainer.drivetrain.getState();
+    // double robotYaw = m_robotContainer.gyro.Y - 90; // TODO ???????
+    // LimelightHelpers.SetRobotOrientation("limelight-left", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // LimelightHelpers.SetRobotOrientation("limelight-right", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-    double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+    // double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
 
-    // Get left side Limelight measurment and add to Pose Estimator
-    LimelightHelpers.PoseEstimate limelightMeasurementLeft = LimelightHelpers
-        .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
-    LimelightHelpers.PoseEstimate limelightMeasurementRight = LimelightHelpers
-        .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+    // // Get left side Limelight measurment and add to Pose Estimator
+    // LimelightHelpers.PoseEstimate limelightMeasurementLeft = LimelightHelpers
+    //     .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
+    // LimelightHelpers.PoseEstimate limelightMeasurementRight = LimelightHelpers
+    //     .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
 
-    if (limelightMeasurementLeft != null && limelightMeasurementLeft.tagCount > 0 && omegaRps < 2.0) {
+    // if (limelightMeasurementLeft != null && limelightMeasurementLeft.tagCount > 0 && omegaRps < 2.0) {
 
-      m_robotContainer.drivetrain.addVisionMeasurement(
-          limelightMeasurementLeft.pose,
-          Utils.fpgaToCurrentTime(limelightMeasurementLeft.timestampSeconds),
-          VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
-          // within 5 cm in the x and y, ignore limelight rotation 
-    }
+    //   m_robotContainer.drivetrain.addVisionMeasurement(
+    //       limelightMeasurementLeft.pose,
+    //       Utils.fpgaToCurrentTime(limelightMeasurementLeft.timestampSeconds),
+    //       VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
+    //       // within 5 cm in the x and y, ignore limelight rotation 
+    // }
 
-    if (limelightMeasurementRight != null && limelightMeasurementRight.tagCount > 0 && omegaRps < 2.0) {
-      m_robotContainer.drivetrain.addVisionMeasurement(
-          limelightMeasurementRight.pose,
-          Utils.fpgaToCurrentTime(limelightMeasurementRight.timestampSeconds),
-          VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
-    }
+    // if (limelightMeasurementRight != null && limelightMeasurementRight.tagCount > 0 && omegaRps < 2.0) {
+    //   m_robotContainer.drivetrain.addVisionMeasurement(
+    //       limelightMeasurementRight.pose,
+    //       Utils.fpgaToCurrentTime(limelightMeasurementRight.timestampSeconds),
+    //       VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
+    // }
 
     // print poses to dashboard
-    m_field.setRobotPose(driveState.Pose);
-    if (limelightMeasurementLeft != null) {
-      m_field2.setRobotPose(limelightMeasurementLeft.pose);
-    }
-    if (limelightMeasurementRight != null) {
-      m_field3.setRobotPose(limelightMeasurementRight.pose);
-    }
+    // m_field.setRobotPose(driveState.Pose);
+    // if (limelightMeasurementLeft != null) {
+    //   m_field2.setRobotPose(limelightMeasurementLeft.pose);
+    // }
+    // if (limelightMeasurementRight != null) {
+    //   m_field3.setRobotPose(limelightMeasurementRight.pose);
+    // }
   }
 
   @Override
