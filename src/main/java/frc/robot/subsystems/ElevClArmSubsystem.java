@@ -290,16 +290,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         switch (requestState) {
           case CoralLevel1:
-            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
+            state = conditionalTransition(state, ElevArmState.LvlOneEMove);
             break;
           case CoralLevel2:
-            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
+            state = conditionalTransition(state, ElevArmState.LvlTwoEMove);
             break;
           case CoralLevel3:
-            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
+            state = conditionalTransition(state, ElevArmState.LvlThreeEMove);
             break;
           case CoralLevel4:
-            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
+            state = conditionalTransition(state, ElevArmState.LvlFourEMove);
             break;
           default:
             break;
