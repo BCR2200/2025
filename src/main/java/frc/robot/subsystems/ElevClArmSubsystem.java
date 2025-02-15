@@ -52,29 +52,30 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public RequestState requestState = RequestState.None;
   public ControlMode requestMode;
 
-  public static double SAFE_ARM_ELEVATOR = 20.5;
+  public static double SAFE_CORAL_ARM = 20.5;
+  public static double SAFE_ALGAE_ARM = 45;
   
   public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
-  public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_ARM_ELEVATOR);
-  public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(6, 45);
+  public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
+  public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(6, SAFE_ALGAE_ARM);
   public final static ElevArmPosition CORGAE_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
+  public final static ElevArmPosition PROCESSOR_POSITION = SAFE_ALGAE_POSITION;
   public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(28, 45);
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17, 25.4);
   public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5, 24.7);
   public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(100, 32.5);
   public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(18.6, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(53.5, 41);
-  public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(28, SAFE_ARM_ELEVATOR);
-  public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_ARM_ELEVATOR);
-  public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_ARM_ELEVATOR);
-  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(100, SAFE_ARM_ELEVATOR);
-  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(18.6, 45);
-  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, 45);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(70, 20.5);
-  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(70, 45);
-  public final static ElevArmPosition PROCESSOR_POSITION = SAFE_ALGAE_POSITION;
+  public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(28, SAFE_CORAL_ARM);
+  public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_CORAL_ARM);
+  public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_CORAL_ARM);
+  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(100, SAFE_CORAL_ARM);
+  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(18.6, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(70, SAFE_ALGAE_ARM);
 
   public enum ElevArmState {
     Hopper, Intake, SafeCoral,
@@ -612,7 +613,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
 
     if(getEMode() == ControlMode.Algae && requestMode != ControlMode.Coral){
-      clawMotor.setCurrentLimit(30);
+      clawMotor.setCurrentLimit(10);
     } 
     
   }

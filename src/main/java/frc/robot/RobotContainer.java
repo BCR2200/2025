@@ -306,6 +306,18 @@ public class RobotContainer {
                                         if(climber.climbMotor.getPosition() < -140){
                                                 return point.withModuleDirection(Rotation2d.fromDegrees(0)); // point wheels to 0 when climbed for easier manipulation post match
                                         }
+                                        if(e.rightElevatorMotor.getPosition() > 10){
+                                                heightFactor = (1/e.rightElevatorMotor.getPosition()) * 15;
+                                                if(heightFactor < 0.1){
+                                                        heightFactor = 0.1;
+                                                }
+                                        } else {
+                                                heightFactor = 1;
+                                        }
+
+                                        double rotate = ExtraMath.deadzone(-driverController.getRightX() * heightFactor * MaxAngularRate, 0.1);
+                                        double horizontal = ExtraMath.deadzone(-driverController.getLeftX() * heightFactor * MaxSpeed, 0.1);
+                                        double vertical = ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
                                         //limelight snaps
                                         if(snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center){
                                                 double tx,ty,yaw;
@@ -357,23 +369,13 @@ public class RobotContainer {
                                                         .withVelocityY(clampedDeadzone(vectorX * -pt, 1, .03))
                                                         .withRotationalRate(clampedDeadzone(vectorYaw * -pr, 1, .1));
                                                 } else {
-                                                        return driveFC.withVelocityX(0) // Drive
-                                                        .withVelocityY(0)
-                                                        .withRotationalRate(0);
+                                                        // womp womp good enough
+                                                        return driveFC.withVelocityX(vertical) // Drive with stick rotation
+                                                        .withVelocityY(horizontal)
+                                                        .withRotationalRate(rotate);
                                                 }
                                         } else {
-                                                if(e.rightElevatorMotor.getPosition() > 10){
-                                                        heightFactor = (1/e.rightElevatorMotor.getPosition()) * 15;
-                                                        if(heightFactor < 0.1){
-                                                                heightFactor = 0.1;
-                                                        }
-                                                } else {
-                                                        heightFactor = 1;
-                                                }
-
-                                                double rotate = ExtraMath.deadzone(-driverController.getRightX() * heightFactor * MaxAngularRate, 0.1);
-                                                double horizontal = ExtraMath.deadzone(-driverController.getLeftX() * heightFactor * MaxSpeed, 0.1);
-                                                double vertical = ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
+                                                
                                                 // field snaps
                                                 if(snap != SnapButton.None){
                                                         switch (snap) {

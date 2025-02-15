@@ -85,14 +85,17 @@ public class Robot extends TimedRobot {
      */
 
     var driveState = m_robotContainer.drivetrain.getState();
+    double robotYaw = m_robotContainer.gyro.Y - 90; // TODO ???????
+    LimelightHelpers.SetRobotOrientation("limelight-left", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
+    LimelightHelpers.SetRobotOrientation("limelight-right", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
 
     // Get left side Limelight measurment and add to Pose Estimator
     LimelightHelpers.PoseEstimate limelightMeasurementLeft = LimelightHelpers
-        .getBotPoseEstimate_wpiBlue("limelight-left");
+        .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
     LimelightHelpers.PoseEstimate limelightMeasurementRight = LimelightHelpers
-        .getBotPoseEstimate_wpiBlue("limelight-right");
+        .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
 
     if (limelightMeasurementLeft != null && limelightMeasurementLeft.tagCount > 0 && omegaRps < 2.0) {
 
@@ -100,6 +103,7 @@ public class Robot extends TimedRobot {
           limelightMeasurementLeft.pose,
           Utils.fpgaToCurrentTime(limelightMeasurementLeft.timestampSeconds),
           VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
+          // within 5 cm in the x and y, ignore limelight rotation 
     }
 
     if (limelightMeasurementRight != null && limelightMeasurementRight.tagCount > 0 && omegaRps < 2.0) {
@@ -189,8 +193,15 @@ public class Robot extends TimedRobot {
     m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(1).getSteerMotor());
     m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(2).getSteerMotor());
     m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(3).getSteerMotor());
+    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(0).getDriveMotor());
+    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(1).getDriveMotor());
+    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(2).getDriveMotor());
+    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(3).getDriveMotor());
+    m_orchestra.addInstrument(m_robotContainer.climber.climbMotor.motor);
     m_orchestra.addInstrument(m_robotContainer.e.clawMotor.motor);
-    m_orchestra.addInstrument(m_robotContainer.e.clawMotor.motor);
+    m_orchestra.addInstrument(m_robotContainer.e.rightElevatorMotor.motor);
+    m_orchestra.addInstrument(m_robotContainer.e.leftElevatorMotor.motor);
+    m_orchestra.addInstrument(m_robotContainer.e.shoulderMotor.motor);
     var status = m_orchestra.loadMusic("kendrick.chrp");
     if (!status.isOK()) {
       m_orchestra.play();
