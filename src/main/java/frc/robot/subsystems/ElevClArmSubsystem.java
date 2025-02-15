@@ -42,7 +42,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public enum RequestState {
     None, CoralLevel1, CoralLevel2, CoralLevel3, CoralLevel4, UnjamStrat1, UnjamStrat2, Barge, Processor, AlgaeBottom,
-    AlgaeTop;
+    AlgaeTop, UnlockClimb;
   }
 
   public enum ControlMode {
@@ -85,7 +85,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     CorgaeTransition,
     SafeAlgae, PickBottom, PickTop,
     PickBottomEMove, PickTopEMove, Barge, BargeEMove, Processor,
-    SafeClimb;
+    SafeClimb, UnlockClimb;
 
     public ElevArmPosition position() {
       return switch (this) {
@@ -95,6 +95,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case CorgaeTransition -> CORGAE_POSITION;
         case SafeAlgae -> SAFE_ALGAE_POSITION;
         case SafeClimb -> SAFE_CLIMB_POSITION;
+        case UnlockClimb -> SAFE_CLIMB_POSITION;
         case LvlOne -> LVL1_POSITION;
         case LvlTwo -> LVL2_POSITION;
         case LvlThree -> LVL3_POSITION;
@@ -340,9 +341,18 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         break;
       case SafeClimb:
+        switch (requestState) {
+          case UnlockClimb:
+            state = ElevArmState.UnlockClimb;
+            break;
+          default:
+            break;
+        }
+        break;
+      case UnlockClimb:
         switch (requestMode) {
           case Coral:
-            state = ElevArmState.Hopper;
+            state = ElevArmState.SafeCoral;
             break;
           case Algae:
             state = ElevArmState.SafeAlgae;
