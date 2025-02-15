@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -171,6 +172,8 @@ public class Robot extends TimedRobot {
     climbToCoast.restart();
   }
 
+  Orchestra m_orchestra;
+
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
@@ -180,6 +183,18 @@ public class Robot extends TimedRobot {
     // m_robotContainer.testController.b().whileTrue(m_robotContainer.drivetrain.sysIdQuasistatic(Direction.kReverse));
     // m_robotContainer.testController.a().whileTrue(m_robotContainer.drivetrain.sysIdDynamic(Direction.kForward));
     // m_robotContainer.testController.x().whileTrue(m_robotContainer.drivetrain.sysIdDynamic(Direction.kReverse));
+
+    m_orchestra = new Orchestra();
+    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(0).getSteerMotor());
+    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(1).getSteerMotor());
+    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(2).getSteerMotor());
+    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(3).getSteerMotor());
+    m_orchestra.addInstrument(m_robotContainer.e.clawMotor.motor);
+    m_orchestra.addInstrument(m_robotContainer.e.clawMotor.motor);
+    var status = m_orchestra.loadMusic("kendrick.chrp");
+    if (!status.isOK()) {
+      m_orchestra.play();
+    }
   }
 
   @Override
@@ -236,5 +251,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testExit() {
+    m_orchestra.close();
   }
 }
