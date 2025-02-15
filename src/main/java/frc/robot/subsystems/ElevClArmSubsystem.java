@@ -53,29 +53,30 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public ControlMode requestMode;
 
   public static double SAFE_CORAL_ARM = 20.5;
-  public static double SAFE_ALGAE_ARM = 45;
+  public static double SAFE_ALGAE_ARM = 31.6;
   
   public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
   public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
-  public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(6, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(6, 25);
+  public final static ElevArmPosition SAFE_ALGAE_EMOVE_POSITION = new ElevArmPosition(6, SAFE_ALGAE_ARM);
   public final static ElevArmPosition CORGAE_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
-  public final static ElevArmPosition PROCESSOR_POSITION = SAFE_ALGAE_POSITION;
+  public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(0, SAFE_ALGAE_ARM);
   public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(28, 45);
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17, 25.4);
   public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5, 24.7);
   public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(100, 32.5);
   public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(20, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(53.5, 41);
-  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(70, 20.5);
+  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(100, 17.6);
   public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(28, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(100, SAFE_CORAL_ARM);
   public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(20, SAFE_ALGAE_ARM);
   public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, SAFE_ALGAE_ARM);
-  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(70, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(100, SAFE_ALGAE_ARM);
 
   public enum ElevArmState {
     Hopper, Intake, SafeCoral,
@@ -83,7 +84,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     LvlOne, LvlTwo, LvlThree, LvlFour,
     LvlOneEMove, LvlTwoEMove, LvlThreeEMove, LvlFourEMove,
     CorgaeTransition,
-    SafeAlgae, PickBottom, PickTop,
+    SafeAlgae, PickBottom, PickTop, SafeAlgaeEMove,
     PickBottomEMove, PickTopEMove, Barge, BargeEMove, Processor,
     SafeClimb, UnlockClimb;
 
@@ -94,6 +95,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               case SafeCoral -> SAFE_CORAL_POSITION;
               case CorgaeTransition -> CORGAE_POSITION;
               case SafeAlgae -> SAFE_ALGAE_POSITION;
+              case SafeAlgaeEMove -> SAFE_ALGAE_EMOVE_POSITION;
               case SafeClimb -> SAFE_CLIMB_POSITION;
               case UnlockClimb -> SAFE_CLIMB_POSITION;
               case LvlOne -> LVL1_POSITION;
@@ -182,6 +184,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
   final int normalShoulderCurrentLimit = 30;
   final int softShoulderCurrentLimit = 10;
 
+  final int normalClawCurrentLimit = 30;
+  final int algaeClawCurrentLimit = 25;
+
   public ElevClArmSubsystem() {
     leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
     rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
@@ -194,7 +199,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     leftElevatorMotor.setCurrentLimit(40);
     rightElevatorMotor.setCurrentLimit(40);
     shoulderMotor.setCurrentLimit(normalShoulderCurrentLimit);
-    clawMotor.setCurrentLimit(30);
+    clawMotor.setCurrentLimit(normalClawCurrentLimit);
     clawMotor.setIdleBrakeMode();
 
     hopperBeamBreak = new DigitalInput(Constants.HOPPER_ID);
@@ -221,7 +226,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         switch (requestMode) {
           case Algae:
             state = ElevArmState.CorgaeTransition;
-            clawMotor.setCurrentLimit(25);
+            clawMotor.setCurrentLimit(algaeClawCurrentLimit);
             break;
           case Climb:
             state = ElevArmState.SafeClimb;
@@ -285,16 +290,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         switch (requestState) {
           case CoralLevel1:
-            state = conditionalTransition(state, ElevArmState.LvlOneEMove);
+            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
             break;
           case CoralLevel2:
-            state = conditionalTransition(state, ElevArmState.LvlTwoEMove);
+            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
             break;
           case CoralLevel3:
-            state = conditionalTransition(state, ElevArmState.LvlThreeEMove);
+            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
             break;
           case CoralLevel4:
-            state = conditionalTransition(state, ElevArmState.LvlFourEMove);
+            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
             break;
           default:
             break;
@@ -323,11 +328,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
         switch (requestMode) {
           case Coral:
             state = ElevArmState.SafeCoral;
-            clawMotor.setCurrentLimit(30);
+            clawMotor.setCurrentLimit(normalClawCurrentLimit);
             break;
           case Climb:
             state = ElevArmState.SafeClimb;
-            clawMotor.setCurrentLimit(30);
+            clawMotor.setCurrentLimit(normalClawCurrentLimit);
             break;
           default:
             break;
@@ -402,7 +407,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case Processor:
             break;
           default:
-            state = ElevArmState.SafeAlgae;
+            state = ElevArmState.SafeAlgaeEMove;
             break;
         }
         break;
@@ -523,11 +528,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case AlgaeTop:
             state = ElevArmState.PickTopEMove;
             break;
+          case Barge:
+            state = ElevArmState.BargeEMove;
+            break;
           case AlgaeBottom:
             state = conditionalTransition(state, ElevArmState.PickBottom);
             break;
           default:
-            state = conditionalTransition(state, ElevArmState.SafeAlgae);
+            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
             break;
         }
         break;
@@ -539,8 +547,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case AlgaeBottom:
             state = ElevArmState.PickBottomEMove;
             break;
+          case Barge:
+            state = ElevArmState.BargeEMove;
+            break;
           default:
-            state = conditionalTransition(state, ElevArmState.SafeAlgae);
+            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
             break;
         }
         break;
@@ -569,21 +580,57 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case Barge:
             state = conditionalTransition(state, ElevArmState.Barge);
             break;
+          case AlgaeBottom:
+            state = ElevArmState.PickBottomEMove;
+            break;
+          case AlgaeTop:
+            state = ElevArmState.PickTopEMove;
+            break;
           default:
-            state = conditionalTransition(state, ElevArmState.SafeAlgae);
+            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
             break;
         }
         break;
       // default:
       // System.err.println("something's busted, no state????");
       // break;
+      case SafeAlgaeEMove:
+        switch (requestState) {
+          case AlgaeTop:
+            state = conditionalTransition(state, ElevArmState.PickTopEMove);
+            break;
+          case AlgaeBottom:
+            state = ElevArmState.PickBottomEMove;
+            break;
+          case Barge:
+            state = ElevArmState.BargeEMove;
+            break;
+          case Processor:
+            state = conditionalTransition(state, ElevArmState.Processor);
+            break;
+          default:
+            state = conditionalTransition(state, ElevArmState.SafeAlgae);
+            break;
+        }
+        break;
 
     }
 
     switch (state) { // in state what are we doing with claw
       case Hopper:
       case SafeCoral:
-      default:
+      case CorgaeTransition:
+      case LvlFour:
+      case LvlFourEMove:
+      case LvlOne:
+      case LvlOneEMove:
+      case LvlThree:
+      case LvlThreeEMove:
+      case LvlTwo:
+      case LvlTwoEMove:
+      case Processor:
+      case SafeClimb:
+      case UnlockClimb:
         clawstate = ClawState.Stop________HammerTime;
         break;
       case Intake:
@@ -597,8 +644,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case PickBottomEMove:
       case PickTopEMove:
       case BargeEMove:
+      case Barge:
+      case SafeAlgaeEMove:
         clawstate = ClawState.EatAlgae;
         break;
+      default:
+        throw new IllegalArgumentException("Unexpected value: " + this); 
+        
     }
 
     if (state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2) {
@@ -703,7 +755,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public ControlMode getEMode() {
     switch (state) {
-      default:
       case SafeCoral:
       case Hopper:
       case Intake:
@@ -726,10 +777,17 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case PickBottom:
       case PickTopEMove:
       case PickBottomEMove:
+      case BargeEMove:
+      case CorgaeTransition:
+      case SafeAlgaeEMove:
         return ControlMode.Algae;
 
       case SafeClimb:
+      case UnlockClimb:
         return ControlMode.Climb;
+        
+      default:
+        throw new IllegalArgumentException("Unexpected value: " + this); 
     }
   }
 
