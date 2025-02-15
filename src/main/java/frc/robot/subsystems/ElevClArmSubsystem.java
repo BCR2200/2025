@@ -604,7 +604,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     if (state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2) {
       go(state.position());
     } else if (state == ElevArmState.UnjamStrat1){
-      
+      // haha... unless?
     }
     if (shootLust && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral
         && state != ElevArmState.Intake) {
