@@ -89,29 +89,31 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     public ElevArmPosition position() {
       return switch (this) {
-        case Hopper -> HOPPER_POSITION;
-        case Intake -> INTAKE_POSITION;
-        case SafeCoral -> SAFE_CORAL_POSITION;
-        case CorgaeTransition -> CORGAE_POSITION;
-        case SafeAlgae -> SAFE_ALGAE_POSITION;
-        case SafeClimb -> SAFE_CLIMB_POSITION;
-        case UnlockClimb -> SAFE_CLIMB_POSITION;
-        case LvlOne -> LVL1_POSITION;
-        case LvlTwo -> LVL2_POSITION;
-        case LvlThree -> LVL3_POSITION;
-        case LvlFour -> LVL4_POSITION;
-        case PickBottom -> PICKBOTTOM_POSITION;
-        case PickTop -> PICKTOP_POSITION;
-        case LvlOneEMove -> LVL1_EMOVE_POSITION;
-        case LvlTwoEMove -> LVL2_EMOVE_POSITION;
-        case LvlThreeEMove -> LVL3_EMOVE_POSITION;
-        case LvlFourEMove -> LVL4_EMOVE_POSITION;
-        case PickBottomEMove -> PICKBOTTOM_EMOVE_POSITION;
-        case PickTopEMove -> PICKTOP_EMOVE_POSITION;
-        case Barge -> BARGE_POSITION;
-        case BargeEMove -> BARGE_EMOVE_POSITION;
-        case Processor -> PROCESSOR_POSITION;
-        default -> SAFE_CORAL_POSITION;
+              case Hopper -> HOPPER_POSITION;
+              case Intake -> INTAKE_POSITION;
+              case SafeCoral -> SAFE_CORAL_POSITION;
+              case CorgaeTransition -> CORGAE_POSITION;
+              case SafeAlgae -> SAFE_ALGAE_POSITION;
+              case SafeClimb -> SAFE_CLIMB_POSITION;
+              case UnlockClimb -> SAFE_CLIMB_POSITION;
+              case LvlOne -> LVL1_POSITION;
+              case LvlTwo -> LVL2_POSITION;
+              case LvlThree -> LVL3_POSITION;
+              case LvlFour -> LVL4_POSITION;
+              case PickBottom -> PICKBOTTOM_POSITION;
+              case PickTop -> PICKTOP_POSITION;
+              case LvlOneEMove -> LVL1_EMOVE_POSITION;
+              case LvlTwoEMove -> LVL2_EMOVE_POSITION;
+              case LvlThreeEMove -> LVL3_EMOVE_POSITION;
+              case LvlFourEMove -> LVL4_EMOVE_POSITION;
+              case PickBottomEMove -> PICKBOTTOM_EMOVE_POSITION;
+              case PickTopEMove -> PICKTOP_EMOVE_POSITION;
+              case Barge -> BARGE_POSITION;
+              case BargeEMove -> BARGE_EMOVE_POSITION;
+              case Processor -> PROCESSOR_POSITION;
+              case UnjamStrat1 -> INTAKE_POSITION;
+              case UnjamStrat2 -> INTAKE_POSITION;
+              default -> throw new IllegalArgumentException("Unexpected value: " + this);
       };
     }
   }
@@ -177,6 +179,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
   }
 
+  final int normalShoulderCurrentLimit = 30;
+  final int softShoulderCurrentLimit = 10;
+
   public ElevClArmSubsystem() {
     leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
     rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
@@ -188,7 +193,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     leftElevatorMotor.setCurrentLimit(40);
     rightElevatorMotor.setCurrentLimit(40);
-    shoulderMotor.setCurrentLimit(30);
+    shoulderMotor.setCurrentLimit(normalShoulderCurrentLimit);
     clawMotor.setCurrentLimit(30);
     clawMotor.setIdleBrakeMode();
 
@@ -226,6 +231,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         switch (requestState) {
           case UnjamStrat1:
             state = ElevArmState.UnjamStrat1;
+            shoulderMotor.setCurrentLimit(softShoulderCurrentLimit);
             break;
           case UnjamStrat2:
             state = ElevArmState.UnjamStrat2;
@@ -541,6 +547,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             break;
           default:
             state = ElevArmState.Hopper;
+            shoulderMotor.setCurrentLimit(normalShoulderCurrentLimit);
             break;
         }
         break;
@@ -577,6 +584,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
         clawstate = ClawState.Stop________HammerTime;
         break;
       case Intake:
+      case UnjamStrat1:
+      case UnjamStrat2:
         clawstate = ClawState.Eat;
         break;
       case SafeAlgae:
@@ -591,6 +600,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     if (state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2) {
       go(state.position());
+    } else if (state == ElevArmState.UnjamStrat1){
+      
     }
     if (shootLust && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral
         && state != ElevArmState.Intake) {
@@ -734,6 +745,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
     
     SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHopper());
     SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
+
+    SmartDashboard.putNumber("Elevator current:", rightElevatorMotor.getCurrent());
+    SmartDashboard.putNumber("Arm current:", shoulderMotor.getCurrent());
+    SmartDashboard.putNumber("Claw current:", clawMotor.getCurrent());
+
+    SmartDashboard.putNumber("Elevator voltage applied:", rightElevatorMotor.motor.getMotorVoltage().getValue().magnitude());
+    SmartDashboard.putNumber("Arm voltage applied:", shoulderMotor.motor.getMotorVoltage().getValue().magnitude());
+    SmartDashboard.putNumber("Claw voltage applied:", clawMotor.motor.getMotorVoltage().getValue().magnitude());
     
     // SmartDashboard.putNumber("Claw Start Pos:", clawStartPosition);
     // SmartDashboard.putNumber("Claw Target Pos:", clawTargetPosition);

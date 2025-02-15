@@ -31,7 +31,7 @@ public class PIDMotor {
     double target = 0.0;
 
     final TalonFXConfiguration talonFXConfigs;
-    final TalonFX motor;
+    public final TalonFX motor;
 
     private PIDMotor(int deviceID, String name, double p, double i, double d, double s, double v, double a, double g, double maxV,
             double maxA, double maxJerk) {

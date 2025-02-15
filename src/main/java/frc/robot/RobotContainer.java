@@ -92,6 +92,9 @@ public class RobotContainer {
         AnalogTrigger feederRightTrigger;
         AnalogTrigger feederLeftTrigger;
 
+        Keybind rightBumper;
+        Keybind leftBumper;
+
         enum SnapButton {
                 Left, Right, Center, LeftFeeder, RightFeeder, ReefF, ReefFR, ReefFL, ReefBL, ReefBR, ReefB, None
         }
@@ -183,6 +186,8 @@ public class RobotContainer {
                 feederRightTrigger = new AnalogTrigger(driverController, Axis.RT, 0.5);
                 feederLeftTrigger = new AnalogTrigger(driverController, Axis.LT, 0.5);
                 
+                rightBumper = new Keybind(codriverController, Button.RightBumper);
+                leftBumper = new Keybind(codriverController, Button.LeftBumper);
 
                 // select modes
                 selectButton.trigger().and(startButton.trigger())
@@ -203,12 +208,14 @@ public class RobotContainer {
                                 .whileTrue(new ShootCmd(e));
                 leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
                                 .whileTrue(new SuckCmd(e));
-
+                
+                // snap feeder station angles
                 feederRightTrigger.trigger()
                                 .whileTrue(new InstantCommand(() -> snap = SnapButton.LeftFeeder));
                 feederLeftTrigger.trigger()
                                 .whileTrue(new InstantCommand(() -> snap = SnapButton.RightFeeder));
                 
+                // snap to reef angles
                 snapA.trigger().and(snapB.trigger().negate().and(snapX.trigger().negate().and(snapY.trigger().negate()
                         ))).whileTrue(new InstantCommand(() -> snap = SnapButton.ReefF));
                 snapY.trigger().and(snapB.trigger().negate().and(snapX.trigger().negate().and(snapA.trigger().negate()
@@ -231,7 +238,13 @@ public class RobotContainer {
                 
 
                 // request states for elevclarm
-                // include negative feedback (rumble) for unavailable changes of state/mode
+                // include negative feedback (rumble) for unavailable changes of state/mode TODO
+
+                // Unjam strats
+                leftBumper.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+                        .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat1));
+                rightBumper.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+                        .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat2));
 
                 // go to lvl 1
                 aButton.trigger().and(() -> e.getEMode() == ControlMode.Coral)
