@@ -188,17 +188,13 @@ public class RobotContainer {
                 selectButton.trigger().and(startButton.trigger())
                                 .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Climb)));
                 startButton.trigger().and(selectButton.trigger().negate())
-                                .onTrue(new InstantCommand(() -> {
-                                        if(e.getEMode() != ControlMode.Climb){
-                                                e.requestMode(ControlMode.Coral);
-                                        }
-                                }));
+                                .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Coral)));
                 selectButton.trigger().and(startButton.trigger().negate())
-                                .onTrue(new InstantCommand(() -> {
-                                        if(e.getEMode() != ControlMode.Climb){
-                                                e.requestMode(ControlMode.Algae);
-                                        }
-                                }));
+                                .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Algae)));
+                                
+                selectButton.trigger().and(startButton.trigger().and(rightTrigger.trigger()).and(leftTrigger.trigger()))
+                                .whileTrue(new RequesteStateCmd(e,RequestState.UnlockClimb));
+                                
 
                 // shoot
                 rightTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
