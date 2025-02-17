@@ -1,11 +1,12 @@
 package frc.robot.timing;
 
-import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class TimingUtils {
@@ -18,13 +19,13 @@ public class TimingUtils {
     }
 
     // Use a consumer to inject the logging method
-    private static BiConsumer<String, Double> valueConsumer = SignalLogger::writeDouble;
+    private static Supplier<DataLog> logGetter = DataLogManager::getLog;
 
-    public static void setValueConsumer(BiConsumer<String, Double> consumer) {
-        valueConsumer = consumer;
+    public static void setLogGetter(Supplier<DataLog> logGetter) {
+        TimingUtils.logGetter = logGetter;
     }
 
-    static final ConcurrentMap<String, String> labelEntryNameMap = new ConcurrentHashMap<>();
+    static final ConcurrentMap<String, DoubleLogEntry> labelToLogEntryMap = new ConcurrentHashMap<>();
 
     public static double currentTimeMillis() {
         return timeSupplier.get();
@@ -42,8 +43,11 @@ public class TimingUtils {
             // We want to capture all timings under a "TimingUtils/" namespace.
             // It is inefficient to generate a string each time, so we should generate it only
             // if it isn't in the cache, otherwise using the cached value.
-            String labelEntryName = labelEntryNameMap.computeIfAbsent(label, key -> "TimingUtils/" + key);
-            valueConsumer.accept(labelEntryName, delta);
+            DoubleLogEntry entry = labelToLogEntryMap.computeIfAbsent(label, key -> {
+                String fullKey = "TimingUtils/" + key;
+              return new DoubleLogEntry(logGetter.get(), fullKey);
+            });
+            entry.append(delta);
         }
     }
 }
