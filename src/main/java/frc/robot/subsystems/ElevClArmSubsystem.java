@@ -55,28 +55,29 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public static double SAFE_CORAL_ARM = 20.5;
   public static double SAFE_ALGAE_ARM = 31.6;
   
+
   public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
-  public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 0);
+  public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 1.0);
   public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
   public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(6, 25);
   public final static ElevArmPosition SAFE_ALGAE_EMOVE_POSITION = new ElevArmPosition(6, SAFE_ALGAE_ARM);
   public final static ElevArmPosition CORGAE_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
-  public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(0, SAFE_ALGAE_ARM);
-  public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(28, 45);
+  public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(6.5, 45.7);
+  public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(15, 45);
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17, 25.4);
   public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5, 24.7);
-  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(100, 32.5);
+  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(100, 32);
   public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(20, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(53.5, 41);
-  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(100, 17.6);
-  public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(28, SAFE_CORAL_ARM);
+  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103, 17.6);
+  public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(15, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(100, SAFE_CORAL_ARM);
   public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(20, SAFE_ALGAE_ARM);
   public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, SAFE_ALGAE_ARM);
-  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(100, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(103, SAFE_ALGAE_ARM);
 
   public enum ElevArmState {
     Hopper, Intake, SafeCoral,
@@ -138,16 +139,17 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public double clawTargetPosition;
 
   public enum ClawState {
-    Eat, Stop________HammerTime, Vomit, EatAlgae, Poop, Drool;
+    Eat, Stop________HammerTime, Vomit, EatAlgae, Poop, Drool, LazyBowelSyndrome;
 
     public double speed() {
       return switch (this) {
-        case Eat -> 0.15;
-        case EatAlgae -> 1.0;
+        case Eat -> 0.3;
+        case EatAlgae -> 0.5;
         case Poop -> 1.0;
         case Stop________HammerTime -> 0.0;
         case Vomit -> -1.0;
         case Drool -> -0.3;
+        case LazyBowelSyndrome -> 0.5;
         default -> 0.0;
       };
     }
@@ -185,11 +187,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
   final int softShoulderCurrentLimit = 10;
 
   final int normalClawCurrentLimit = 30;
-  final int algaeClawCurrentLimit = 25;
+  final int algaeClawCurrentLimit = 35;
 
   public ElevClArmSubsystem() {
-    leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
-    rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
+    leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2.5, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
+    rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2.5, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
     shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 2, 0, 0.1, 0.25, 0.12, 0.01, 60, 200, 0);
     clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 2, 0, 0.1, 0.25, 0.12, 0.01, 60, 200, 0);
     clawMotor.setInverted(InvertedValue.Clockwise_Positive);
@@ -472,7 +474,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.LvlOneEMove;
             break;
           case CoralLevel2:
-            state = conditionalTransition(state, ElevArmState.LvlTwo);
+            state = conditionalTransition(state, ElevArmState.LvlTwo, 10);
             break;
           case CoralLevel3:
             state = ElevArmState.LvlThreeEMove;
@@ -481,7 +483,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.LvlFourEMove;
             break;
           default:
-            state = conditionalTransition(state, ElevArmState.SafeCoral);
+            state = conditionalTransition(state, ElevArmState.SafeCoral, 20);
             break;
         }
         break;
@@ -494,13 +496,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.LvlTwoEMove;
             break;
           case CoralLevel3:
-            state = conditionalTransition(state, ElevArmState.LvlThree);
+            state = conditionalTransition(state, ElevArmState.LvlThree, 10);
             break;
           case CoralLevel4:
             state = ElevArmState.LvlFourEMove;
             break;
           default:
-            state = conditionalTransition(state, ElevArmState.SafeCoral);
+            state = conditionalTransition(state, ElevArmState.SafeCoral, 20);
             break;
         }
         break;
@@ -532,17 +534,17 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.BargeEMove;
             break;
           case AlgaeBottom:
-            state = conditionalTransition(state, ElevArmState.PickBottom);
+            state = conditionalTransition(state, ElevArmState.PickBottom,30);
             break;
           default:
-            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
+            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 30);
             break;
         }
         break;
       case PickTopEMove:
         switch (requestState) {
           case AlgaeTop:
-            state = conditionalTransition(state, ElevArmState.PickTop);
+            state = conditionalTransition(state, ElevArmState.PickTop, 30);
             break;
           case AlgaeBottom:
             state = ElevArmState.PickBottomEMove;
@@ -578,7 +580,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case BargeEMove:
         switch (requestState) {
           case Barge:
-            state = conditionalTransition(state, ElevArmState.Barge);
+            state = conditionalTransition(state, ElevArmState.Barge, 30);
             break;
           case AlgaeBottom:
             state = ElevArmState.PickBottomEMove;
@@ -587,7 +589,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = ElevArmState.PickTopEMove;
             break;
           default:
-            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
+            state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 10);
             break;
         }
         break;
@@ -609,7 +611,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             state = conditionalTransition(state, ElevArmState.Processor);
             break;
           default:
-            state = conditionalTransition(state, ElevArmState.SafeAlgae);
+            state = conditionalTransition(state, ElevArmState.SafeAlgae, 7);
             break;
         }
         break;
@@ -628,22 +630,22 @@ public class ElevClArmSubsystem extends SubsystemBase {
       case LvlThreeEMove:
       case LvlTwo:
       case LvlTwoEMove:
-      case Processor:
       case SafeClimb:
       case UnlockClimb:
-        clawstate = ClawState.Stop________HammerTime;
-        break;
+      clawstate = ClawState.Stop________HammerTime;
+      break;
       case Intake:
       case UnjamStrat1:
       case UnjamStrat2:
-        clawstate = ClawState.Eat;
-        break;
+      clawstate = ClawState.Eat;
+      break;
       case SafeAlgae:
       case PickBottom:
       case PickTop:
       case PickBottomEMove:
       case PickTopEMove:
       case BargeEMove:
+      case Processor:
       case Barge:
       case SafeAlgaeEMove:
         clawstate = ClawState.EatAlgae;
@@ -653,15 +655,19 @@ public class ElevClArmSubsystem extends SubsystemBase {
         
     }
 
-    if (state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2) {
+    // if (state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2) {
       go(state.position());
-    } else if (state == ElevArmState.UnjamStrat1){
-      // haha... unless?
-    }
+    // } else if (state == ElevArmState.UnjamStrat1){
+    //   // haha... unless?
+    // i think we changed it so unjam just goes, but affects current or is just manual intake
+    // }
     if (shootLust && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral
-        && state != ElevArmState.Intake) {
+        && state != ElevArmState.Intake && state != ElevArmState.Hopper) {
       positionControl = false;
       clawstate = ClawState.Poop;
+    } else if (shootLust && getEMode() == ControlMode.Coral && state == ElevArmState.Hopper) {
+      positionControl = false;
+      clawstate = ClawState.LazyBowelSyndrome;
     }
     if (suck && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral
         && state != ElevArmState.Intake) {
@@ -673,7 +679,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
     if (shootLust && getEMode() == ControlMode.Coral && state == ElevArmState.LvlOne) {
       positionControl = false;
-      clawstate = ClawState.Vomit;
+      clawstate = ClawState.Drool;
     }
 
     if(!coralInClaw){

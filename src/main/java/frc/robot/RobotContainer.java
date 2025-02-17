@@ -275,10 +275,10 @@ public class RobotContainer {
                 climb.trigger().and(() -> e.getEMode() == ControlMode.Climb).whileTrue(new ClimberCmd(climber, ClimbState.Up));
                 unclimb.trigger().and(() -> e.getEMode() == ControlMode.Climb).whileTrue(new ClimberCmd(climber, ClimbState.Down));
 
-                leftDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = -0.05));
-                rightDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = 0.05));
-                upDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = -0.05));
-                downDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = 0.05));
+                leftDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = -0.08));
+                rightDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = 0.08));
+                upDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = -0.08));
+                downDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = 0.08));
 
                 leftDpad.trigger().negate().and(rightDpad.trigger().negate()).whileTrue(new InstantCommand(() -> dpadShiftX = 0));
                 upDpad.trigger().negate().and(downDpad.trigger().negate()).whileTrue(new InstantCommand(() -> dpadShiftY = 0));
@@ -317,8 +317,8 @@ public class RobotContainer {
                                         }
                                         if(e.rightElevatorMotor.getPosition() > 10){
                                                 heightFactor = (1/e.rightElevatorMotor.getPosition()) * 15;
-                                                if(heightFactor < 0.1){
-                                                        heightFactor = 0.1;
+                                                if(heightFactor < 0.2){
+                                                        heightFactor = 0.2;
                                                 }
                                         } else {
                                                 heightFactor = 1;
@@ -339,14 +339,14 @@ public class RobotContainer {
                                                         case Right:
                                                                 primaryCam = "limelight-left";
                                                                 fallbackCam = "limelight-right";
-                                                                targetTx = 0.160;
+                                                                targetTx = 0.150;
                                                                 // targetTy = 0.587;
                                                                 // targetYaw = 0;
                                                                 break;
                                                         case Left:
                                                                 primaryCam = "limelight-right";
                                                                 fallbackCam = "limelight-left";
-                                                                targetTx = -0.17;
+                                                                targetTx = -0.18;
                                                                 break;
                                                         default:
                                                                 primaryCam = "limelight-left";
@@ -374,9 +374,16 @@ public class RobotContainer {
                                                         double pr = 0.1; // rotation p
                                                         
                                                         // Y goes in X and X goes in y because of comment above setDefaultCommand
-                                                        return driveRC.withVelocityX(clampedDeadzone(vectorY * -pt, 1, .03)) // Drive
-                                                        .withVelocityY(clampedDeadzone(vectorX * -pt, 1, .03))
-                                                        .withRotationalRate(clampedDeadzone(vectorYaw * -pr, 1, .1));
+                                                        if(e.getEMode() == ControlMode.Coral){
+                                                                return driveRC.withVelocityX(clampedDeadzone(vectorY * -pt, 1, .03)) // Drive
+                                                                .withVelocityY(clampedDeadzone(vectorX * -pt, 1, .03))
+                                                                .withRotationalRate(clampedDeadzone(vectorYaw * -pr, 1, .1));
+                                                        }
+                                                        else{
+                                                                return driveRC.withVelocityX(vertical) // Drive
+                                                                .withVelocityY(clampedDeadzone(vectorX * -pt, 1, .03))
+                                                                .withRotationalRate(clampedDeadzone(vectorYaw * -pr, 1, .1));
+                                                        }
                                                 } else {
                                                         // womp womp good enough
                                                         return driveFC.withVelocityX(vertical) // Drive with stick rotation

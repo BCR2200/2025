@@ -22,13 +22,13 @@ public class ClimberSubsystem extends SubsystemBase {
                 if(climbMotor.getPosition() > 0){ // negative stuff
                     return 0.0;
                 } else {
-                    return 0.5;
+                    return 1;
                 }
             case Down:
                 if(climbMotor.getPosition() < Constants.CLIMBER_MAX_HEIGHT){
                     return 0.0;
                 } else {
-                    return -0.5;
+                    return -1;
                 }
             default:
                 return 0.0;

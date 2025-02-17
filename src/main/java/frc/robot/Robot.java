@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -73,6 +74,12 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
 
+      SmartDashboard.putNumber(
+      "CAN Utilization %", RobotController.getCANStatus().percentBusUtilization * 100.0);
+      SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
+      SmartDashboard.putNumber("CPU Temperature", RobotController.getCPUTemp());
+      SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+
     /*
      * This example of adding Limelight is very simple and may not be sufficient for
      * on-field use.
@@ -86,7 +93,7 @@ public class Robot extends TimedRobot {
      * specification.
      */
 
-    // var driveState = m_robotContainer.drivetrain.getState();
+    var driveState = m_robotContainer.drivetrain.getState();
     // double robotYaw = m_robotContainer.gyro.Y - 90; // TODO ???????
     // LimelightHelpers.SetRobotOrientation("limelight-left", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
     // LimelightHelpers.SetRobotOrientation("limelight-right", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -116,7 +123,7 @@ public class Robot extends TimedRobot {
     // }
 
     // print poses to dashboard
-    // m_field.setRobotPose(driveState.Pose);
+    m_field.setRobotPose(driveState.Pose);
     // if (limelightMeasurementLeft != null) {
     //   m_field2.setRobotPose(limelightMeasurementLeft.pose);
     // }
