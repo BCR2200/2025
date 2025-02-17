@@ -263,7 +263,7 @@ public class LEDSubsystem implements Runnable {
     // new Thread(this, "LED Thread").start();
   }
 
-  private class Strip {
+  private static class Strip {
     // Both start and end are inclusive
     public final int start;
     public final int end;
@@ -324,7 +324,7 @@ public class LEDSubsystem implements Runnable {
         } else {
           Thread.sleep(sleepInterval);
         }
-      } catch (InterruptedException iex) {
+      } catch (InterruptedException ignored) {
       }
       SmartDashboard.putNumber("fake VU 2 input", fakeVUInput);
     }
