@@ -9,18 +9,13 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -113,9 +108,9 @@ public class RobotContainer {
         static Rotation2d ReefBAngle = Rotation2d.fromDegrees(180); 
         Rotation2d direction;
 
-        private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor; // kSpeedAt12Volts
+        private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor; // kSpeedAt12Volts
                                                                                                     // desired top speed
-        private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor; // 3/4 of a
+        private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor; // 3/4 of a
                                                                                                         // rotation per
                                                                                                         // second
         // max angular velocity
@@ -191,14 +186,17 @@ public class RobotContainer {
 
                 // select modes
                 selectButton.trigger().and(startButton.trigger())
-                                .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Climb)));
+                        .and(rightTrigger.trigger().and(leftTrigger.trigger()).negate())
+                        .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Climb)));
                 startButton.trigger().and(selectButton.trigger().negate())
                                 .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Coral)));
                 selectButton.trigger().and(startButton.trigger().negate())
                                 .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Algae)));
-                                
-                selectButton.trigger().and(startButton.trigger().and(rightTrigger.trigger()).and(leftTrigger.trigger()))
-                                .whileTrue(new RequesteStateCmd(e,RequestState.UnlockClimb));
+
+                // Allow exiting Climb mode
+                selectButton.trigger().and(startButton.trigger())
+                        .and(rightTrigger.trigger().and(leftTrigger.trigger()))
+                        .whileTrue(new RequesteStateCmd(e,RequestState.UnlockClimb));
                                 
 
                 // shoot
@@ -282,11 +280,7 @@ public class RobotContainer {
 
                 leftDpad.trigger().negate().and(rightDpad.trigger().negate()).whileTrue(new InstantCommand(() -> dpadShiftX = 0));
                 upDpad.trigger().negate().and(downDpad.trigger().negate()).whileTrue(new InstantCommand(() -> dpadShiftY = 0));
-                
-                // unjam
-                // leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
-                // .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat1));
-                
+
                 driverController.leftBumper().and(driverController.rightBumper().negate()).onTrue(new InstantCommand(() -> snap = SnapButton.Left));
                 driverController.rightBumper().and(driverController.leftBumper().negate()).onTrue(new InstantCommand(() -> snap = SnapButton.Right));
                 driverController.leftBumper().and(driverController.rightBumper()).onTrue(new InstantCommand(() -> snap = SnapButton.Center));
@@ -416,8 +410,8 @@ public class RobotContainer {
                                                                 case ReefFR:
                                                                         direction = ReefFRAngle;
                                                                         break;
-                                                                default:
                                                                 case ReefF:
+                                                                default:
                                                                         direction = ReefFAngle;
                                                                         break;
                                                         }

@@ -5,14 +5,10 @@
 package frc.robot;
 
 import com.ctre.phoenix6.Orchestra;
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.timing.TimingUtils;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -45,20 +42,20 @@ public class Robot extends TimedRobot {
     // why are we saying yaw = -90? shouldn't it be m_robotContainer.gyro.Y, below too?
 
     // if(llMeasurement.rawFiducials.length == 0){
-      //   llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
-      // }
+    //   llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+    // }
 
-    
-      Alliance alliance = DriverStation.getAlliance().orElse(null);
-      if (alliance == Alliance.Red) {
-          m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(Math.PI));
-      } else {
-          m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
-      }
-      
-    
+
+    Alliance alliance = DriverStation.getAlliance().orElse(null);
+    if (alliance == Alliance.Red) {
+      m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(Math.PI));
+    } else {
+      m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
+    }
+
+
     var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-    if(llMeasurement != null){
+    if (llMeasurement != null) {
       m_robotContainer.drivetrain.resetPose(llMeasurement.pose);
     }
 
@@ -72,7 +69,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
+    TimingUtils.logDuration("robotPeriodic", () -> {
+      CommandScheduler.getInstance().run();
 
       SmartDashboard.putNumber(
       "CAN Utilization %", RobotController.getCANStatus().percentBusUtilization * 100.0);
@@ -80,56 +78,58 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("CPU Temperature", RobotController.getCPUTemp());
       SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
 
-    /*
-     * This example of adding Limelight is very simple and may not be sufficient for
-     * on-field use.
-     * Users typically need to provide a standard deviation that scales with the
-     * distance to target
-     * and changes with number of tags available.
-     *
-     * This example is sufficient to show that vision integration is possible,
-     * though exact implementation
-     * of how to use vision should be tuned per-robot and to the team's
-     * specification.
-     */
+      /*
+       * This example of adding Limelight is very simple and may not be sufficient for
+       * on-field use.
+       * Users typically need to provide a standard deviation that scales with the
+       * distance to target
+       * and changes with number of tags available.
+       *
+       * This example is sufficient to show that vision integration is possible,
+       * though exact implementation
+       * of how to use vision should be tuned per-robot and to the team's
+       * specification.
+       */
 
     var driveState = m_robotContainer.drivetrain.getState();
     // double robotYaw = m_robotContainer.gyro.Y - 90; // TODO ???????
     // LimelightHelpers.SetRobotOrientation("limelight-left", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
     // LimelightHelpers.SetRobotOrientation("limelight-right", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-    // double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+      // double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
 
-    // // Get left side Limelight measurment and add to Pose Estimator
-    // LimelightHelpers.PoseEstimate limelightMeasurementLeft = LimelightHelpers
-    //     .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
-    // LimelightHelpers.PoseEstimate limelightMeasurementRight = LimelightHelpers
-    //     .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+      // // Get left side Limelight measurment and add to Pose Estimator
+      // LimelightHelpers.PoseEstimate limelightMeasurementLeft = LimelightHelpers
+      //     .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
+      // LimelightHelpers.PoseEstimate limelightMeasurementRight = LimelightHelpers
+      //     .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
 
-    // if (limelightMeasurementLeft != null && limelightMeasurementLeft.tagCount > 0 && omegaRps < 2.0) {
+      // if (limelightMeasurementLeft != null && limelightMeasurementLeft.tagCount > 0 && omegaRps < 2.0) {
 
-    //   m_robotContainer.drivetrain.addVisionMeasurement(
-    //       limelightMeasurementLeft.pose,
-    //       Utils.fpgaToCurrentTime(limelightMeasurementLeft.timestampSeconds),
-    //       VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
-    //       // within 5 cm in the x and y, ignore limelight rotation 
-    // }
+      //   m_robotContainer.drivetrain.addVisionMeasurement(
+      //       limelightMeasurementLeft.pose,
+      //       Utils.fpgaToCurrentTime(limelightMeasurementLeft.timestampSeconds),
+      //       VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
+      //       // within 5 cm in the x and y, ignore limelight rotation
+      // }
 
-    // if (limelightMeasurementRight != null && limelightMeasurementRight.tagCount > 0 && omegaRps < 2.0) {
-    //   m_robotContainer.drivetrain.addVisionMeasurement(
-    //       limelightMeasurementRight.pose,
-    //       Utils.fpgaToCurrentTime(limelightMeasurementRight.timestampSeconds),
-    //       VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
-    // }
+      // if (limelightMeasurementRight != null && limelightMeasurementRight.tagCount > 0 && omegaRps < 2.0) {
+      //   m_robotContainer.drivetrain.addVisionMeasurement(
+      //       limelightMeasurementRight.pose,
+      //       Utils.fpgaToCurrentTime(limelightMeasurementRight.timestampSeconds),
+      //       VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
+      // }
 
-    // print poses to dashboard
-    m_field.setRobotPose(driveState.Pose);
-    // if (limelightMeasurementLeft != null) {
-    //   m_field2.setRobotPose(limelightMeasurementLeft.pose);
-    // }
-    // if (limelightMeasurementRight != null) {
-    //   m_field3.setRobotPose(limelightMeasurementRight.pose);
-    // }
+      // print poses to dashboard
+      m_field.setRobotPose(driveState.Pose);
+      // if (limelightMeasurementLeft != null) {
+      //   m_field2.setRobotPose(limelightMeasurementLeft.pose);
+      // }
+      // if (limelightMeasurementRight != null) {
+      //   m_field3.setRobotPose(limelightMeasurementRight.pose);
+      // }
+
+    });
   }
 
   @Override
@@ -139,9 +139,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    if(climbToCoast.get() > 6 && climbToCoast.get() < 7){
-      m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
-    }
+    TimingUtils.logDuration("disabledPeriodic", () -> {
+      if (climbToCoast.get() > 6 && climbToCoast.get() < 7) {
+        m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
+      }
+    });
   }
 
   @Override
@@ -161,6 +163,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
+    TimingUtils.logDuration("autonomousPeriodic", () -> {
+
+    });
   }
 
   @Override
@@ -177,7 +182,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    
+    TimingUtils.logDuration("teleopPeriodic", () -> {
+
+    });
   }
 
   @Override
@@ -219,54 +226,56 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    // if (m_robotContainer.driverController.getHID().getPOV() == 0) {
-    // m_robotContainer.e.leftElevatorMotor.setPercentOutput(0.1);
-    // } else if (m_robotContainer.driverController.getHID().getPOV() == 180) {
-    // m_robotContainer.e.leftElevatorMotor.setPercentOutput(-0.1);
-    // } else {
-    // m_robotContainer.e.leftElevatorMotor.setPercentOutput(0);
-    // }
+    TimingUtils.logDuration("testPeriodic", () -> {
+      // if (m_robotContainer.driverController.getHID().getPOV() == 0) {
+      // m_robotContainer.e.leftElevatorMotor.setPercentOutput(0.1);
+      // } else if (m_robotContainer.driverController.getHID().getPOV() == 180) {
+      // m_robotContainer.e.leftElevatorMotor.setPercentOutput(-0.1);
+      // } else {
+      // m_robotContainer.e.leftElevatorMotor.setPercentOutput(0);
+      // }
 
-    // if (m_robotContainer.driverController.getHID().getPOV() == 270) {
-    // m_robotContainer.e.rightElevatorMotor.setPercentOutput(-0.1);
-    // } else if (m_robotContainer.driverController.getHID().getPOV() == 90) {
-    // m_robotContainer.e.rightElevatorMotor.setPercentOutput(0.1);
-    // } else{
-    // m_robotContainer.e.rightElevatorMotor.setPercentOutput(0);
+      // if (m_robotContainer.driverController.getHID().getPOV() == 270) {
+      // m_robotContainer.e.rightElevatorMotor.setPercentOutput(-0.1);
+      // } else if (m_robotContainer.driverController.getHID().getPOV() == 90) {
+      // m_robotContainer.e.rightElevatorMotor.setPercentOutput(0.1);
+      // } else{
+      // m_robotContainer.e.rightElevatorMotor.setPercentOutput(0);
 
-    // }
+      // }
 
-    // if (m_robotContainer.driverController.getHID().getXButton()) {
-    // m_robotContainer.e.shoulderMotor.setPercentOutput(0.1);
-    // } else if (m_robotContainer.driverController.getHID().getAButton()) {
-    // m_robotContainer.e.shoulderMotor.setPercentOutput(-0.1);
-    // } else{
-    // m_robotContainer.e.shoulderMotor.setPercentOutput(0);
+      // if (m_robotContainer.driverController.getHID().getXButton()) {
+      // m_robotContainer.e.shoulderMotor.setPercentOutput(0.1);
+      // } else if (m_robotContainer.driverController.getHID().getAButton()) {
+      // m_robotContainer.e.shoulderMotor.setPercentOutput(-0.1);
+      // } else{
+      // m_robotContainer.e.shoulderMotor.setPercentOutput(0);
 
-    // }
+      // }
 
-    // if (m_robotContainer.driverController.getHID().getYButton()) {
-    // m_robotContainer.climber.climbMotor.setPercentOutput(0.1);
-    // } else if (m_robotContainer.driverController.getHID().getBButton()) {
-    // m_robotContainer.climber.climbMotor.setPercentOutput(-0.1);
-    // } else{
-    // m_robotContainer.climber.climbMotor.setPercentOutput(0);
+      // if (m_robotContainer.driverController.getHID().getYButton()) {
+      // m_robotContainer.climber.climbMotor.setPercentOutput(0.1);
+      // } else if (m_robotContainer.driverController.getHID().getBButton()) {
+      // m_robotContainer.climber.climbMotor.setPercentOutput(-0.1);
+      // } else{
+      // m_robotContainer.climber.climbMotor.setPercentOutput(0);
 
-    // }
+      // }
 
-    // if (m_robotContainer.driverController.getHID().getRightTriggerAxis() > 0.1) {
-    // m_robotContainer.e.clawMotor.setPercentOutput(0.1);
-    // } else if (m_robotContainer.driverController.getHID().getLeftTriggerAxis() >
-    // 0.1) {
-    // m_robotContainer.e.clawMotor.setPercentOutput(-0.1);
-    // } else{
-    // m_robotContainer.e.clawMotor.setPercentOutput(0);
+      // if (m_robotContainer.driverController.getHID().getRightTriggerAxis() > 0.1) {
+      // m_robotContainer.e.clawMotor.setPercentOutput(0.1);
+      // } else if (m_robotContainer.driverController.getHID().getLeftTriggerAxis() >
+      // 0.1) {
+      // m_robotContainer.e.clawMotor.setPercentOutput(-0.1);
+      // } else{
+      // m_robotContainer.e.clawMotor.setPercentOutput(0);
 
-    // }
+      // }
 
-    // Run SysId routines when holding back/start and X/Y.
-    // Note that each routine should be run exactly once in a single log.
+      // Run SysId routines when holding back/start and X/Y.
+      // Note that each routine should be run exactly once in a single log.
 
+    });
   }
 
   @Override

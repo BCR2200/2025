@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PIDMotor;
+import frc.robot.timing.TimingUtils;
 
 public class ElevClArmSubsystem extends SubsystemBase {
   // Elevator x 2 kraken
@@ -91,32 +92,32 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     public ElevArmPosition position() {
       return switch (this) {
-              case Hopper -> HOPPER_POSITION;
-              case Intake -> INTAKE_POSITION;
-              case SafeCoral -> SAFE_CORAL_POSITION;
-              case CorgaeTransition -> CORGAE_POSITION;
-              case SafeAlgae -> SAFE_ALGAE_POSITION;
-              case SafeAlgaeEMove -> SAFE_ALGAE_EMOVE_POSITION;
-              case SafeClimb -> SAFE_CLIMB_POSITION;
-              case UnlockClimb -> SAFE_CLIMB_POSITION;
-              case LvlOne -> LVL1_POSITION;
-              case LvlTwo -> LVL2_POSITION;
-              case LvlThree -> LVL3_POSITION;
-              case LvlFour -> LVL4_POSITION;
-              case PickBottom -> PICKBOTTOM_POSITION;
-              case PickTop -> PICKTOP_POSITION;
-              case LvlOneEMove -> LVL1_EMOVE_POSITION;
-              case LvlTwoEMove -> LVL2_EMOVE_POSITION;
-              case LvlThreeEMove -> LVL3_EMOVE_POSITION;
-              case LvlFourEMove -> LVL4_EMOVE_POSITION;
-              case PickBottomEMove -> PICKBOTTOM_EMOVE_POSITION;
-              case PickTopEMove -> PICKTOP_EMOVE_POSITION;
-              case Barge -> BARGE_POSITION;
-              case BargeEMove -> BARGE_EMOVE_POSITION;
-              case Processor -> PROCESSOR_POSITION;
-              case UnjamStrat1 -> INTAKE_POSITION;
-              case UnjamStrat2 -> INTAKE_POSITION;
-              default -> throw new IllegalArgumentException("Unexpected value: " + this);
+        case Hopper -> HOPPER_POSITION;
+        case Intake -> INTAKE_POSITION;
+        case SafeCoral -> SAFE_CORAL_POSITION;
+        case CorgaeTransition -> CORGAE_POSITION;
+        case SafeAlgae -> SAFE_ALGAE_POSITION;
+        case SafeAlgaeEMove -> SAFE_ALGAE_EMOVE_POSITION;
+        case SafeClimb -> SAFE_CLIMB_POSITION;
+        case UnlockClimb -> SAFE_CLIMB_POSITION;
+        case LvlOne -> LVL1_POSITION;
+        case LvlTwo -> LVL2_POSITION;
+        case LvlThree -> LVL3_POSITION;
+        case LvlFour -> LVL4_POSITION;
+        case PickBottom -> PICKBOTTOM_POSITION;
+        case PickTop -> PICKTOP_POSITION;
+        case LvlOneEMove -> LVL1_EMOVE_POSITION;
+        case LvlTwoEMove -> LVL2_EMOVE_POSITION;
+        case LvlThreeEMove -> LVL3_EMOVE_POSITION;
+        case LvlFourEMove -> LVL4_EMOVE_POSITION;
+        case PickBottomEMove -> PICKBOTTOM_EMOVE_POSITION;
+        case PickTopEMove -> PICKTOP_EMOVE_POSITION;
+        case Barge -> BARGE_POSITION;
+        case BargeEMove -> BARGE_EMOVE_POSITION;
+        case Processor -> PROCESSOR_POSITION;
+        case UnjamStrat1 -> INTAKE_POSITION;
+        case UnjamStrat2 -> INTAKE_POSITION;
+        default -> throw new IllegalArgumentException("Unexpected value: " + this);
       };
     }
   }
@@ -168,10 +169,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     public Zone(ElevArmPosition min, ElevArmPosition max) {
       if (max.elevatorPos < min.elevatorPos) {
-        throw new UncheckedIOException("Elevator max is less than min", null);
+        throw new IllegalArgumentException("Elevator max is less than min");
       }
       if (max.armPos < min.armPos) {
-        throw new UncheckedIOException("Arm max is less than min", null);
+        throw new IllegalArgumentException("Arm max is less than min");
       }
       this.min = min;
       this.max = max;
@@ -179,7 +180,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     public boolean isItIn(ElevArmPosition position) {
       return (position.elevatorPos < max.elevatorPos && position.elevatorPos > min.elevatorPos)
-          && (position.armPos < max.armPos && position.armPos > min.armPos);
+              && (position.armPos < max.armPos && position.armPos > min.armPos);
     }
   }
 
@@ -218,10 +219,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    printDashboard();
-    // if arm back, claws forward tracker
-    boolean coralInClaw = isCoralInClaw();
-    boolean coralInHopper = isCoralInHopper();
+    TimingUtils.logDuration("ElevClArmSubsystem.periodic", () -> {
+      printDashboard();
+      // if arm back, claws forward tracker
+      boolean coralInClaw = isCoralInClaw();
+      boolean coralInHopper = isCoralInHopper();
 
     switch (state) { // state transitions
       case Hopper:
@@ -616,7 +618,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         }
         break;
 
-    }
+      }
 
     switch (state) { // in state what are we doing with claw
       case Hopper:
@@ -682,18 +684,18 @@ public class ElevClArmSubsystem extends SubsystemBase {
       clawstate = ClawState.Drool;
     }
 
-    if(!coralInClaw){
-      positionControl = false;
-    }
+      if(!coralInClaw){
+        positionControl = false;
+      }
 
-    clawTargetPosition = (shoulderMotor.getPosition() * -(24.0/73.4)) + clawStartPosition ;
+      clawTargetPosition = (shoulderMotor.getPosition() * -(24.0/73.4)) + clawStartPosition ;
 
-    if(!positionControl){
-      clawMotor.setPercentOutput(clawstate.speed());
-    } else {
-      clawMotor.setTarget(clawTargetPosition);
-    }
-
+      if(!positionControl){
+        clawMotor.setPercentOutput(clawstate.speed());
+      } else {
+        clawMotor.setTarget(clawTargetPosition);
+      }
+    });
   }
 
   ElevArmPosition currentPosStatic = new ElevArmPosition(0, 0);
@@ -705,15 +707,15 @@ public class ElevClArmSubsystem extends SubsystemBase {
     if (armHitElevator.isItIn(currentPosStatic) || armHitBumper.isItIn(currentPosStatic)) {
       // current
       System.out
-          .println("Currently killing itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
-              + goal.toString());
+              .println("Currently killing itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
+                      + goal.toString());
     }
     if (armHitElevator.isItIn(goal) || armHitBumper.isItIn(goal)) {
       // DO NOT GO - Default to Safe
       rightElevatorMotor.setTarget(SAFE_CORAL_POSITION.elevatorPos);
       shoulderMotor.setTarget(SAFE_CORAL_POSITION.armPos);
       System.out.println("Tried to kill itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
-          + goal.toString());
+              + goal.toString());
     } else {
       // in target or adjacent zone, move to direct
       rightElevatorMotor.setTarget(goal.elevatorPos);
@@ -760,41 +762,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public ControlMode getEMode() {
-    switch (state) {
-      case SafeCoral:
-      case Hopper:
-      case Intake:
-      case LvlOne:
-      case LvlTwo:
-      case LvlThree:
-      case LvlFour:
-      case LvlOneEMove:
-      case LvlTwoEMove:
-      case LvlThreeEMove:
-      case LvlFourEMove:
-      case UnjamStrat1:
-      case UnjamStrat2:
-        return ControlMode.Coral;
-
-      case Processor:
-      case Barge:
-      case SafeAlgae:
-      case PickTop:
-      case PickBottom:
-      case PickTopEMove:
-      case PickBottomEMove:
-      case BargeEMove:
-      case CorgaeTransition:
-      case SafeAlgaeEMove:
-        return ControlMode.Algae;
-
-      case SafeClimb:
-      case UnlockClimb:
-        return ControlMode.Climb;
-        
-      default:
-        throw new IllegalArgumentException("Unexpected value: " + this); 
-    }
+    return switch (state) {
+      case SafeCoral, Hopper, Intake, LvlOne, LvlTwo, LvlThree, LvlFour, LvlOneEMove, LvlTwoEMove, LvlThreeEMove,
+           LvlFourEMove, UnjamStrat1, UnjamStrat2 -> ControlMode.Coral;
+      case Processor, Barge, SafeAlgae, PickTop, PickBottom, PickTopEMove, PickBottomEMove, BargeEMove,
+           CorgaeTransition, SafeAlgaeEMove -> ControlMode.Algae;
+      case SafeClimb, UnlockClimb -> ControlMode.Climb;
+    };
   }
 
   public void printDashboard() {
@@ -805,7 +779,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     SmartDashboard.putString("Requested Mode:", requestMode.toString());
     SmartDashboard.putString("Claw State:", clawstate.toString());
     SmartDashboard.putBoolean("Want to Shoot:", shootLust);
-    
+
     SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHopper());
     SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
 
@@ -816,7 +790,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Elevator voltage applied:", rightElevatorMotor.motor.getMotorVoltage().getValue().magnitude());
     SmartDashboard.putNumber("Arm voltage applied:", shoulderMotor.motor.getMotorVoltage().getValue().magnitude());
     SmartDashboard.putNumber("Claw voltage applied:", clawMotor.motor.getMotorVoltage().getValue().magnitude());
-    
+
     // SmartDashboard.putNumber("Claw Start Pos:", clawStartPosition);
     // SmartDashboard.putNumber("Claw Target Pos:", clawTargetPosition);
     // SmartDashboard.putBoolean("Position Control:", positionControl);
@@ -826,9 +800,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
     // shoulderMotor.putPIDF();
     // clawMotor.putPIDF();
 
-   // leftElevatorMotor.putPV();
+    // leftElevatorMotor.putPV();
     rightElevatorMotor.putPV();
     shoulderMotor.putPV();
-   // clawMotor.putPV();
+    // clawMotor.putPV();
   }
 }
