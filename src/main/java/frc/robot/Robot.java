@@ -5,14 +5,10 @@
 package frc.robot;
 
 import com.ctre.phoenix6.Orchestra;
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
