@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
-import java.io.UncheckedIOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.hardware.CANdi;
@@ -221,470 +222,474 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public void periodic() {
     TimingUtils.logDuration("ElevClArmSubsystem.periodic", () -> {
       printDashboard();
-      // if arm back, claws forward tracker
-      boolean coralInClaw = isCoralInClaw();
-      boolean coralInHopper = isCoralInHopper();
 
-      switch (state) { // state transitions
-        case Hopper:
-          switch (requestMode) {
-            case Algae:
-              state = ElevArmState.CorgaeTransition;
-              clawMotor.setCurrentLimit(algaeClawCurrentLimit);
+      AtomicBoolean coralInHopper = new AtomicBoolean(false);
+      AtomicBoolean coralInClaw = new AtomicBoolean(false);
+      TimingUtils.logDuration("ElevClArmSubsystem.update_coral_dio", () -> {
+        // if arm back, claws forward tracker
+        coralInClaw.set(isCoralInClaw());
+        coralInHopper.set(isCoralInHopper());
+      });
+
+      TimingUtils.logDuration("ElevClArmSubsystem.first_switch", () -> {
+        switch (state) { // state transitions
+          case Hopper:
+            switch (requestMode) {
+              case Algae:
+                state = ElevArmState.CorgaeTransition;
+                clawMotor.setCurrentLimit(algaeClawCurrentLimit);
+                break;
+              case Climb:
+                state = ElevArmState.SafeClimb;
+                break;
+              default:
+                break;
+            }
+            switch (requestState) {
+              case UnjamStrat1:
+                state = ElevArmState.UnjamStrat1;
+                shoulderMotor.setCurrentLimit(softShoulderCurrentLimit);
+                break;
+              case UnjamStrat2:
+                state = ElevArmState.UnjamStrat2;
+                break;
+              default:
+                break;
+            }
+            if (coralInHopper.get()) {
+              state = ElevArmState.Intake;
+              intakeTimer.restart();
               break;
-            case Climb:
-              state = ElevArmState.SafeClimb;
-              break;
-            default:
-              break;
-          }
-          switch (requestState) {
-            case UnjamStrat1:
-              state = ElevArmState.UnjamStrat1;
-              shoulderMotor.setCurrentLimit(softShoulderCurrentLimit);
-              break;
-            case UnjamStrat2:
-              state = ElevArmState.UnjamStrat2;
-              break;
-            default:
-              break;
-          }
-          if (coralInHopper) {
-            state = ElevArmState.Intake;
-            intakeTimer.restart();
-            break;
-          }
-          if (coralInClaw) {
-            state = ElevArmState.SafeCoral;
-            break;
-          }
-          break;
-        case Intake:
-          if (coralInClaw) {
-            state = ElevArmState.SafeCoral;
-            clawStartPosition = clawMotor.getPosition();
-            positionControl = true;
-            break;
-          }
-          if (intakeTimer.get() > 2.5) {
-            // something triggered intake accidentally
-            state = ElevArmState.Hopper;
-          }
-          switch (requestState) {
-            // case CoralLevel1:
-            // state = ElevArmState.LvlOneEMove;
-            // break;
-            // case CoralLevel2:
-            // state = ElevArmState.LvlTwoEMove;
-            // break;
-            // case CoralLevel3:
-            // state = ElevArmState.LvlThreeEMove;
-            // break;
-            // case CoralLevel4:
-            // state = ElevArmState.LvlFourEMove;
-            // break;
-            default:
-              break;
-          }
-          break;
-        case SafeCoral:
-          if (!coralInClaw) {
-            state = conditionalTransition(state, ElevArmState.Hopper);
-            break;
-          }
-          switch (requestState) {
-            case CoralLevel1:
-              state = conditionalTransition(state, ElevArmState.LvlOneEMove);
-              break;
-            case CoralLevel2:
-              state = conditionalTransition(state, ElevArmState.LvlTwoEMove);
-              break;
-            case CoralLevel3:
-              state = conditionalTransition(state, ElevArmState.LvlThreeEMove);
-              break;
-            case CoralLevel4:
-              state = conditionalTransition(state, ElevArmState.LvlFourEMove);
-              break;
-            default:
-              break;
-          }
-          switch (requestMode) {
-            case Climb:
-              state = ElevArmState.SafeClimb;
-              break;
-            default:
-              break;
-          }
-          break;
-        case CorgaeTransition:
-          switch (requestMode) {
-            case Algae:
-              state = conditionalTransition(state, ElevArmState.SafeAlgae);
-              break;
-            case Coral:
+            }
+            if (coralInClaw.get()) {
               state = ElevArmState.SafeCoral;
               break;
-            default:
-              break;
-          }
-          break;
-        case SafeAlgae:
-          switch (requestMode) {
-            case Coral:
+            }
+            break;
+          case Intake:
+            if (coralInClaw.get()) {
               state = ElevArmState.SafeCoral;
-              clawMotor.setCurrentLimit(normalClawCurrentLimit);
+              clawStartPosition = clawMotor.getPosition();
+              positionControl = true;
               break;
-            case Climb:
-              state = ElevArmState.SafeClimb;
-              clawMotor.setCurrentLimit(normalClawCurrentLimit);
-              break;
-            default:
-              break;
-          }
-          switch (requestState) {
-            case AlgaeTop:
-              state = conditionalTransition(state, ElevArmState.PickTopEMove);
-              break;
-            case AlgaeBottom:
-              state = conditionalTransition(state, ElevArmState.PickBottomEMove);
-              break;
-            case Processor:
-              state = conditionalTransition(state, ElevArmState.Processor);
-              break;
-            case Barge:
-              state = conditionalTransition(state, ElevArmState.BargeEMove);
-              break;
-            default:
-              break;
-          }
-          break;
-        case SafeClimb:
-          switch (requestState) {
-            case UnlockClimb:
-              state = ElevArmState.UnlockClimb;
-              break;
-            default:
-              break;
-          }
-          break;
-        case UnlockClimb:
-          switch (requestMode) {
-            case Coral:
-              state = ElevArmState.SafeCoral;
-              break;
-            case Algae:
-              state = ElevArmState.SafeAlgae;
-              break;
-            default:
-              break;
-          }
-          break;
-        case Barge:
-          switch (requestState) {
-            case Barge:
-              break;
-            default:
-              state = ElevArmState.BargeEMove;
-              break;
-          }
-          break;
-        case PickBottom:
-          switch (requestState) {
-            case AlgaeBottom:
-              break;
-            default:
-              state = ElevArmState.PickBottomEMove;
-              break;
-          }
-          break;
-        case PickTop:
-          switch (requestState) {
-            case AlgaeTop:
-              break;
-            default:
-              state = ElevArmState.PickTopEMove;
-              break;
-          }
-          break;
-        case Processor:
-          switch (requestState) {
-            case Processor:
-              break;
-            default:
-              state = ElevArmState.SafeAlgaeEMove;
-              break;
-          }
-          break;
-        case LvlOne:
-          switch (requestState) {
-            case CoralLevel1:
-              break;
-            default:
-              state = ElevArmState.LvlOneEMove;
-              break;
-          }
-          break;
-        case LvlTwo:
-          switch (requestState) {
-            case CoralLevel2:
-              break;
-            default:
-              state = ElevArmState.LvlTwoEMove;
-              break;
-          }
-          break;
-        case LvlThree:
-          switch (requestState) {
-            case CoralLevel3:
-              break;
-            default:
-              state = ElevArmState.LvlThreeEMove;
-              break;
-          }
-          break;
-        case LvlFour:
-          switch (requestState) {
-            case CoralLevel4:
-              break;
-            default:
-              state = ElevArmState.LvlFourEMove;
-              break;
-          }
-          break;
-        case LvlOneEMove:
-          switch (requestState) {
-            case CoralLevel1:
-              state = conditionalTransition(state, ElevArmState.LvlOne);
-              break;
-            case CoralLevel2:
-              state = ElevArmState.LvlTwoEMove;
-              break;
-            case CoralLevel3:
-              state = ElevArmState.LvlThreeEMove;
-              break;
-            case CoralLevel4:
-              state = ElevArmState.LvlFourEMove;
-              break;
-            default:
-              state = conditionalTransition(state, ElevArmState.SafeCoral);
-              break;
-          }
-          break;
-        case LvlTwoEMove:
-          switch (requestState) {
-            case CoralLevel1:
-              state = ElevArmState.LvlOneEMove;
-              break;
-            case CoralLevel2:
-              state = conditionalTransition(state, ElevArmState.LvlTwo, 10);
-              break;
-            case CoralLevel3:
-              state = ElevArmState.LvlThreeEMove;
-              break;
-            case CoralLevel4:
-              state = ElevArmState.LvlFourEMove;
-              break;
-            default:
-              state = conditionalTransition(state, ElevArmState.SafeCoral, 20);
-              break;
-          }
-          break;
-        case LvlThreeEMove:
-          switch (requestState) {
-            case CoralLevel1:
-              state = ElevArmState.LvlOneEMove;
-              break;
-            case CoralLevel2:
-              state = ElevArmState.LvlTwoEMove;
-              break;
-            case CoralLevel3:
-              state = conditionalTransition(state, ElevArmState.LvlThree, 10);
-              break;
-            case CoralLevel4:
-              state = ElevArmState.LvlFourEMove;
-              break;
-            default:
-              state = conditionalTransition(state, ElevArmState.SafeCoral, 20);
-              break;
-          }
-          break;
-        case LvlFourEMove:
-          switch (requestState) {
-            case CoralLevel1:
-              state = ElevArmState.LvlOneEMove;
-              break;
-            case CoralLevel2:
-              state = ElevArmState.LvlTwoEMove;
-              break;
-            case CoralLevel3:
-              state = ElevArmState.LvlThreeEMove;
-              break;
-            case CoralLevel4:
-              state = conditionalTransition(state, ElevArmState.LvlFour, 30);
-              break;
-            default:
-              state = conditionalTransition(state, ElevArmState.SafeCoral, 7);
-              break;
-          }
-          break;
-        case PickBottomEMove:
-          switch (requestState) {
-            case AlgaeTop:
-              state = ElevArmState.PickTopEMove;
-              break;
-            case Barge:
-              state = ElevArmState.BargeEMove;
-              break;
-            case AlgaeBottom:
-              state = conditionalTransition(state, ElevArmState.PickBottom, 30);
-              break;
-            default:
-              state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 30);
-              break;
-          }
-          break;
-        case PickTopEMove:
-          switch (requestState) {
-            case AlgaeTop:
-              state = conditionalTransition(state, ElevArmState.PickTop, 30);
-              break;
-            case AlgaeBottom:
-              state = ElevArmState.PickBottomEMove;
-              break;
-            case Barge:
-              state = ElevArmState.BargeEMove;
-              break;
-            default:
-              state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
-              break;
-          }
-          break;
-        case UnjamStrat1:
-          switch (requestState) {
-            case UnjamStrat1:
-              break;
-            default:
+            }
+            if (intakeTimer.get() > 2.5) {
+              // something triggered intake accidentally
               state = ElevArmState.Hopper;
-              shoulderMotor.setCurrentLimit(normalShoulderCurrentLimit);
+            }
+            switch (requestState) {
+              // case CoralLevel1:
+              // state = ElevArmState.LvlOneEMove;
+              // break;
+              // case CoralLevel2:
+              // state = ElevArmState.LvlTwoEMove;
+              // break;
+              // case CoralLevel3:
+              // state = ElevArmState.LvlThreeEMove;
+              // break;
+              // case CoralLevel4:
+              // state = ElevArmState.LvlFourEMove;
+              // break;
+              default:
+                break;
+            }
+            break;
+          case SafeCoral:
+            if (!coralInClaw.get()) {
+              state = conditionalTransition(state, ElevArmState.Hopper);
               break;
-          }
-          break;
-        case UnjamStrat2:
-          switch (requestState) {
-            case UnjamStrat2:
-              break;
-            default:
-              state = ElevArmState.Hopper;
-              break;
-            // if stuck in unjam position check out
-          }
-          break;
-        case BargeEMove:
-          switch (requestState) {
-            case Barge:
-              state = conditionalTransition(state, ElevArmState.Barge, 30);
-              break;
-            case AlgaeBottom:
-              state = ElevArmState.PickBottomEMove;
-              break;
-            case AlgaeTop:
-              state = ElevArmState.PickTopEMove;
-              break;
-            default:
-              state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 10);
-              break;
-          }
-          break;
-        // default:
-        // System.err.println("something's busted, no state????");
-        // break;
-        case SafeAlgaeEMove:
-          switch (requestState) {
-            case AlgaeTop:
-              state = conditionalTransition(state, ElevArmState.PickTopEMove);
-              break;
-            case AlgaeBottom:
-              state = ElevArmState.PickBottomEMove;
-              break;
-            case Barge:
-              state = ElevArmState.BargeEMove;
-              break;
-            case Processor:
-              state = conditionalTransition(state, ElevArmState.Processor);
-              break;
-            default:
-              state = conditionalTransition(state, ElevArmState.SafeAlgae, 7);
-              break;
-          }
-          break;
+            }
+            switch (requestState) {
+              case CoralLevel1:
+                state = conditionalTransition(state, ElevArmState.LvlOneEMove);
+                break;
+              case CoralLevel2:
+                state = conditionalTransition(state, ElevArmState.LvlTwoEMove);
+                break;
+              case CoralLevel3:
+                state = conditionalTransition(state, ElevArmState.LvlThreeEMove);
+                break;
+              case CoralLevel4:
+                state = conditionalTransition(state, ElevArmState.LvlFourEMove);
+                break;
+              default:
+                break;
+            }
+            switch (requestMode) {
+              case Climb:
+                state = ElevArmState.SafeClimb;
+                break;
+              default:
+                break;
+            }
+            break;
+          case CorgaeTransition:
+            switch (requestMode) {
+              case Algae:
+                state = conditionalTransition(state, ElevArmState.SafeAlgae);
+                break;
+              case Coral:
+                state = ElevArmState.SafeCoral;
+                break;
+              default:
+                break;
+            }
+            break;
+          case SafeAlgae:
+            switch (requestMode) {
+              case Coral:
+                state = ElevArmState.SafeCoral;
+                clawMotor.setCurrentLimit(normalClawCurrentLimit);
+                break;
+              case Climb:
+                state = ElevArmState.SafeClimb;
+                clawMotor.setCurrentLimit(normalClawCurrentLimit);
+                break;
+              default:
+                break;
+            }
+            switch (requestState) {
+              case AlgaeTop:
+                state = conditionalTransition(state, ElevArmState.PickTopEMove);
+                break;
+              case AlgaeBottom:
+                state = conditionalTransition(state, ElevArmState.PickBottomEMove);
+                break;
+              case Processor:
+                state = conditionalTransition(state, ElevArmState.Processor);
+                break;
+              case Barge:
+                state = conditionalTransition(state, ElevArmState.BargeEMove);
+                break;
+              default:
+                break;
+            }
+            break;
+          case SafeClimb:
+            switch (requestState) {
+              case UnlockClimb:
+                state = ElevArmState.UnlockClimb;
+                break;
+              default:
+                break;
+            }
+            break;
+          case UnlockClimb:
+            switch (requestMode) {
+              case Coral:
+                state = ElevArmState.SafeCoral;
+                break;
+              case Algae:
+                state = ElevArmState.SafeAlgae;
+                break;
+              default:
+                break;
+            }
+            break;
+          case Barge:
+            switch (requestState) {
+              case Barge:
+                break;
+              default:
+                state = ElevArmState.BargeEMove;
+                break;
+            }
+            break;
+          case PickBottom:
+            switch (requestState) {
+              case AlgaeBottom:
+                break;
+              default:
+                state = ElevArmState.PickBottomEMove;
+                break;
+            }
+            break;
+          case PickTop:
+            switch (requestState) {
+              case AlgaeTop:
+                break;
+              default:
+                state = ElevArmState.PickTopEMove;
+                break;
+            }
+            break;
+          case Processor:
+            switch (requestState) {
+              case Processor:
+                break;
+              default:
+                state = ElevArmState.SafeAlgaeEMove;
+                break;
+            }
+            break;
+          case LvlOne:
+            switch (requestState) {
+              case CoralLevel1:
+                break;
+              default:
+                state = ElevArmState.LvlOneEMove;
+                break;
+            }
+            break;
+          case LvlTwo:
+            switch (requestState) {
+              case CoralLevel2:
+                break;
+              default:
+                state = ElevArmState.LvlTwoEMove;
+                break;
+            }
+            break;
+          case LvlThree:
+            switch (requestState) {
+              case CoralLevel3:
+                break;
+              default:
+                state = ElevArmState.LvlThreeEMove;
+                break;
+            }
+            break;
+          case LvlFour:
+            switch (requestState) {
+              case CoralLevel4:
+                break;
+              default:
+                state = ElevArmState.LvlFourEMove;
+                break;
+            }
+            break;
+          case LvlOneEMove:
+            switch (requestState) {
+              case CoralLevel1:
+                state = conditionalTransition(state, ElevArmState.LvlOne);
+                break;
+              case CoralLevel2:
+                state = ElevArmState.LvlTwoEMove;
+                break;
+              case CoralLevel3:
+                state = ElevArmState.LvlThreeEMove;
+                break;
+              case CoralLevel4:
+                state = ElevArmState.LvlFourEMove;
+                break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeCoral);
+                break;
+            }
+            break;
+          case LvlTwoEMove:
+            switch (requestState) {
+              case CoralLevel1:
+                state = ElevArmState.LvlOneEMove;
+                break;
+              case CoralLevel2:
+                state = conditionalTransition(state, ElevArmState.LvlTwo, 10);
+                break;
+              case CoralLevel3:
+                state = ElevArmState.LvlThreeEMove;
+                break;
+              case CoralLevel4:
+                state = ElevArmState.LvlFourEMove;
+                break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeCoral, 20);
+                break;
+            }
+            break;
+          case LvlThreeEMove:
+            switch (requestState) {
+              case CoralLevel1:
+                state = ElevArmState.LvlOneEMove;
+                break;
+              case CoralLevel2:
+                state = ElevArmState.LvlTwoEMove;
+                break;
+              case CoralLevel3:
+                state = conditionalTransition(state, ElevArmState.LvlThree, 10);
+                break;
+              case CoralLevel4:
+                state = ElevArmState.LvlFourEMove;
+                break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeCoral, 20);
+                break;
+            }
+            break;
+          case LvlFourEMove:
+            switch (requestState) {
+              case CoralLevel1:
+                state = ElevArmState.LvlOneEMove;
+                break;
+              case CoralLevel2:
+                state = ElevArmState.LvlTwoEMove;
+                break;
+              case CoralLevel3:
+                state = ElevArmState.LvlThreeEMove;
+                break;
+              case CoralLevel4:
+                state = conditionalTransition(state, ElevArmState.LvlFour, 30);
+                break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeCoral, 7);
+                break;
+            }
+            break;
+          case PickBottomEMove:
+            switch (requestState) {
+              case AlgaeTop:
+                state = ElevArmState.PickTopEMove;
+                break;
+              case Barge:
+                state = ElevArmState.BargeEMove;
+                break;
+              case AlgaeBottom:
+                state = conditionalTransition(state, ElevArmState.PickBottom, 30);
+                break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 30);
+                break;
+            }
+            break;
+          case PickTopEMove:
+            switch (requestState) {
+              case AlgaeTop:
+                state = conditionalTransition(state, ElevArmState.PickTop, 30);
+                break;
+              case AlgaeBottom:
+                state = ElevArmState.PickBottomEMove;
+                break;
+              case Barge:
+                state = ElevArmState.BargeEMove;
+                break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove);
+                break;
+            }
+            break;
+          case UnjamStrat1:
+            switch (requestState) {
+              case UnjamStrat1:
+                break;
+              default:
+                state = ElevArmState.Hopper;
+                shoulderMotor.setCurrentLimit(normalShoulderCurrentLimit);
+                break;
+            }
+            break;
+          case UnjamStrat2:
+            switch (requestState) {
+              case UnjamStrat2:
+                break;
+              default:
+                state = ElevArmState.Hopper;
+                break;
+              // if stuck in unjam position check out
+            }
+            break;
+          case BargeEMove:
+            switch (requestState) {
+              case Barge:
+                state = conditionalTransition(state, ElevArmState.Barge, 30);
+                break;
+              case AlgaeBottom:
+                state = ElevArmState.PickBottomEMove;
+                break;
+              case AlgaeTop:
+                state = ElevArmState.PickTopEMove;
+                break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 10);
+                break;
+            }
+            break;
+          // default:
+          // System.err.println("something's busted, no state????");
+          // break;
+          case SafeAlgaeEMove:
+            switch (requestState) {
+              case AlgaeTop:
+                state = conditionalTransition(state, ElevArmState.PickTopEMove);
+                break;
+              case AlgaeBottom:
+                state = ElevArmState.PickBottomEMove;
+                break;
+              case Barge:
+                state = ElevArmState.BargeEMove;
+                break;
+              case Processor:
+                state = conditionalTransition(state, ElevArmState.Processor);
+                break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeAlgae, 7);
+                break;
+            }
+            break;
 
-      }
+        }
+      });
 
-      switch (state) { // in state what are we doing with claw
-        case Hopper:
-        case SafeCoral:
-        case CorgaeTransition:
-        case LvlFour:
-        case LvlFourEMove:
-        case LvlOne:
-        case LvlOneEMove:
-        case LvlThree:
-        case LvlThreeEMove:
-        case LvlTwo:
-        case LvlTwoEMove:
-        case SafeClimb:
-        case UnlockClimb:
-          clawstate = ClawState.Stop________HammerTime;
-          break;
-        case Intake:
-        case UnjamStrat1:
-        case UnjamStrat2:
-          clawstate = ClawState.Eat;
-          break;
-        case SafeAlgae:
-        case PickBottom:
-        case PickTop:
-        case PickBottomEMove:
-        case PickTopEMove:
-        case BargeEMove:
-        case Processor:
-        case Barge:
-        case SafeAlgaeEMove:
-          clawstate = ClawState.EatAlgae;
-          break;
-        default:
-          throw new IllegalArgumentException("Unexpected value: " + this);
+      TimingUtils.logDuration("ElevClArmSubsystem.second_switch", () -> {
+        switch (state) { // in state what are we doing with claw
+          case Hopper:
+          case SafeCoral:
+          case CorgaeTransition:
+          case LvlFour:
+          case LvlFourEMove:
+          case LvlOne:
+          case LvlOneEMove:
+          case LvlThree:
+          case LvlThreeEMove:
+          case LvlTwo:
+          case LvlTwoEMove:
+          case SafeClimb:
+          case UnlockClimb:
+            clawstate = ClawState.Stop________HammerTime;
+            break;
+          case Intake:
+          case UnjamStrat1:
+          case UnjamStrat2:
+            clawstate = ClawState.Eat;
+            break;
+          case SafeAlgae:
+          case PickBottom:
+          case PickTop:
+          case PickBottomEMove:
+          case PickTopEMove:
+          case BargeEMove:
+          case Processor:
+          case Barge:
+          case SafeAlgaeEMove:
+            clawstate = ClawState.EatAlgae;
+            break;
+          default:
+            throw new IllegalArgumentException("Unexpected value: " + this);
+        }
+      });
 
-      }
-
-      // if (state != ElevArmState.UnjamStrat1 && state != ElevArmState.UnjamStrat2) {
       go(state.position());
-      // } else if (state == ElevArmState.UnjamStrat1){
-      //   // haha... unless?
-      // i think we changed it so unjam just goes, but affects current or is just manual intake
-      // }
-      if (shootLust && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral
+      ControlMode eMode = getEMode();
+      if (shootLust && eMode == ControlMode.Coral && state != ElevArmState.SafeCoral
               && state != ElevArmState.Intake && state != ElevArmState.Hopper) {
         positionControl = false;
         clawstate = ClawState.Poop;
-      } else if (shootLust && getEMode() == ControlMode.Coral && state == ElevArmState.Hopper) {
+      } else if (shootLust && eMode == ControlMode.Coral && state == ElevArmState.Hopper) {
         positionControl = false;
         clawstate = ClawState.LazyBowelSyndrome;
       }
-      if (suck && getEMode() == ControlMode.Coral && state != ElevArmState.SafeCoral
+      if (suck && eMode == ControlMode.Coral && state != ElevArmState.SafeCoral
               && state != ElevArmState.Intake) {
         positionControl = false;
         clawstate = ClawState.Drool;
       }
-      if (shootLust && getEMode() == ControlMode.Algae && state != ElevArmState.SafeAlgae) {
+      if (shootLust && eMode == ControlMode.Algae && state != ElevArmState.SafeAlgae) {
         clawstate = ClawState.Vomit;
       }
-      if (shootLust && getEMode() == ControlMode.Coral && state == ElevArmState.LvlOne) {
+      if (shootLust && eMode == ControlMode.Coral && state == ElevArmState.LvlOne) {
         positionControl = false;
         clawstate = ClawState.Drool;
       }
 
-      if (!coralInClaw) {
+      if (!coralInClaw.get()) {
         positionControl = false;
       }
 
@@ -702,26 +707,28 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
-    currentPosStatic.elevatorPos = rightElevatorMotor.getPosition();
-    currentPosStatic.armPos = shoulderMotor.getPosition();
+    TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
+      currentPosStatic.elevatorPos = rightElevatorMotor.getPosition();
+      currentPosStatic.armPos = shoulderMotor.getPosition();
 
-    if (armHitElevator.isItIn(currentPosStatic) || armHitBumper.isItIn(currentPosStatic)) {
-      // current
-      System.out
-              .println("Currently killing itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
-                      + goal.toString());
-    }
-    if (armHitElevator.isItIn(goal) || armHitBumper.isItIn(goal)) {
-      // DO NOT GO - Default to Safe
-      rightElevatorMotor.setTarget(SAFE_CORAL_POSITION.elevatorPos);
-      shoulderMotor.setTarget(SAFE_CORAL_POSITION.armPos);
-      System.out.println("Tried to kill itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
-              + goal.toString());
-    } else {
-      // in target or adjacent zone, move to direct
-      rightElevatorMotor.setTarget(goal.elevatorPos);
-      shoulderMotor.setTarget(goal.armPos);
-    }
+      if (armHitElevator.isItIn(currentPosStatic) || armHitBumper.isItIn(currentPosStatic)) {
+        // current
+        System.out
+                .println("Currently killing itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
+                        + goal.toString());
+      }
+      if (armHitElevator.isItIn(goal) || armHitBumper.isItIn(goal)) {
+        // DO NOT GO - Default to Safe
+        rightElevatorMotor.setTarget(SAFE_CORAL_POSITION.elevatorPos);
+        shoulderMotor.setTarget(SAFE_CORAL_POSITION.armPos);
+        System.out.println("Tried to kill itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
+                + goal.toString());
+      } else {
+        // in target or adjacent zone, move to direct
+        rightElevatorMotor.setTarget(goal.elevatorPos);
+        shoulderMotor.setTarget(goal.armPos);
+      }
+    });
   }
 
   public boolean isCoralInHopper() {
@@ -748,11 +755,15 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public boolean atPosition() {
-    return rightElevatorMotor.atPosition(0.25) && shoulderMotor.atPosition(0.25);
+    return atPosition(0.25);
   }
 
   public boolean atPosition(double epsilon) {
-    return rightElevatorMotor.atPosition(epsilon) && shoulderMotor.atPosition(epsilon);
+    AtomicBoolean retVal = new AtomicBoolean(false);
+    TimingUtils.logDuration("ElevClArmSubsystem.atPosition", () -> {
+      retVal.set(rightElevatorMotor.atPosition(epsilon) && shoulderMotor.atPosition(epsilon));
+    });
+    return retVal.get();
   }
 
   public void requestState(RequestState state) {
@@ -764,47 +775,53 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public ControlMode getEMode() {
-    return switch (state) {
-      case SafeCoral, Hopper, Intake, LvlOne, LvlTwo, LvlThree, LvlFour, LvlOneEMove, LvlTwoEMove, LvlThreeEMove,
-           LvlFourEMove, UnjamStrat1, UnjamStrat2 -> ControlMode.Coral;
-      case Processor, Barge, SafeAlgae, PickTop, PickBottom, PickTopEMove, PickBottomEMove, BargeEMove,
-           CorgaeTransition, SafeAlgaeEMove -> ControlMode.Algae;
-      case SafeClimb, UnlockClimb -> ControlMode.Climb;
-    };
+    AtomicReference<ControlMode> retVal = new AtomicReference<>(ControlMode.Coral);
+    TimingUtils.logDuration("ElevClArmSubsystem.getEMode", () -> {
+      retVal.set(switch (state) {
+        case SafeCoral, Hopper, Intake, LvlOne, LvlTwo, LvlThree, LvlFour, LvlOneEMove, LvlTwoEMove, LvlThreeEMove,
+             LvlFourEMove, UnjamStrat1, UnjamStrat2 -> ControlMode.Coral;
+        case Processor, Barge, SafeAlgae, PickTop, PickBottom, PickTopEMove, PickBottomEMove, BargeEMove,
+             CorgaeTransition, SafeAlgaeEMove -> ControlMode.Algae;
+        case SafeClimb, UnlockClimb -> ControlMode.Climb;
+      });
+    });
+    return retVal.get();
   }
 
   public void printDashboard() {
-    SmartDashboard.putString("ElevArm State:", state.toString());
-    SmartDashboard.putString("Requested State:", requestState.toString());
+    TimingUtils.logDuration("ElevClArmSubsystem.printDashboard", () -> {
+      SmartDashboard.putString("ElevArm State:", state.toString());
+      SmartDashboard.putString("Requested State:", requestState.toString());
 
-    SmartDashboard.putString("Control Mode:", getEMode().toString());
-    SmartDashboard.putString("Requested Mode:", requestMode.toString());
-    SmartDashboard.putString("Claw State:", clawstate.toString());
-    SmartDashboard.putBoolean("Want to Shoot:", shootLust);
+      SmartDashboard.putString("Control Mode:", getEMode().toString());
+      SmartDashboard.putString("Requested Mode:", requestMode.toString());
+      SmartDashboard.putString("Claw State:", clawstate.toString());
+      SmartDashboard.putBoolean("Want to Shoot:", shootLust);
 
-    SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHopper());
-    SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
+      SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHopper());
+      SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
 
-    SmartDashboard.putNumber("Elevator current:", rightElevatorMotor.getCurrent());
-    SmartDashboard.putNumber("Arm current:", shoulderMotor.getCurrent());
-    SmartDashboard.putNumber("Claw current:", clawMotor.getCurrent());
+      SmartDashboard.putNumber("Elevator current:", rightElevatorMotor.getCurrent());
+      SmartDashboard.putNumber("Arm current:", shoulderMotor.getCurrent());
+      SmartDashboard.putNumber("Claw current:", clawMotor.getCurrent());
 
-    SmartDashboard.putNumber("Elevator voltage applied:", rightElevatorMotor.motor.getMotorVoltage().getValue().magnitude());
-    SmartDashboard.putNumber("Arm voltage applied:", shoulderMotor.motor.getMotorVoltage().getValue().magnitude());
-    SmartDashboard.putNumber("Claw voltage applied:", clawMotor.motor.getMotorVoltage().getValue().magnitude());
+      SmartDashboard.putNumber("Elevator voltage applied:", rightElevatorMotor.motor.getMotorVoltage().getValue().magnitude());
+      SmartDashboard.putNumber("Arm voltage applied:", shoulderMotor.motor.getMotorVoltage().getValue().magnitude());
+      SmartDashboard.putNumber("Claw voltage applied:", clawMotor.motor.getMotorVoltage().getValue().magnitude());
 
-    // SmartDashboard.putNumber("Claw Start Pos:", clawStartPosition);
-    // SmartDashboard.putNumber("Claw Target Pos:", clawTargetPosition);
-    // SmartDashboard.putBoolean("Position Control:", positionControl);
+      // SmartDashboard.putNumber("Claw Start Pos:", clawStartPosition);
+      // SmartDashboard.putNumber("Claw Target Pos:", clawTargetPosition);
+      // SmartDashboard.putBoolean("Position Control:", positionControl);
 
-    // leftElevatorMotor.putPIDF();
-    // rightElevatorMotor.putPIDF();
-    // shoulderMotor.putPIDF();
-    // clawMotor.putPIDF();
+      // leftElevatorMotor.putPIDF();
+      // rightElevatorMotor.putPIDF();
+      // shoulderMotor.putPIDF();
+      // clawMotor.putPIDF();
 
-    // leftElevatorMotor.putPV();
-    rightElevatorMotor.putPV();
-    shoulderMotor.putPV();
-    // clawMotor.putPV();
+      // leftElevatorMotor.putPV();
+      rightElevatorMotor.putPV();
+      shoulderMotor.putPV();
+      // clawMotor.putPV();
+    });
   }
 }
