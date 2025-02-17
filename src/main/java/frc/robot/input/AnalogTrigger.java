@@ -12,15 +12,14 @@ public class AnalogTrigger implements BooleanSupplier {
         LX, LY, RX, RY, LT, RT;
 
         public DoubleSupplier getMethod(XboxController controller) {
-            switch (this) {
-                case LX: return controller::getLeftX;
-                case LY: return controller::getLeftY;
-                case RX: return controller::getRightX;
-                case RY: return controller::getRightY;
-                case LT: return controller::getLeftTriggerAxis;
-                case RT: return controller::getRightTriggerAxis;
-                default: return () -> 0;
-            }
+          return switch (this) {
+            case LX -> controller::getLeftX;
+            case LY -> controller::getLeftY;
+            case RX -> controller::getRightX;
+            case RY -> controller::getRightY;
+            case LT -> controller::getLeftTriggerAxis;
+            case RT -> controller::getRightTriggerAxis;
+          };
         }
     }
     XboxController hid;
