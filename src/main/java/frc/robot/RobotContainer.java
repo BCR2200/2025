@@ -310,7 +310,7 @@ public class RobotContainer {
                                                 return point.withModuleDirection(Rotation2d.fromDegrees(0)); // point wheels to 0 when climbed for easier manipulation post match
                                         }
                                         if(e.rightElevatorMotor.getPosition() > 10){
-                                                heightFactor = (1/e.rightElevatorMotor.getPosition()) * 15;
+                                                heightFactor = (1.4/e.rightElevatorMotor.getPosition()) * 15;
                                                 if(heightFactor < 0.2){
                                                         heightFactor = 0.2;
                                                 }
@@ -346,6 +346,7 @@ public class RobotContainer {
                                                                 primaryCam = "limelight-left";
                                                                 fallbackCam = "limelight-right";
                                                                 targetTx = 0.0;
+                                                                targetTy = 0.5;
                                                 }
 
                                                 targetTx = targetTx + dpadShiftX;

@@ -76,6 +76,7 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
       SmartDashboard.putNumber("CPU Temperature", RobotController.getCPUTemp());
       SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+      SmartDashboard.putNumber("heightfactor", m_robotContainer.heightFactor);
 
       /*
        * This example of adding Limelight is very simple and may not be sufficient for
