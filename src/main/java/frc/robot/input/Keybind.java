@@ -19,8 +19,8 @@ public class Keybind implements BooleanSupplier {
                 case B: return controller::getBButton;
                 case X: return controller::getXButton;
                 case Y: return controller::getYButton;
-                case LeftBumper: return controller::getLeftBumper;
-                case RightBumper: return controller::getRightBumper;
+                case LeftBumper: return controller::getLeftBumperButton;
+                case RightBumper: return controller::getRightBumperButton;
                 case LeftStick: return controller::getLeftStickButton;
                 case RightStick: return controller::getRightStickButton;
                 case Start: return controller::getStartButton;
