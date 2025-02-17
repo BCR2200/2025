@@ -7,6 +7,8 @@ import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.signals.InvertedValue;
 
+import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,7 +17,20 @@ import frc.robot.Constants;
 import frc.robot.PIDMotor;
 import frc.robot.timing.TimingUtils;
 
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+
 public class ElevClArmSubsystem extends SubsystemBase {
+  private final DataLog log = DataLogManager.getLog();
+  private final DoubleLogEntry clawTargetLog = new DoubleLogEntry(log, "/ElevClArmSubsystem/ClawTarget");
+  private final BooleanLogEntry positionControlLog = new BooleanLogEntry(log, "/ElevClArmSubsystem/PositionControl");
+  private final BooleanLogEntry coralInHopperLog = new BooleanLogEntry(log, "/ElevClArmSubsystem/CoralInHopper");
+  private final BooleanLogEntry coralInClawLog = new BooleanLogEntry(log, "/ElevClArmSubsystem/CoralInClaw");
+  private final StringLogEntry stateLog = new StringLogEntry(log, "/ElevClArmSubsystem/State");
+  private final StringLogEntry requestStateLog = new StringLogEntry(log, "/ElevClArmSubsystem/RequestState");
+  private final StringLogEntry requestModeLog = new StringLogEntry(log, "/ElevClArmSubsystem/RequestMode");
+  private final StringLogEntry clawStateLog = new StringLogEntry(log, "/ElevClArmSubsystem/ClawState");
   // Elevator x 2 kraken
   // 13.1 revolutions of elevator = 7.85 inches of travel
   // Shoulder x 1 kraken
@@ -700,6 +715,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
       } else {
         clawMotor.setTarget(clawTargetPosition);
       }
+      stateLog.append(state.toString());
+      requestStateLog.append(requestState.toString());
+      requestModeLog.append(requestMode.toString());
+      clawStateLog.append(clawstate.toString());
+      positionControlLog.append(positionControl);
+      clawTargetLog.append(clawTargetPosition);
+      coralInHopperLog.append(coralInHopper.get());
+      coralInClawLog.append(coralInClaw.get());
     });
   }
 
