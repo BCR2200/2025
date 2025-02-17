@@ -8,9 +8,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class DPadButton implements BooleanSupplier {
-    public interface POVSupplier {
-        int getPOV();
-    }
     public enum DPad {
         // Allow two DPad buttons to be pressed and still trigger.
         // Ex: Up and Right pressed, POV -> 45, Up & Right both triggered.
@@ -33,19 +30,23 @@ public class DPadButton implements BooleanSupplier {
           };
         }
     }
-    POVSupplier hid;
+    XboxController hid;
     public DPad btn;
     public DPadButton(CommandXboxController controller, DPad btn) {
-        this((POVSupplier) controller.getHID(), btn);
+        this(controller.getHID(), btn);
     }
     public DPadButton(XboxController controller, DPad btn) {
-        this((POVSupplier) controller, btn);
+      hid = controller;
+      this.btn = btn;
     }
 
+    /*
     public DPadButton(POVSupplier controller, DPad btn) {
         hid = controller;
         this.btn = btn;
     }
+
+     */
 
     @Override 
     public boolean getAsBoolean() {
