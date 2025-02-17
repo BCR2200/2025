@@ -4,15 +4,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import frc.robot.timing.TimingUtils;
 
 public class PigeonSubsystem extends SubsystemBase {
   Pigeon2 pigeon;
   public double X, Y, Z;
   public double accelX, accelY, accelZ;
   public double temp;
-  public boolean rotateToDegree = false;
-  public double magnitudeToAngle = 0;
-  public double targetAngle = 0;
 
   public PigeonSubsystem() {
     pigeon = new Pigeon2(Constants.PIGEON_ID,"DriveTrain");
@@ -20,12 +18,14 @@ public class PigeonSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    try {
-      updateValues();
-      printDashboard();
-    } catch (Exception e) {
-      // SmartDashboard.putString("CTRE Last Error", e.getMessage());
-    }
+    TimingUtils.logDuration("PigeonSubsystem.periodic", () -> {
+      try {
+        updateValues();
+        printDashboard();
+      } catch (Exception e) {
+        // SmartDashboard.putString("CTRE Last Error", e.getMessage());
+      }
+    });
   }
 
   public void updateValues() {
@@ -47,19 +47,4 @@ public class PigeonSubsystem extends SubsystemBase {
     // SmartDashboard.putNumber("Pigeon Acc Z", accelZ);
     // SmartDashboard.putNumber("Pigeon Current Temp [C]", temp);
   }
-
-  public double getRotationAngleFromZero(){
-    return pigeon.getYaw().getValueAsDouble()%360;
-  }
-
-  // don't do this
-//   public void zeroYaw(){
-//     var isRedAlliance = Constants.alliance == Alliance.Red;
-//     if(isRedAlliance){
-//       pigeon.setYaw(180);
-//     }
-//     else{
-//       pigeon.setYaw(0);
-//     }
-//   }
 }
