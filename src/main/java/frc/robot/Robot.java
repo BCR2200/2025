@@ -40,20 +40,20 @@ public class Robot extends TimedRobot {
     // why are we saying yaw = -90? shouldn't it be m_robotContainer.gyro.Y, below too?
 
     // if(llMeasurement.rawFiducials.length == 0){
-      //   llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
-      // }
+    //   llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+    // }
 
-    
-      Alliance alliance = DriverStation.getAlliance().orElse(null);
-      if (alliance == Alliance.Red) {
-          m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(Math.PI));
-      } else {
-          m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
-      }
-      
-    
+
+    Alliance alliance = DriverStation.getAlliance().orElse(null);
+    if (alliance == Alliance.Red) {
+      m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(Math.PI));
+    } else {
+      m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
+    }
+
+
     var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-    if(llMeasurement != null){
+    if (llMeasurement != null) {
       m_robotContainer.drivetrain.resetPose(llMeasurement.pose);
     }
 
@@ -101,7 +101,7 @@ public class Robot extends TimedRobot {
     //       limelightMeasurementLeft.pose,
     //       Utils.fpgaToCurrentTime(limelightMeasurementLeft.timestampSeconds),
     //       VecBuilder.fill(0.05, 0.05, 9999)); // TODO add std dev here
-    //       // within 5 cm in the x and y, ignore limelight rotation 
+    //       // within 5 cm in the x and y, ignore limelight rotation
     // }
 
     // if (limelightMeasurementRight != null && limelightMeasurementRight.tagCount > 0 && omegaRps < 2.0) {
@@ -128,7 +128,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    if(climbToCoast.get() > 6 && climbToCoast.get() < 7){
+    if (climbToCoast.get() > 6 && climbToCoast.get() < 7) {
       m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
     }
   }
@@ -166,7 +166,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    
+
   }
 
   @Override
