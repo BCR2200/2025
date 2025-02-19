@@ -183,4 +183,33 @@ public final class ExtraMath {
         double rand = (Math.sin(seed * seed * 277347493292.34562 + seed * 727739942.4878 + 283.2) * 12345.0);
         return (rand * max) % (max - min) + min;
     }
+
+    
+  /**
+   * Applies a deadzone to the input value, then clamps it within the specified
+   * min and max range.
+   *
+   * @param value    The input value to be processed.
+   * @param min      The minimum allowed value after clamping.
+   * @param max      The maximum allowed value after clamping.
+   * @param deadzone The threshold below which the value is set to zero.
+   * @return The adjusted value after applying the deadzone and clamping.
+   */
+  public static double clampedDeadzone(double value, double min, double max, double deadzone) {
+    return ExtraMath.clamp(ExtraMath.deadzone(value, deadzone), min, max);
+  }
+
+  /**
+   * Overload that assumes a symmetric clamping range.
+   * The value is clamped within [-amp, amp] after applying the deadzone.
+   *
+   * @param value    The input value to be processed.
+   * @param amp      The absolute maximum amplitude for clamping (range: -amp to
+   *                 amp).
+   * @param deadzone The threshold below which the value is set to zero.
+   * @return The adjusted value after applying the deadzone and clamping.
+   */
+  public static double clampedDeadzone(double value, double amp, double deadzone) {
+    return ExtraMath.clamp(ExtraMath.deadzone(value, deadzone), -amp, amp);
+  }
 }
