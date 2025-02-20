@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.fasterxml.jackson.databind.util.Named;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.AutoStateShootCmd;
 import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.commands.ShootCmd;
@@ -160,6 +162,14 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("limelight-L",
         new LimelightCmd(e, drivetrain, SnapButton.Left, driveRC));
+    
+    NamedCommands.registerCommand("limelight-R",
+        new LimelightCmd(e, drivetrain, SnapButton.Right, driveRC));
+        
+    NamedCommands.registerCommand("level 2", new AutoStateShootCmd(e, RequestState.CoralLevel2));
+    NamedCommands.registerCommand("level 3", new AutoStateShootCmd(e, RequestState.CoralLevel3));
+    NamedCommands.registerCommand("level 4", new AutoStateShootCmd(e, RequestState.CoralLevel4));
+    
 
     
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -357,7 +367,7 @@ public class RobotContainer {
           // limelight snaps
           if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center) {
             double tx, ty, yaw;
-            double targetTx, targetTy = 0.587, targetYaw = 0; // define unchanging values
+            double targetTx, targetTy = 0.580, targetYaw = 0; // define unchanging values
             double[] botPose;
 
             String primaryCam, fallbackCam;
@@ -513,6 +523,6 @@ public class RobotContainer {
 
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return autoChooser.getSelected();
   }
 }

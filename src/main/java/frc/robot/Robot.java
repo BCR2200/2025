@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.timing.TimingUtils;
 
 public class Robot extends TimedRobot {
@@ -26,6 +27,9 @@ public class Robot extends TimedRobot {
   final Field2d m_field2 = new Field2d();
   final Field2d m_field3 = new Field2d();
 
+  double lastDashboardUpdate= 0;
+  
+
   Timer climbToCoast;
 
   public Robot() {
@@ -33,9 +37,9 @@ public class Robot extends TimedRobot {
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog());
     // Do this in either robot or subsystem init
-    SmartDashboard.putData("Field", m_field);
-    SmartDashboard.putData("Field Limelight", m_field2);
-    SmartDashboard.putData("Field Limelight-Right", m_field3);
+
+   // SmartDashboard.putData("Field Limelight", m_field2);
+    //SmartDashboard.putData("Field Limelight-Right", m_field3);
 
     // LimelightHelpers.SetRobotOrientation("limelight-left", -90, 0.0, 0.0, 0.0, 0.0, 0.0);
     // why are we saying yaw = -90? shouldn't it be m_robotContainer.gyro.Y, below too?
@@ -63,20 +67,27 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    PathfindingCommand.warmupCommand().schedule();
+   // PathfindingCommand.warmupCommand().schedule();
   }
 
   @Override
   public void robotPeriodic() {
     TimingUtils.logDuration("robotPeriodic", () -> {
       CommandScheduler.getInstance().run();
-
-      SmartDashboard.putNumber(
-      "CAN Utilization %", RobotController.getCANStatus().percentBusUtilization * 100.0);
-      SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
-      SmartDashboard.putNumber("CPU Temperature", RobotController.getCPUTemp());
-      SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
-      SmartDashboard.putNumber("heightfactor", m_robotContainer.heightFactor);
+      if(Timer.getFPGATimestamp()> lastDashboardUpdate +0.500){
+        SmartDashboard.putData("Field", m_field);
+        m_robotContainer.e.printDashboard();
+        m_robotContainer.climber.printDashboard();
+        lastDashboardUpdate = Timer.getFPGATimestamp();
+        var driveState = m_robotContainer.drivetrain.getState();
+        m_field.setRobotPose(driveState.Pose);
+        }
+      // SmartDashboard.putNumber(
+      // "CAN Utilization %", RobotController.getCANStatus().percentBusUtilization * 100.0);
+      // SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
+      // SmartDashboard.putNumber("CPU Temperature", RobotController.getCPUTemp());
+      // SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+      // SmartDashboard.putNumber("heightfactor", m_robotContainer.heightFactor);
 
       /*
        * This example of adding Limelight is very simple and may not be sufficient for
@@ -91,7 +102,6 @@ public class Robot extends TimedRobot {
        * specification.
        */
 
-    var driveState = m_robotContainer.drivetrain.getState();
     // double robotYaw = m_robotContainer.gyro.Y - 90; // TODO ???????
     // LimelightHelpers.SetRobotOrientation("limelight-left", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
     // LimelightHelpers.SetRobotOrientation("limelight-right", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -121,7 +131,6 @@ public class Robot extends TimedRobot {
       // }
 
       // print poses to dashboard
-      m_field.setRobotPose(driveState.Pose);
       // if (limelightMeasurementLeft != null) {
       //   m_field2.setRobotPose(limelightMeasurementLeft.pose);
       // }

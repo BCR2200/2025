@@ -13,11 +13,18 @@ public class ShootCmd extends Command {
 
   @Override
   public void initialize() {
-    e.shootLust = true;
+
   }
 
   @Override
-  public void execute() {}
+  public void execute() {
+    if(e.atPosition(5)==true){
+      e.shootLust = true;
+    }
+    else{
+      e.shootLust=false;
+    }
+  }
 
   @Override
   public void end(boolean interrupted) {

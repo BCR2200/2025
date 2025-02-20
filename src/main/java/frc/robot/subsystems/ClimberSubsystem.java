@@ -71,7 +71,6 @@ public class ClimberSubsystem extends SubsystemBase {
   public void periodic() {
     TimingUtils.logDuration("ClimberSubsystem.periodic", () -> {
       climbMotor.setPercentOutput(speed());
-      printDashboard();
     });
   }
 

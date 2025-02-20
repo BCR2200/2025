@@ -7,6 +7,10 @@ import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.signals.InvertedValue;
 
+
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -16,10 +20,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PIDMotor;
 import frc.robot.timing.TimingUtils;
-
-import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.util.datalog.BooleanLogEntry;
 
 public class ElevClArmSubsystem extends SubsystemBase {
   private final DataLog log = DataLogManager.getLog();
@@ -60,6 +60,23 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public enum RequestState {
     None, CoralLevel1, CoralLevel2, CoralLevel3, CoralLevel4, UnjamStrat1, UnjamStrat2, Barge, Processor, AlgaeBottom,
     AlgaeTop, UnlockClimb;
+
+    public ElevArmState finaleState() {
+      return switch (this) {
+              case None -> ElevArmState.SafeCoral;
+              case AlgaeBottom -> ElevArmState.PickBottom;
+              case AlgaeTop -> ElevArmState.PickTop;
+              case Barge -> ElevArmState.Barge;
+              case CoralLevel1 -> ElevArmState.LvlOne;
+              case CoralLevel2 -> ElevArmState.LvlTwo;
+              case CoralLevel3 -> ElevArmState.LvlThree;
+              case CoralLevel4 -> ElevArmState.LvlFour;
+              case Processor -> ElevArmState.Processor;
+              case UnjamStrat1 -> ElevArmState.UnjamStrat1;
+              case UnjamStrat2 -> ElevArmState.UnjamStrat2;
+              case UnlockClimb -> ElevArmState.SafeClimb;    
+      };
+    }
   }
 
   public enum ControlMode {
@@ -84,14 +101,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(15, 45);
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17, 25.4);
   public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5, 24.7);
-  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(100, 32);
+  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(97, 32);
   public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(20, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(53.5, 41);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103, 17.6);
   public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(15, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_CORAL_ARM);
-  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(100, SAFE_CORAL_ARM);
+  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(97, SAFE_CORAL_ARM);
   public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(8, 38);
   public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, SAFE_ALGAE_ARM);
   public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(103, SAFE_ALGAE_ARM);
@@ -147,7 +164,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public CANdi clawBeamBreak;
 
   private ClawState clawstate = ClawState.Stop________HammerTime;
-  private ElevArmState state = ElevArmState.Hopper;
+  public ElevArmState state = ElevArmState.Hopper;
   public boolean shootLust = false;
   public boolean suck = false;
 
@@ -209,7 +226,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public ElevClArmSubsystem() {
     leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2.5, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
     rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2.5, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
-    shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 2, 0, 0.1, 0.25, 0.12, 0.01, 60, 200, 0);
+    shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 250, 0);
     clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 2, 0, 0.1, 0.25, 0.12, 0.01, 60, 200, 0);
     clawMotor.setInverted(InvertedValue.Clockwise_Positive);
 
@@ -236,7 +253,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     TimingUtils.logDuration("ElevClArmSubsystem.periodic", () -> {
-      printDashboard();
 
       AtomicBoolean coralInHopper = new AtomicBoolean(false);
       AtomicBoolean coralInClaw = new AtomicBoolean(false);
