@@ -161,10 +161,10 @@ public class RobotContainer {
     // adam wants buttons again
 
     NamedCommands.registerCommand("limelight-L",
-        new LimelightCmd(e, drivetrain, SnapButton.Left, driveRC));
+        new LimelightCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, 2));
     
     NamedCommands.registerCommand("limelight-R",
-        new LimelightCmd(e, drivetrain, SnapButton.Right, driveRC));
+        new LimelightCmd(e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, 2));
         
     NamedCommands.registerCommand("level 2", new AutoStateShootCmd(e, RequestState.CoralLevel2));
     NamedCommands.registerCommand("level 3", new AutoStateShootCmd(e, RequestState.CoralLevel3));

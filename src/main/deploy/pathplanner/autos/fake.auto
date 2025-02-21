@@ -9,6 +9,62 @@
           "data": {
             "pathName": "test"
           }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "limelight-R"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "test2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "test3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "test4"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "limelight-R"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "test2"
+                }
+              }
+            ]
+          }
         }
       ]
     }

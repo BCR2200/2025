@@ -158,6 +158,8 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledExit() {
     m_robotContainer.climber.climbMotor.setIdleBrakeMode();
+    m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Brake);
+
   }
 
   @Override
@@ -186,7 +188,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Brake);
   }
 
   @Override
