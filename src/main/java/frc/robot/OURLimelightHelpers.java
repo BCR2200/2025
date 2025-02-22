@@ -5,9 +5,12 @@ import frc.robot.LimelightHelpers.RawFiducial;
 
 public class OURLimelightHelpers {
   private static String curCam = "";
-  private double lockedId;
 
-  public static double[][] getValidBotPose(String camA, String camB, Double idToLookFor) {
+  public static double[][] getValidBotPose(String camA, String camB, Double idToLookFor){
+    return getValidBotPose(camA, camB, idToLookFor, 1.25);
+  }
+
+  public static double[][] getValidBotPose(String camA, String camB, Double idToLookFor, double distanceThreshold) {
     if (curCam == "") {
       curCam = camA;
     }
@@ -72,7 +75,7 @@ public class OURLimelightHelpers {
     // PYTHAGOREANS THEORUM BABYYYY
     double distanceToTarget = Math.sqrt(Math.pow(-ret[0][2], 2) + Math.pow(ret[0][0], 2)); 
     SmartDashboard.putNumber("euclidian dist", distanceToTarget);
-    if (distanceToTarget > 1.25 && distanceToTarget != 0) { // distance to lock on, returns 0 if no tag so don't do that!
+    if (distanceToTarget > distanceThreshold && distanceToTarget != 0) { // distance to lock on, returns 0 if no tag so don't do that!
 
       return null; // TODO don't block????
     }
