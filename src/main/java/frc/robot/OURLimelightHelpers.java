@@ -22,6 +22,7 @@ public class OURLimelightHelpers {
       idToRet[0] = idToLookFor;
       tagIdA = idToLookFor;
       tagIdB = idToLookFor;
+      //might not need to do every loop (keep in back pocket)
       int[] ids = { idToLookFor.intValue() };
       LimelightHelpers.SetFiducialIDFiltersOverride(camA, ids);
       LimelightHelpers.SetFiducialIDFiltersOverride(camB, ids);

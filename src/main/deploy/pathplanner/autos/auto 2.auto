@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Auto1 Step1"
+            "pathName": "Auto2 Step1"
           }
         },
         {
@@ -23,10 +23,53 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Approach BR"
+                  "pathName": "Approach FR"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto2 Step2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto2 Step3"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "limelight-L"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Approach FR"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto2 Step2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto2 Step3"
           }
         }
       ]

@@ -95,7 +95,7 @@ public class LimelightCmd extends Command {
     // limelight snaps
     if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center) {
       double tx, ty, yaw;
-      double targetTx, targetTy = 0.58, targetYaw = 0; // define unchanging values
+      double targetTx, targetTy = 0.587, targetYaw = 0; // define unchanging values
       double[][] camRet;
       double[] botPose = null;
 
