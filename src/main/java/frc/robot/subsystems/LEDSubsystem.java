@@ -34,7 +34,7 @@ public class LEDSubsystem implements Runnable {
   Strip[] circleStripRight;
   Strip[][] circleStrips;
 
-
+  // ADD MANUAL CORAL INDICATOR
 
   PowerDistribution pdp;
   ElevClArmSubsystem arm;

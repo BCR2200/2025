@@ -195,6 +195,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public Zone armHitBumper = new Zone(new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
 
   Timer intakeTimer;
+  public boolean manualCoral = false;
 
   public static final class Zone {
     final public ElevArmPosition min;
@@ -292,7 +293,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               intakeTimer.restart();
               break;
             }
-            if (coralInClaw.get()) {
+            if (coralInClaw.get() || manualCoral) {
               state = ElevArmState.SafeCoral;
               break;
             }
@@ -326,7 +327,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             }
             break;
           case SafeCoral:
-            if (!coralInClaw.get()) {
+            if (!coralInClaw.get() && !manualCoral) {
               state = conditionalTransition(state, ElevArmState.Hopper);
               break;
             }
@@ -589,6 +590,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               default:
                 state = ElevArmState.Hopper;
                 shoulderMotor.setCurrentLimit(normalShoulderCurrentLimit);
+                positionControl = true;
                 break;
             }
             break;
@@ -598,6 +600,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 break;
               default:
                 state = ElevArmState.Hopper;
+                positionControl = true;
                 break;
               // if stuck in unjam position check out
             }

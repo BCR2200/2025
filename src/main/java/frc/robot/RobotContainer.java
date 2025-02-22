@@ -78,6 +78,10 @@ public class RobotContainer {
   Keybind snapB;
   Keybind snapX;
   Keybind snapY;
+  
+  //codriver stick click
+  Keybind rightStickClick;
+  Keybind leftStickClick;
 
   DPadButton rightDpad;
   DPadButton leftDpad;
@@ -195,6 +199,9 @@ public class RobotContainer {
     snapX = new Keybind(driverController, Button.X);
     snapY = new Keybind(driverController, Button.Y);
 
+    leftStickClick = new Keybind(codriverController, Button.LeftStick);
+    rightStickClick = new Keybind(codriverController, Button.RightStick);
+
     leftDpad = new DPadButton(driverController, DPad.Left);
     rightDpad = new DPadButton(driverController, DPad.Right);
     upDpad = new DPadButton(driverController, DPad.Up);
@@ -221,6 +228,11 @@ public class RobotContainer {
         .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Coral)));
     selectButton.trigger().and(startButton.trigger().negate())
         .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Algae)));
+
+    rightStickClick.trigger().and(leftStickClick.trigger())
+        .onTrue(new InstantCommand(() -> e.manualCoral = true));
+    rightStickClick.trigger().and(leftStickClick.trigger().negate())
+        .onTrue(new InstantCommand(() -> e.manualCoral = false));
 
     // Allow exiting Climb mode
     selectButton.trigger().and(startButton.trigger())

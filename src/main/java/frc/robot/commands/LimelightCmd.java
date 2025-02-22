@@ -25,6 +25,7 @@ public class LimelightCmd extends Command {
   private final double ep;
   Timer shootTimer;
   private boolean finished = false;
+  private boolean registered;
 
   private double positionError;
 
@@ -55,22 +56,9 @@ public class LimelightCmd extends Command {
     shootTimer.reset();
     finished = false;
     idToLookFor = null;
+    registered = false;
 
     positionError = Double.MAX_VALUE; // update me later
-    // Override the X feedback
-    PPHolonomicDriveController.overrideXFeedback(() -> {
-      // Calculate feedback from your custom PID controller
-      return overrideX;
-    });
-
-    PPHolonomicDriveController.overrideYFeedback(() -> {
-      // Calculate feedback from your custom PID controller
-      return overrideY;
-    });
-    PPHolonomicDriveController.overrideRotationFeedback(() -> {
-      // Calculate feedback from your custom PID controller
-      return overrideRot;
-    });
   }
 
   @Override
@@ -125,6 +113,24 @@ public class LimelightCmd extends Command {
       if (camRet != null) {
         idToLookFor = camRet[1][0];
         botPose = camRet[0];
+        
+        if(!registered){
+          // Override the X feedback
+          PPHolonomicDriveController.overrideXFeedback(() -> {
+            // Calculate feedback from your custom PID controller
+            return overrideX;
+          });
+
+          PPHolonomicDriveController.overrideYFeedback(() -> {
+            // Calculate feedback from your custom PID controller
+            return overrideY;
+          });
+          PPHolonomicDriveController.overrideRotationFeedback(() -> {
+            // Calculate feedback from your custom PID controller
+            return overrideRot;
+          });
+          registered = true;
+        }
       }
 
       if (botPose != null) {
