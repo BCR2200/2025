@@ -75,6 +75,7 @@ public class Robot extends TimedRobot {
     TimingUtils.logDuration("robotPeriodic", () -> {
       CommandScheduler.getInstance().run();
       if(Timer.getFPGATimestamp()> lastDashboardUpdate +0.500){
+        SmartDashboard.putNumber("Wheel Velocity", m_robotContainer.drivetrain.getModule(0).getDriveMotor().getVelocity().getValueAsDouble());
         SmartDashboard.putData("Field", m_field);
         m_robotContainer.e.printDashboard();
         m_robotContainer.climber.printDashboard();

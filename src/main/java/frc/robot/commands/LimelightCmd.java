@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import frc.robot.ExtraMath;
+import frc.robot.LimelightHelpers;
 import frc.robot.OURLimelightHelpers;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.input.SnapButton;
@@ -29,11 +30,14 @@ public class LimelightCmd extends Command {
 
   private double overrideX, overrideY, overrideRot = 0.0;
 
+  Double idToLookFor;
+
   public LimelightCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap, RequestState state) {
     this(e, drivetrain, snap, state, 0.25);
   }
 
-  public LimelightCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap, RequestState state, double epsilon) {
+  public LimelightCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap, RequestState state,
+      double epsilon) {
     this.e = e;
     this.drive = drivetrain;
     this.snap = snap;
@@ -50,6 +54,7 @@ public class LimelightCmd extends Command {
     shootTimer.stop();
     shootTimer.reset();
     finished = false;
+    idToLookFor = null;
 
     positionError = Double.MAX_VALUE; // update me later
     // Override the X feedback
@@ -75,8 +80,9 @@ public class LimelightCmd extends Command {
     if (e.atPosition(ep) && state.finaleState() == e.state && shootTimer.get() == 0) {
       e.shootLust = true;
       shootTimer.restart();
-    }; 
-    //TODO adjust the value
+    }
+    ;
+    // TODO adjust the value
     if (shootTimer.get() > 0.3) {
       e.requestState(RequestState.None);
       e.shootLust = false;
@@ -115,9 +121,10 @@ public class LimelightCmd extends Command {
           targetTy = 0.5;
       }
 
-      camRet = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam, null);
+      camRet = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam, idToLookFor);
       if (camRet != null) {
-        botPose = camRet[0]; // TODO lock ID
+        idToLookFor = camRet[1][0];
+        botPose = camRet[0];
       }
 
       if (botPose != null) {
@@ -138,26 +145,24 @@ public class LimelightCmd extends Command {
 
         double overrideXRC = ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03);
         double overrideYRC = ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03);
-        overrideRot = ExtraMath.clampedDeadzone( vectorYaw * -pr, 1, .1);
+        overrideRot = ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1);
 
         double thetaRadians = drive.getState().Pose.getRotation().getRadians();
         // Apply the 2D rotation formula
         overrideX = overrideXRC * Math.cos(thetaRadians) - overrideYRC * Math.sin(thetaRadians);
         overrideY = overrideXRC * Math.sin(thetaRadians) + overrideYRC * Math.cos(thetaRadians);
         SmartDashboard.putNumber("Position Error", positionError);
-       
 
-        
-        // Y goes in X and X goes in y because of 
+        // Y goes in X and X goes in y because of
         // setDefaultCommand
         // drive.applyRequest(() -> {
-        //   return driveRC.withVelocityX(ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03)) // Drive
-        //       .withVelocityY(ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03))
-        //       .withRotationalRate(ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1));
+        // return driveRC.withVelocityX(ExtraMath.clampedDeadzone(vectorY * -pt, 1,
+        // .03)) // Drive
+        // .withVelocityY(ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03))
+        // .withRotationalRate(ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1));
 
         // });
-      }
-      else{
+      } else {
         overrideX = 0;
         overrideY = 0;
         overrideRot = 0;
@@ -172,6 +177,9 @@ public class LimelightCmd extends Command {
     // still stow if interrupted
     e.requestState(RequestState.None);
     e.shootLust = false;
+    int[] ids = {};
+    LimelightHelpers.SetFiducialIDFiltersOverride("limelight-left", ids);
+    LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", ids);
   }
 
   @Override
