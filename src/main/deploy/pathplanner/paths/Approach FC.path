@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.64225,
-        "y": 4.03475
+        "x": 5.440499999999999,
+        "y": 2.465
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8920502396804477,
-        "y": 4.044742009587218
+        "x": 5.690300239680447,
+        "y": 2.4749920095872184
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Approach FC Start"
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.9548412538722248
+    "rotation": 123.3885135761115
   },
   "useDefaultConstraints": false
 }

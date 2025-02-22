@@ -125,6 +125,26 @@ public class LimelightCmd extends Command {
       if (camRet != null) {
         idToLookFor = camRet[1][0];
         botPose = camRet[0];
+        SmartDashboard.putNumber("idlooking", idToLookFor);
+
+        if(!registered){
+          // Override the X feedback
+          
+          PPHolonomicDriveController.overrideXFeedback(() -> {
+            // Calculate feedback from your custom PID controller
+            return overrideX;
+          });
+
+          PPHolonomicDriveController.overrideYFeedback(() -> {
+            // Calculate feedback from your custom PID controller
+            return overrideY;
+          });
+          PPHolonomicDriveController.overrideRotationFeedback(() -> {
+            // Calculate feedback from your custom PID controller
+            return overrideRot;
+          });
+          registered = true;
+        }
       }
 
       if (botPose != null) {
