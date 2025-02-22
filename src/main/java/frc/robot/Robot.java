@@ -4,10 +4,21 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.json.simple.parser.ParseException;
+
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -26,6 +37,7 @@ public class Robot extends TimedRobot {
   final Field2d m_field = new Field2d();
   final Field2d m_field2 = new Field2d();
   final Field2d m_field3 = new Field2d();
+  private String autoName, newAutoName;
 
   double lastDashboardUpdate= 0;
   
@@ -154,6 +166,29 @@ public class Robot extends TimedRobot {
         m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
       }
     });
+
+    newAutoName = m_robotContainer.getAutonomousCommand().getName();
+    if (autoName != newAutoName) {
+      autoName = newAutoName;
+      if (AutoBuilder.getAllAutoNames().contains(autoName)) {
+          System.out.println("Displaying " + autoName);
+          List<PathPlannerPath> pathPlannerPaths;
+          try {
+            pathPlannerPaths = PathPlannerAuto.getPathGroupFromAutoFile(autoName);
+            List<Pose2d> poses = new ArrayList<>();
+            for (PathPlannerPath path : pathPlannerPaths) {
+                poses.addAll(path.getAllPathPoints().stream().map(point -> new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d())).collect(Collectors.toList()));
+            }
+            m_field.getObject("path").setPoses(poses);
+          } catch (IOException e) {
+            // Auto-generated catch block
+            e.printStackTrace();
+          } catch (ParseException e) {
+            // Auto-generated catch block
+            e.printStackTrace();
+          }
+      }
+    }
   }
 
   @Override
