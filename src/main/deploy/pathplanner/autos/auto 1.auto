@@ -7,17 +7,23 @@
         {
           "type": "path",
           "data": {
-            "pathName": "path 1"
+            "pathName": "Auto1 Step1"
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "limelight align"
+                  "name": "limelight-R"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Approach BR"
                 }
               }
             ]
@@ -26,13 +32,44 @@
         {
           "type": "path",
           "data": {
-            "pathName": "path 2"
+            "pathName": "Auto1 Step2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "path 3"
+            "pathName": "Auto1 Step3"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "limelight-R"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Approach FR"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto1 Step5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto1 Step3"
           }
         }
       ]
