@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.15225,
-        "y": 1.353499999999999
+        "x": 6.1425,
+        "y": 1.3729999999999996
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.810999999999999,
-        "y": 1.8702499999999995
+        "x": 5.801249999999999,
+        "y": 1.88975
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.440499999999999,
-        "y": 2.465
+        "x": 5.46975,
+        "y": 2.4065
       },
       "prevControl": {
-        "x": 5.713499999999999,
-        "y": 2.0554999999999994
+        "x": 5.74275,
+        "y": 1.9969999999999994
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Approach FC Start"
+      "linkedName": "Approach BR Start"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 123.3885135761115
+    "rotation": 121.1593045083443
   },
   "reversed": false,
   "folder": null,

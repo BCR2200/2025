@@ -73,7 +73,10 @@ public class OURLimelightHelpers {
       ret[0] = botPoseB;
     }
     // PYTHAGOREANS THEORUM BABYYYY
-    double distanceToTarget = Math.sqrt(Math.pow(-ret[0][2], 2) + Math.pow(ret[0][0], 2)); 
+    double distanceToTarget = 0;
+    if(ret[0] != null){
+    distanceToTarget = Math.sqrt(Math.pow(-ret[0][2], 2) + Math.pow(ret[0][0], 2)); 
+    }
     SmartDashboard.putNumber("euclidian dist", distanceToTarget);
     if (distanceToTarget > distanceThreshold && distanceToTarget != 0) { // distance to lock on, returns 0 if no tag so don't do that!
 
