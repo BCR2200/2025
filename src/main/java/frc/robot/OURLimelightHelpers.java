@@ -71,8 +71,9 @@ public class OURLimelightHelpers {
     }
     // PYTHAGOREANS THEORUM BABYYYY
     double distanceToTarget = Math.sqrt(Math.pow(-ret[0][2], 2) + Math.pow(ret[0][0], 2)); 
-    if (distanceToTarget > 1.25) { // distance to lock on
-      
+    SmartDashboard.putNumber("euclidian dist", distanceToTarget);
+    if (distanceToTarget > 1.25 && distanceToTarget != 0) { // distance to lock on, returns 0 if no tag so don't do that!
+
       return null; // TODO don't block????
     }
     ret[1] = idToRet;
