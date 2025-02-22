@@ -196,7 +196,7 @@ public final class ExtraMath {
    * @return The adjusted value after applying the deadzone and clamping.
    */
   public static double clampedDeadzone(double value, double min, double max, double deadzone) {
-    return ExtraMath.clamp(ExtraMath.deadzone(value, deadzone), min, max);
+    return ExtraMath.clamp(ExtraMath.naiveDeadzone(value, deadzone), min, max);
   }
 
   /**
@@ -210,6 +210,6 @@ public final class ExtraMath {
    * @return The adjusted value after applying the deadzone and clamping.
    */
   public static double clampedDeadzone(double value, double amp, double deadzone) {
-    return ExtraMath.clamp(ExtraMath.deadzone(value, deadzone), -amp, amp);
+    return ExtraMath.clamp(ExtraMath.naiveDeadzone(value, deadzone), -amp, amp);
   }
 }

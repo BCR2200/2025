@@ -90,7 +90,8 @@ public class LimelightCmd extends Command {
     if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center) {
       double tx, ty, yaw;
       double targetTx, targetTy = 0.58, targetYaw = 0; // define unchanging values
-      double[] botPose;
+      double[][] camRet;
+      double[] botPose = null;
 
       String primaryCam, fallbackCam;
 
@@ -114,7 +115,10 @@ public class LimelightCmd extends Command {
           targetTy = 0.5;
       }
 
-      botPose = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam);
+      camRet = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam, null);
+      if (camRet != null) {
+        botPose = camRet[0]; // TODO lock ID
+      }
 
       if (botPose != null) {
         tx = botPose[0]; // meters

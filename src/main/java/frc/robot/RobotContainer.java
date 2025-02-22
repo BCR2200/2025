@@ -178,6 +178,8 @@ public class RobotContainer {
     configureBindings();
   }
 
+  Double idToLookFor = null;
+
   private void configureBindings() {
     // climber engage - toggle? change controls when climbed? make sure arm is
     // forward, and everything is safe
@@ -365,11 +367,14 @@ public class RobotContainer {
               -driverController.getLeftX() * heightFactor * MaxSpeed, 0.1);
           double vertical = ExtraMath.deadzone(
               -driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
+
+          SmartDashboard.putString("idlooking", (idToLookFor != null) ? idToLookFor.toString() : "null");
           // limelight snaps
           if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center) {
             double tx, ty, yaw;
             double targetTx, targetTy = 0.580, targetYaw = 0; // define unchanging values
-            double[] botPose;
+            double[][] camRet;
+            double[] botPose = null;
 
             String primaryCam, fallbackCam;
 
@@ -396,7 +401,11 @@ public class RobotContainer {
             targetTx = targetTx + dpadShiftX;
             targetTy = targetTy + dpadShiftY;
 
-            botPose = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam);
+            camRet = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam, idToLookFor);
+            if (camRet != null) {
+              idToLookFor = camRet[1][0];
+              botPose = camRet[0];
+            }
 
             if (botPose != null) {
               tx = botPose[0]; // meters
@@ -413,12 +422,15 @@ public class RobotContainer {
               double pt = 2.5; // translation p value
               double pr = 0.1; // rotation p
 
+              SmartDashboard.putNumber("Velocity X", ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03));
+              SmartDashboard.putNumber("Velocity Y", ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03));
+              SmartDashboard.putNumber("Rotation", ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .08));
               // Y goes in X and X goes in y because of comment above
               // setDefaultCommand
               if (e.getEMode() == ControlMode.Coral) {
                 return driveRC.withVelocityX(ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03))
                     .withVelocityY(ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03))
-                    .withRotationalRate(ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1));
+                    .withRotationalRate(ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .08));
               } else {
                 return driveRC.withVelocityX(vertical) // Drive
                     .withVelocityY(ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03))
@@ -431,7 +443,10 @@ public class RobotContainer {
                   .withRotationalRate(rotate);
             }
           } else {
-
+            idToLookFor = null;
+            int[] ids = {};
+            LimelightHelpers.SetFiducialIDFiltersOverride("limelight-left", ids);
+            LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", ids);
             // field snaps
             if (snap != SnapButton.None) {
               switch (snap) {
