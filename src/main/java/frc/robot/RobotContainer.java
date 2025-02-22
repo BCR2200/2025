@@ -341,6 +341,7 @@ public class RobotContainer {
 
     // Note that X is defined as forward according to WPILib convention,
     // and Y is defined as to the left according to WPILib convention.
+    // (On blue side. On red, Y is right and X +ve is away from blue)
     drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> {
@@ -415,7 +416,7 @@ public class RobotContainer {
               // Y goes in X and X goes in y because of comment above
               // setDefaultCommand
               if (e.getEMode() == ControlMode.Coral) {
-                return driveRC.withVelocityX(ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03)) // Drive
+                return driveRC.withVelocityX(ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03))
                     .withVelocityY(ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03))
                     .withRotationalRate(ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1));
               } else {
@@ -425,7 +426,7 @@ public class RobotContainer {
               }
             } else {
               // womp womp good enough
-              return driveFC.withVelocityX(vertical) // Drive with stick rotation
+              return driveFC.withVelocityX(vertical)
                   .withVelocityY(horizontal)
                   .withRotationalRate(rotate);
             }
@@ -461,13 +462,11 @@ public class RobotContainer {
                   break;
               }
 
-              return driveFCFA.withVelocityX(vertical) // Drive with
-                                                       // rotation2d
+              return driveFCFA.withVelocityX(vertical)
                   .withVelocityY(horizontal)
                   .withTargetDirection(direction);
             } else {
-              return driveFC.withVelocityX(vertical) // Drive with stick
-                                                     // rotation
+              return driveFC.withVelocityX(vertical)
                   .withVelocityY(horizontal)
                   .withRotationalRate(rotate);
             }
