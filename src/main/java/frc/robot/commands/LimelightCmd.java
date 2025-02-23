@@ -31,6 +31,7 @@ public class LimelightCmd extends Command {
   private double overrideX, overrideY, overrideRot = 0.0;
 
   Double idToLookFor;
+  Boolean driveAtPosition;
 
   public LimelightCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap, RequestState state) {
     this(e, drivetrain, snap, state, 0.25);
@@ -50,11 +51,14 @@ public class LimelightCmd extends Command {
 
   @Override
   public void initialize() {
+    driveAtPosition = false;
     e.requestState(state);
     shootTimer.stop();
     shootTimer.reset();
     finished = false;
     idToLookFor = null;
+    e.setClawStartPosition();
+    e.positionControl = true;
 
     positionError = Double.MAX_VALUE; // update me later
     // Override the X feedback
@@ -77,7 +81,7 @@ public class LimelightCmd extends Command {
   public void execute() {
 
     // e movement stuff
-    if (e.atPosition(ep) && state.finaleState() == e.state && shootTimer.get() == 0) {
+    if (e.atPosition(ep) && state.finaleState() == e.state && shootTimer.get() == 0 && driveAtPosition == true) {
       e.shootLust = true;
       shootTimer.restart();
     }
@@ -147,6 +151,10 @@ public class LimelightCmd extends Command {
         double overrideXRC = ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03);
         double overrideYRC = ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03);
         overrideRot = ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1);
+
+        if(Math.abs(overrideXRC) < 0.05 && Math.abs(overrideYRC) < 0.05 && Math.abs(overrideRot) < 0.05){
+          driveAtPosition = true;
+        }
 
         double thetaRadians = drive.getState().Pose.getRotation().getRadians();
         // Apply the 2D rotation formula

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.46975,
-        "y": 2.4065
+        "x": 3.788114754098361,
+        "y": 2.868186475409835
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.328117794278235,
-        "y": 2.6125104810498434
+        "x": 3.6464825483765955,
+        "y": 3.0741969564596787
       },
       "isLocked": false,
       "linkedName": "Approach BR Start"
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 121.1593045083443
+    "rotation": 57.050784883409584
   },
   "useDefaultConstraints": false
 }

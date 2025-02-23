@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-   // PathfindingCommand.warmupCommand().schedule();
+   PathfindingCommand.warmupCommand().schedule();
   }
 
   @Override

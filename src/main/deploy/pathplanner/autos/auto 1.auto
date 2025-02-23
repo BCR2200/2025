@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "test2"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -23,7 +17,32 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Approach BR"
+                  "pathName": "test2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto1 Step5"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "limelight-L"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "test2"
                 }
               }
             ]

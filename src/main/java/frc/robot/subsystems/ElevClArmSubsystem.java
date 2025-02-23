@@ -850,5 +850,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
       shoulderMotor.putPV();
       // clawMotor.putPV();
     });
+
+    
+  }
+  public void setClawStartPosition(){
+    clawStartPosition = clawMotor.getPosition();
   }
 }
