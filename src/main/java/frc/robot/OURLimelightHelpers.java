@@ -7,7 +7,7 @@ public class OURLimelightHelpers {
   private static String curCam = "";
 
   public static double[][] getValidBotPose(String camA, String camB, Double idToLookFor){
-    return getValidBotPose(camA, camB, idToLookFor, 1.25);
+    return getValidBotPose(camA, camB, idToLookFor, 1.5);
   }
 
   public static double[][] getValidBotPose(String camA, String camB, Double idToLookFor, double distanceThreshold) {

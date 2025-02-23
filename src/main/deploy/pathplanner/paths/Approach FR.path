@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.705,
-        "y": 2.3479999999999994
+        "x": 3.8720286885245896,
+        "y": 2.9580942622950825
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.919823463846562,
-        "y": 2.548338058907115
+        "x": 4.086852152371152,
+        "y": 3.158432321202198
       },
       "isLocked": false,
       "linkedName": "Approach FR Start"
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 54.211026540816654
+    "rotation": 60.422161318738695
   },
   "useDefaultConstraints": false
 }

@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "test2"
+                  "pathName": "Auto2 Step1"
                 }
               }
             ]
@@ -26,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Auto1 Step5"
+            "pathName": "Auto1 Step2"
           }
         },
         {
@@ -42,10 +42,22 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "test2"
+                  "pathName": "Auto1 Step 3"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto1 Step4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto1 Step5"
           }
         }
       ]
