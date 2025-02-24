@@ -156,28 +156,18 @@ public class RobotContainer {
   public RobotContainer() {
     gyro = new PigeonSubsystem();
     pdp = new PowerDistribution(Constants.PDP_ID, ModuleType.kCTRE);
-
     e = new ElevClArmSubsystem();
     climber = new ClimberSubsystem();
-    led = new LEDSubsystem(this);
-
-    // digitalio = new DigitalIOSubsystem(arm, shooter, floorIntake, climber); // if
-    // adam wants buttons again
 
     NamedCommands.registerCommand("limelight-L",
         new LimelightCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, 2));
-    
     NamedCommands.registerCommand("limelight-R",
         new LimelightCmd(e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, 2));
 
-        
-        
     NamedCommands.registerCommand("level 2", new AutoStateShootCmd(e, RequestState.CoralLevel2));
     NamedCommands.registerCommand("level 3", new AutoStateShootCmd(e, RequestState.CoralLevel3));
     NamedCommands.registerCommand("level 4", new AutoStateShootCmd(e, RequestState.CoralLevel4));
-    
 
-    
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
