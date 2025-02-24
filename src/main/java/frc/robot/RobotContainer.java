@@ -453,33 +453,17 @@ public class RobotContainer {
             LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", ids);
             // field snaps
             if (snap != SnapButton.None) {
-              switch (snap) {
-                case LeftFeeder:
-                  direction = RightFeederAngle;
-                  break;
-                case RightFeeder:
-                  direction = LeftFeederAngle;
-                  break;
-                case ReefB:
-                  direction = ReefBAngle;
-                  break;
-                case ReefBL:
-                  direction = ReefBLAngle;
-                  break;
-                case ReefBR:
-                  direction = ReefBRAngle;
-                  break;
-                case ReefFL:
-                  direction = ReefFLAngle;
-                  break;
-                case ReefFR:
-                  direction = ReefFRAngle;
-                  break;
-                case ReefF:
-                default:
-                  direction = ReefFAngle;
-                  break;
-              }
+              direction = switch (snap) {
+                case LeftFeeder -> RightFeederAngle;
+                case RightFeeder -> LeftFeederAngle;
+                case ReefB -> ReefBAngle;
+                case ReefBL -> ReefBLAngle;
+                case ReefBR -> ReefBRAngle;
+                case ReefFL -> ReefFLAngle;
+                case ReefFR -> ReefFRAngle;
+                case ReefF -> ReefFAngle;
+                default -> ReefFAngle;
+              };
 
               return driveFCFA.withVelocityX(vertical)
                   .withVelocityY(horizontal)
@@ -527,18 +511,8 @@ public class RobotContainer {
 
     // codriverController.start().whileTrue(testyCommand);
 
-    // reset the field-centric heading on start
-    // start is the right menu button
-
     drivetrain.registerTelemetry(logger::telemeterize);
-    // reg drive
-    // snap to reef left
-    // snap to reef right controls TODO
-
-    // Drive, Limelight
   }
-
-
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
