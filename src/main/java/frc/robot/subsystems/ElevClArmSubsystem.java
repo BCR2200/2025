@@ -80,11 +80,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public enum ControlMode {
-    Coral, Algae, Climb;
+    Coral, Algae, Climb
   }
 
   public RequestState requestState = RequestState.None;
-  public ControlMode requestMode;
+  public ControlMode requestMode = ControlMode.Coral;
 
   public static double SAFE_CORAL_ARM = 20.5;
   public static double SAFE_ALGAE_ARM = 31.6;
@@ -126,7 +126,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     public ElevArmPosition position() {
       return switch (this) {
         case Hopper -> HOPPER_POSITION;
-        case Intake -> INTAKE_POSITION;
+        case Intake, UnjamStrat1, UnjamStrat2 -> INTAKE_POSITION;
         case SafeCoral -> SAFE_CORAL_POSITION;
         case CorgaeTransition -> CORGAE_POSITION;
         case SafeAlgae -> SAFE_ALGAE_POSITION;
@@ -148,8 +148,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case Barge -> BARGE_POSITION;
         case BargeEMove -> BARGE_EMOVE_POSITION;
         case Processor -> PROCESSOR_POSITION;
-        case UnjamStrat1 -> INTAKE_POSITION;
-        case UnjamStrat2 -> INTAKE_POSITION;
       };
     }
 
@@ -193,34 +191,12 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case Vomit -> -1.0;
         case Drool -> -0.3;
         case LazyBowelSyndrome -> 0.5;
-        default -> 0.0;
       };
     }
   }
 
   Timer intakeTimer;
   public boolean manualCoral = false;
-
-  public static final class Zone {
-    final public ElevArmPosition min;
-    final public ElevArmPosition max;
-
-    public Zone(ElevArmPosition min, ElevArmPosition max) {
-      if (max.elevatorPos < min.elevatorPos) {
-        throw new IllegalArgumentException("Elevator max is less than min");
-      }
-      if (max.armPos < min.armPos) {
-        throw new IllegalArgumentException("Arm max is less than min");
-      }
-      this.min = min;
-      this.max = max;
-    }
-
-    public boolean isItIn(ElevArmPosition position) {
-      return (position.elevatorPos < max.elevatorPos && position.elevatorPos > min.elevatorPos)
-              && (position.armPos < max.armPos && position.armPos > min.armPos);
-    }
-  }
 
   final int normalShoulderCurrentLimit = 30;
   final int softShoulderCurrentLimit = 10;
@@ -248,9 +224,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
     clawBeamBreak = new CANdi(Constants.CLAW_BREAK_ID, "*");
     CANdiConfiguration configs = new CANdiConfiguration();
     clawBeamBreak.getConfigurator().apply(configs);
-
-    requestState = RequestState.None;
-    requestMode = ControlMode.Coral;
 
     intakeTimer = new Timer();
   }
@@ -625,9 +598,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 break;
             }
             break;
-          // default:
-          // System.err.println("something's busted, no state????");
-          // break;
           case SafeAlgaeEMove:
             switch (requestState) {
               case AlgaeTop:
@@ -734,8 +704,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
     });
   }
 
-  ElevArmPosition currentPosStatic = new ElevArmPosition(0, 0);
-
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
     TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
@@ -774,7 +742,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public boolean atPosition(double epsilon) {
     AtomicBoolean retVal = new AtomicBoolean(false);
     TimingUtils.logDuration("ElevClArmSubsystem.atPosition", () -> {
-      retVal.set(requestState.finaleState() == state && rightElevatorMotor.atPosition(epsilon) && shoulderMotor.atPosition(epsilon));
+      retVal.set(
+              requestState.finaleState() == state &&
+                      rightElevatorMotor.atPosition(epsilon) &&
+                      shoulderMotor.atPosition(epsilon)
+      );
     });
     return retVal.get();
   }
