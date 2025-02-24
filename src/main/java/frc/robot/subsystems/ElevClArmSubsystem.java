@@ -189,11 +189,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
   }
 
-  // see images\ZoneDiagram.png
-  // bad zones, should never go
-  public Zone armHitElevator = new Zone(new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
-  public Zone armHitBumper = new Zone(new ElevArmPosition(1, 1), new ElevArmPosition(1, 1));
-
   Timer intakeTimer;
   public boolean manualCoral = false;
 
@@ -735,26 +730,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
     TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
-      currentPosStatic.elevatorPos = rightElevatorMotor.getPosition();
-      currentPosStatic.armPos = shoulderMotor.getPosition();
-
-      if (armHitElevator.isItIn(currentPosStatic) || armHitBumper.isItIn(currentPosStatic)) {
-        // current
-        System.out
-                .println("Currently killing itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
-                        + goal.toString());
-      }
-      if (armHitElevator.isItIn(goal) || armHitBumper.isItIn(goal)) {
-        // DO NOT GO - Default to Safe
-        rightElevatorMotor.setTarget(SAFE_CORAL_POSITION.elevatorPos);
-        shoulderMotor.setTarget(SAFE_CORAL_POSITION.armPos);
-        System.out.println("Tried to kill itself! Current Position: " + currentPosStatic.toString() + " Goal Position: "
-                + goal.toString());
-      } else {
-        // in target or adjacent zone, move to direct
-        rightElevatorMotor.setTarget(goal.elevatorPos);
-        shoulderMotor.setTarget(goal.armPos);
-      }
+      rightElevatorMotor.setTarget(goal.elevatorPos);
+      shoulderMotor.setTarget(goal.armPos);
     });
   }
 
