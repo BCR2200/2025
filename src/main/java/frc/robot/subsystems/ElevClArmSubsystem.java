@@ -150,7 +150,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case Processor -> PROCESSOR_POSITION;
         case UnjamStrat1 -> INTAKE_POSITION;
         case UnjamStrat2 -> INTAKE_POSITION;
-        default -> throw new IllegalArgumentException("Unexpected value: " + this);
+      };
+    }
+
+    public ControlMode getControlMode() {
+      return switch (this) {
+        case SafeCoral, Hopper, Intake, LvlOne, LvlTwo, LvlThree, LvlFour, LvlOneEMove, LvlTwoEMove, LvlThreeEMove,
+             LvlFourEMove, UnjamStrat1, UnjamStrat2 -> ControlMode.Coral;
+        case Processor, Barge, SafeAlgae, PickTop, PickBottom, PickTopEMove, PickBottomEMove, BargeEMove,
+             CorgaeTransition, SafeAlgaeEMove -> ControlMode.Algae;
+        case SafeClimb, UnlockClimb -> ControlMode.Climb;
       };
     }
   }
@@ -781,13 +790,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public ControlMode getEMode() {
     AtomicReference<ControlMode> retVal = new AtomicReference<>(ControlMode.Coral);
     TimingUtils.logDuration("ElevClArmSubsystem.getEMode", () -> {
-      retVal.set(switch (state) {
-        case SafeCoral, Hopper, Intake, LvlOne, LvlTwo, LvlThree, LvlFour, LvlOneEMove, LvlTwoEMove, LvlThreeEMove,
-             LvlFourEMove, UnjamStrat1, UnjamStrat2 -> ControlMode.Coral;
-        case Processor, Barge, SafeAlgae, PickTop, PickBottom, PickTopEMove, PickBottomEMove, BargeEMove,
-             CorgaeTransition, SafeAlgaeEMove -> ControlMode.Algae;
-        case SafeClimb, UnlockClimb -> ControlMode.Climb;
-      });
+      retVal.set(state.getControlMode());
     });
     return retVal.get();
   }
