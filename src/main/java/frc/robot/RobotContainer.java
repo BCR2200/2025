@@ -134,7 +134,7 @@ public class RobotContainer {
 
   private final SwerveRequest.RobotCentric driveRC = new SwerveRequest.RobotCentric()
       // .withDeadband(0.0).withRotationalDeadband(0.0) // deadband added later
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
+      .withDriveRequestType(DriveRequestType.Velocity); // Use Closed loop control for drive
                                                                // motors
 
   private final SwerveRequest.FieldCentricFacingAngle driveFCFA = new SwerveRequest.FieldCentricFacingAngle()
@@ -409,7 +409,7 @@ public class RobotContainer {
                 primaryCam = "limelight-left";
                 fallbackCam = "limelight-right";
                 targetTx = 0.0;
-                targetTy = 0.5;
+                targetTy = 0.65;
             }
 
             targetTx = targetTx + dpadShiftX;
@@ -433,8 +433,8 @@ public class RobotContainer {
               double vectorY = targetTy - ty;
               double vectorYaw = targetYaw - yaw;
 
-              double pt = 2.5; // translation p value
-              double pr = 0.1; // rotation p
+              double pt = 2; // translation p value
+              double pr = 0.05; // rotation p
 
               SmartDashboard.putNumber("Velocity X", ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03));
               SmartDashboard.putNumber("Velocity Y", ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03));
@@ -495,6 +495,8 @@ public class RobotContainer {
                   .withVelocityY(horizontal)
                   .withTargetDirection(direction);
             } else {
+              SmartDashboard.putNumber("joystic velocity", vertical);
+
               return driveFC.withVelocityX(vertical)
                   .withVelocityY(horizontal)
                   .withRotationalRate(rotate);

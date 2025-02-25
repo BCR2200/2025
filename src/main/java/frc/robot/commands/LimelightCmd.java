@@ -156,7 +156,7 @@ public class LimelightCmd extends Command {
           targetTy = 0.5;
       }
 
-      camRet = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam, idToLookFor);
+      camRet = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam, idToLookFor, 2.0);
       if (camRet != null) {
         idToLookFor = camRet[1][0];
         botPose = camRet[0];
