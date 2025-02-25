@@ -6,11 +6,11 @@ import frc.robot.LimelightHelpers.RawFiducial;
 public class OURLimelightHelpers {
   private static String curCam = "";
 
-  public static double[][] getValidBotPose(String camA, String camB, Double idToLookFor){
-    return getValidBotPose(camA, camB, idToLookFor, 1.5);
+  public static double[][] getBotPoseTargetSpace(String camA, String camB, Double idToLookFor){
+    return getBotPoseTargetSpace(camA, camB, idToLookFor, 1.5);
   }
 
-  public static double[][] getValidBotPose(String camA, String camB, Double idToLookFor, double distanceThreshold) {
+  public static double[][] getBotPoseTargetSpace(String camA, String camB, Double idToLookFor, double maximumDistance) {
     if (curCam == "") {
       curCam = camA;
     }
@@ -79,7 +79,7 @@ public class OURLimelightHelpers {
     distanceToTarget = Math.sqrt(Math.pow(-ret[0][2], 2) + Math.pow(ret[0][0], 2)); 
     }
     SmartDashboard.putNumber("euclidian dist", distanceToTarget);
-    if (distanceToTarget > distanceThreshold && distanceToTarget != 0) { // distance to lock on, returns 0 if no tag so don't do that!
+    if (distanceToTarget > maximumDistance && distanceToTarget != 0) { // distance to lock on, returns 0 if no tag so don't do that!
 
       return null; // TODO don't block????
     }

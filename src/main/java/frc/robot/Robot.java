@@ -94,13 +94,7 @@ public class Robot extends TimedRobot {
         lastDashboardUpdate = Timer.getFPGATimestamp();
         var driveState = m_robotContainer.drivetrain.getState();
         m_field.setRobotPose(driveState.Pose);
-        }
-      // SmartDashboard.putNumber(
-      // "CAN Utilization %", RobotController.getCANStatus().percentBusUtilization * 100.0);
-      // SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
-      // SmartDashboard.putNumber("CPU Temperature", RobotController.getCPUTemp());
-      // SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
-      // SmartDashboard.putNumber("heightfactor", m_robotContainer.heightFactor);
+      }
 
       /*
        * This example of adding Limelight is very simple and may not be sufficient for

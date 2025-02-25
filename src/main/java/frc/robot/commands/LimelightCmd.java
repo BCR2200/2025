@@ -7,14 +7,11 @@ import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.input.SnapButton;
 import frc.robot.subsystems.ElevClArmSubsystem;
-import frc.robot.subsystems.ElevClArmSubsystem.ControlMode;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 
-import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentric;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -156,7 +153,7 @@ public class LimelightCmd extends Command {
           targetTy = 0.5;
       }
 
-      camRet = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam, idToLookFor, 2.0);
+      camRet = OURLimelightHelpers.getBotPoseTargetSpace(primaryCam, fallbackCam, idToLookFor, 2.0);
       if (camRet != null) {
         idToLookFor = camRet[1][0];
         botPose = camRet[0];

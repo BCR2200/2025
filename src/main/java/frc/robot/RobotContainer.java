@@ -9,7 +9,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.fasterxml.jackson.databind.util.Named;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -22,7 +21,6 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoStateShootCmd;
@@ -156,28 +154,18 @@ public class RobotContainer {
   public RobotContainer() {
     gyro = new PigeonSubsystem();
     pdp = new PowerDistribution(Constants.PDP_ID, ModuleType.kCTRE);
-
     e = new ElevClArmSubsystem();
     climber = new ClimberSubsystem();
-    led = new LEDSubsystem(this);
-
-    // digitalio = new DigitalIOSubsystem(arm, shooter, floorIntake, climber); // if
-    // adam wants buttons again
 
     NamedCommands.registerCommand("limelight-L",
         new LimelightCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, 2));
-    
     NamedCommands.registerCommand("limelight-R",
         new LimelightCmd(e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, 2));
 
-        
-        
     NamedCommands.registerCommand("level 2", new AutoStateShootCmd(e, RequestState.CoralLevel2));
     NamedCommands.registerCommand("level 3", new AutoStateShootCmd(e, RequestState.CoralLevel3));
     NamedCommands.registerCommand("level 4", new AutoStateShootCmd(e, RequestState.CoralLevel4));
-    
 
-    
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -415,7 +403,7 @@ public class RobotContainer {
             targetTx = targetTx + dpadShiftX;
             targetTy = targetTy + dpadShiftY;
 
-            camRet = OURLimelightHelpers.getValidBotPose(primaryCam, fallbackCam, idToLookFor);
+            camRet = OURLimelightHelpers.getBotPoseTargetSpace(primaryCam, fallbackCam, idToLookFor);
             if (camRet != null) {
               idToLookFor = camRet[1][0];
               botPose = camRet[0];
@@ -463,33 +451,17 @@ public class RobotContainer {
             LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", ids);
             // field snaps
             if (snap != SnapButton.None) {
-              switch (snap) {
-                case LeftFeeder:
-                  direction = RightFeederAngle;
-                  break;
-                case RightFeeder:
-                  direction = LeftFeederAngle;
-                  break;
-                case ReefB:
-                  direction = ReefBAngle;
-                  break;
-                case ReefBL:
-                  direction = ReefBLAngle;
-                  break;
-                case ReefBR:
-                  direction = ReefBRAngle;
-                  break;
-                case ReefFL:
-                  direction = ReefFLAngle;
-                  break;
-                case ReefFR:
-                  direction = ReefFRAngle;
-                  break;
-                case ReefF:
-                default:
-                  direction = ReefFAngle;
-                  break;
-              }
+              direction = switch (snap) {
+                case LeftFeeder -> RightFeederAngle;
+                case RightFeeder -> LeftFeederAngle;
+                case ReefB -> ReefBAngle;
+                case ReefBL -> ReefBLAngle;
+                case ReefBR -> ReefBRAngle;
+                case ReefFL -> ReefFLAngle;
+                case ReefFR -> ReefFRAngle;
+                case ReefF -> ReefFAngle;
+                default -> ReefFAngle;
+              };
 
               return driveFCFA.withVelocityX(vertical)
                   .withVelocityY(horizontal)
@@ -539,18 +511,8 @@ public class RobotContainer {
 
     // codriverController.start().whileTrue(testyCommand);
 
-    // reset the field-centric heading on start
-    // start is the right menu button
-
     drivetrain.registerTelemetry(logger::telemeterize);
-    // reg drive
-    // snap to reef left
-    // snap to reef right controls TODO
-
-    // Drive, Limelight
   }
-
-
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
