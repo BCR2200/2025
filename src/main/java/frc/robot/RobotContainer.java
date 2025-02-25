@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -105,6 +106,8 @@ public class RobotContainer {
 
   double speedFactor = 1.0;
 
+  
+
   static Rotation2d LeftFeederAngle = Rotation2d.fromDegrees(90 - 144.011);
   static Rotation2d RightFeederAngle = Rotation2d.fromDegrees(144.011 - 90); // measurements stolen from spectrum
   static Rotation2d ReefFAngle = Rotation2d.fromDegrees(0);
@@ -151,11 +154,16 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autoChooser;
 
+  Timer backItUpTimer;
+
   public RobotContainer() {
     gyro = new PigeonSubsystem();
     pdp = new PowerDistribution(Constants.PDP_ID, ModuleType.kCTRE);
     e = new ElevClArmSubsystem();
     climber = new ClimberSubsystem();
+
+    backItUpTimer = new Timer();
+    backItUpTimer.start();
 
     NamedCommands.registerCommand("limelight-L",
         new LimelightCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, 2));
@@ -324,7 +332,11 @@ public class RobotContainer {
     driverController.rightBumper().and(driverController.leftBumper().negate())
         .onTrue(new InstantCommand(() -> snap = SnapButton.Right));
     driverController.leftBumper().and(driverController.rightBumper())
-        .onTrue(new InstantCommand(() -> snap = SnapButton.Center));
+        .whileTrue(new InstantCommand(() -> snap = SnapButton.Center))
+        .onFalse(new InstantCommand(() -> {
+          // do something to drive backwards for 0.4 seconds TODO doo doo
+          backItUpTimer.restart();
+        }));
     driverController.leftBumper().negate().and(driverController.rightBumper().negate())
         .onTrue(new InstantCommand(() -> snap = SnapButton.None));
 
@@ -398,6 +410,10 @@ public class RobotContainer {
                 fallbackCam = "limelight-right";
                 targetTx = 0.0;
                 targetTy = 0.65;
+                if (e.getEMode() == ControlMode.Algae) {
+                  targetTx = 0.0;
+                  targetTy = 0.45;
+                }
             }
 
             targetTx = targetTx + dpadShiftX;
@@ -429,15 +445,10 @@ public class RobotContainer {
               SmartDashboard.putNumber("Rotation", ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .08));
               // Y goes in X and X goes in y because of comment above
               // setDefaultCommand
-              if (e.getEMode() == ControlMode.Coral) {
-                return driveRC.withVelocityX(ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03))
-                    .withVelocityY(ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03))
-                    .withRotationalRate(ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .08));
-              } else {
-                return driveRC.withVelocityX(vertical) // Drive
-                    .withVelocityY(ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03))
-                    .withRotationalRate(ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1));
-              }
+              return driveRC.withVelocityX(ExtraMath.clampedDeadzone(vectorY * -pt, 1, .03))
+                  .withVelocityY(ExtraMath.clampedDeadzone(vectorX * -pt, 1, .03))
+                  .withRotationalRate(ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .08));
+              
             } else {
               // womp womp good enough
               return driveFC.withVelocityX(vertical)
@@ -468,10 +479,16 @@ public class RobotContainer {
                   .withTargetDirection(direction);
             } else {
               SmartDashboard.putNumber("joystic velocity", vertical);
-
-              return driveFC.withVelocityX(vertical)
-                  .withVelocityY(horizontal)
-                  .withRotationalRate(rotate);
+              // If we just released the center alignment in algae mode... drive back 0.4 seconds TODO
+              if(backItUpTimer.get() < 0.4 && e.getEMode() == ControlMode.Algae){
+                return driveRC.withVelocityX(0.5) // ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
+                    .withVelocityY(horizontal)
+                    .withRotationalRate(rotate);
+              } else{
+                return driveFC.withVelocityX(vertical)
+                    .withVelocityY(horizontal)
+                    .withRotationalRate(rotate);
+              }
             }
           }
         }));
