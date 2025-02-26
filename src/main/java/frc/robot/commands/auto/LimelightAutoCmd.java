@@ -39,13 +39,12 @@ public class LimelightAutoCmd extends Command {
   Boolean driveAtPosition;
 
   public LimelightAutoCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
-  RequestState state, SwerveRequest.RobotCentric swerve) {
+      RequestState state, SwerveRequest.RobotCentric swerve) {
     this(e, drivetrain, snap, state, swerve, 0.25);
   }
 
   public LimelightAutoCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
-      RequestState state, SwerveRequest.RobotCentric swerve,
-      double epsilon) {
+      RequestState state, SwerveRequest.RobotCentric swerve, double epsilon) {
     this.e = e;
     this.drive = drivetrain;
     this.snap = snap;
@@ -94,7 +93,7 @@ public class LimelightAutoCmd extends Command {
   public void execute() {
 
     // e movement stuff
-    if (e.atPosition(ep) && state.finaleState() == e.state && shootTimer.get() == 0 && driveAtPosition == true) {
+    if (e.atPosition(ep) && state.finaleState() == e.state && shootTimer.get() == 0 && driveAtPosition) {
       e.shootLust = true;
       shootTimer.restart();
     }
@@ -205,18 +204,13 @@ public class LimelightAutoCmd extends Command {
         SmartDashboard.putNumber("Rotation", thetaRadians);
         // Y goes in X and X goes in y because of
         // setDefaultCommand
-        drive.applyRequest(() -> {
-          return swerve.withVelocityX(brainYRC) // Drive
-              .withVelocityY(brainXRC)
-              .withRotationalRate(brainRot);
-        }).schedule(); // TODO: not sure if this is the right way to do it...
-
+        drive.applyRequest(() -> swerve.withVelocityX(brainYRC)
+            .withVelocityY(brainXRC)
+            .withRotationalRate(brainRot)).schedule(); // TODO: not sure if this is the right way to do it...
       } else {
-        drive.applyRequest(() -> {
-          return swerve.withVelocityX(0) // Drive
-              .withVelocityY(0)
-              .withRotationalRate(0);
-        }).schedule();
+        drive.applyRequest(() -> swerve.withVelocityX(0)
+            .withVelocityY(0)
+            .withRotationalRate(0)).schedule();
       }
     }
   }
