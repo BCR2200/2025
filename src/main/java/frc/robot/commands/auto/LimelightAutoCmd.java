@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.auto;
 
 import frc.robot.ExtraMath;
 import frc.robot.LimelightHelpers;
@@ -10,7 +10,6 @@ import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;

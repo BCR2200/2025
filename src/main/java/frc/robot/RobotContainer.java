@@ -10,7 +10,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,7 +27,7 @@ import frc.robot.commands.AutoStateShootCmd;
 import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.commands.ShootCmd;
-import frc.robot.commands.LimelightAutoCmd;
+import frc.robot.commands.auto.LimelightAutoCmd;
 import frc.robot.commands.SuckCmd;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.TestAuto;
