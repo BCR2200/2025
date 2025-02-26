@@ -10,6 +10,7 @@ import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
@@ -33,10 +34,12 @@ public class LimelightAutoCmd extends Command {
 
   private double positionError;
 
-  // private double overrideX, overrideY, overrideRot = 0.0;
+  private double brainXRC, brainYRC, brainRot = 0.0;
 
   Double idToLookFor;
   Boolean driveAtPosition;
+
+  Command driveCommand;
 
   public LimelightAutoCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
       RequestState state, SwerveRequest.RobotCentric swerve) {
@@ -73,7 +76,7 @@ public class LimelightAutoCmd extends Command {
     llMeasurement = null;
 
     positionError = Double.MAX_VALUE; // update me later
-    drive.isLimelightDriving = true;
+    // drive.isLimelightDriving = true;
     // Override the X feedback
     // PPHolonomicDriveController.overrideXFeedback(() -> {
     // // Calculate feedback from your custom PID controller
@@ -88,6 +91,10 @@ public class LimelightAutoCmd extends Command {
     // // Calculate feedback from your custom PID controller
     // return overrideRot;
     // });
+    // driveCommand = drive.applyRequest(() -> swerve.withVelocityX(brainXRC)
+    // .withVelocityY(brainYRC)
+    // .withRotationalRate(brainRot)); // TODO: not sure if this is the right way to do it...
+    // driveCommand.schedule();
   }
 
   @Override
@@ -185,13 +192,14 @@ public class LimelightAutoCmd extends Command {
         double pt = 2.5; // translation p value
         double pr = 0.1; // rotation p
 
-        double brainXRC = ExtraMath.clampedDeadzone(vectorY * -pt, 0.4, .03);
-        double brainYRC = ExtraMath.clampedDeadzone(vectorX * -pt, 0.4, .03);
-        double brainRot = ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1);
+        brainXRC = ExtraMath.clampedDeadzone(vectorY * -pt, 0.4, .03);
+        brainYRC = ExtraMath.clampedDeadzone(vectorX * -pt, 0.4, .03);
+        brainRot = ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1);
 
         if (Math.abs(positionError) < 0.045) {
           driveAtPosition = true;
         }
+        
 
         double thetaRadians = drive.getState().Pose.getRotation().getRadians();
         // // Apply the 2D rotation formula
@@ -205,19 +213,23 @@ public class LimelightAutoCmd extends Command {
         SmartDashboard.putNumber("Rotation", thetaRadians);
         // Y goes in X and X goes in y because of uhhhhh
         // setDefaultCommand
-        drive.limelightXRC = brainYRC; // Again, Y go in X and X in Y because uhhhhhhhh
-        drive.limelightYRC = brainXRC;
-        drive.limelightRot = brainRot;
-//        drive.applyRequest(() -> swerve.withVelocityX(brainYRC)
-//            .withVelocityY(brainXRC)
-//            .withRotationalRate(brainRot)).schedule(); // TODO: not sure if this is the right way to do it...
+        // drive.limelightXRC = brainXRC; // Again, Y go in X and X in Y because uhhhhhhhh
+        // drive.limelightYRC = brainYRC;
+        // drive.limelightRot = brainRot;
+        drive.setControl(swerve.withVelocityX(brainXRC)
+           .withVelocityY(brainYRC)
+           .withRotationalRate(brainRot));
       } else {
-        drive.limelightXRC = 0;
-        drive.limelightYRC = 0;
-        drive.limelightRot = 0;
-//        drive.applyRequest(() -> swerve.withVelocityX(0)
-//            .withVelocityY(0)
-//            .withRotationalRate(0)).schedule();
+        brainXRC = 0;
+        brainYRC = 0;
+        brainRot = 0;
+
+        // drive.limelightXRC = 0;
+        // drive.limelightYRC = 0;
+        // drive.limelightRot = 0;
+        drive.setControl(swerve.withVelocityX(brainXRC)
+           .withVelocityY(brainYRC)
+           .withRotationalRate(brainRot));
       }
     }
   }
@@ -233,7 +245,8 @@ public class LimelightAutoCmd extends Command {
     // still stow if interrupted
     // e.requestState(RequestState.None);
     // e.shootLust = false;
-    drive.isLimelightDriving = false;
+    // drive.isLimelightDriving = false;
+    driveCommand.cancel();
     int[] ids = {};
     LimelightHelpers.SetFiducialIDFiltersOverride("limelight-left", ids);
     LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", ids);

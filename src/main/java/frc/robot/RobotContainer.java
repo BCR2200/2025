@@ -364,7 +364,9 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> {
+          System.out.println("in the default drivetrain command!!");
           if (drivetrain.isLimelightDriving) {
+            System.out.println("in the default drivetrain command, doing limelight driving!!");
             return driveRC.withVelocityX(drivetrain.limelightXRC)
                 .withVelocityY(drivetrain.limelightYRC)
                 .withRotationalRate(drivetrain.limelightRot);
