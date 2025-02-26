@@ -24,11 +24,7 @@ public class RightTwoLvl4 extends AutoCommand {
   private final PathPlannerPath path1;
 
   public RightTwoLvl4(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
-    try {
-      path1 = PathPlannerPath.fromPathFile("testing testy path");
-    } catch (FileVersionException | IOException | ParseException e1) {
-      throw new IllegalArgumentException();
-    }
+    path1 = AutoBuildingBlocks.loadPathOrThrow("testing testy path");
 
     addCommands(
         Commands.deadline(
