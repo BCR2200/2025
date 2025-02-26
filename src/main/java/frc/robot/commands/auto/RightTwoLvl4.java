@@ -15,6 +15,7 @@ import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.ReefSide;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.input.SnapButton;
 import frc.robot.subsystems.ElevClArmSubsystem;
@@ -30,7 +31,7 @@ public class RightTwoLvl4 extends AutoCommand {
         Commands.deadline(
             Commands.sequence(
                 AutoBuilder.followPath(path1),
-                new LimelightAutoCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 100000000)
+                new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 100000000)
             )
         )
     );

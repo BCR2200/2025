@@ -169,15 +169,6 @@ public class RobotContainer {
 
     AutoBuildingBlocks.drivetrain = drivetrain;
 
-    NamedCommands.registerCommand("limelight-L",
-        new LimelightAutoCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, driveRC, 2));
-    NamedCommands.registerCommand("limelight-R",
-        new LimelightAutoCmd(e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, driveRC,  2));
-
-    NamedCommands.registerCommand("level 2", new AutoStateShootCmd(e, RequestState.CoralLevel2));
-    NamedCommands.registerCommand("level 3", new AutoStateShootCmd(e, RequestState.CoralLevel3));
-    NamedCommands.registerCommand("level 4", new AutoStateShootCmd(e, RequestState.CoralLevel4));
-
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("TestAuto", new TestAuto(e, drivetrain, driveRC));
 

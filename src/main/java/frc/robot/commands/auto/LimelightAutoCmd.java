@@ -3,6 +3,7 @@ package frc.robot.commands.auto;
 import frc.robot.ExtraMath;
 import frc.robot.LimelightHelpers;
 import frc.robot.OURLimelightHelpers;
+import frc.robot.ReefSide;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.input.SnapButton;
@@ -26,22 +27,20 @@ public class LimelightAutoCmd extends Command {
   private final double ep;
   Timer shootTimer;
   Timer abandonTimer;
-  Pose2d llMeasurement;
   PoseEstimate llMeasurementTemp;
-  boolean stopRequesting = false;
   private boolean finished = false;
 
   private double positionError;
 
-  Double idToLookFor;
-  Boolean driveAtPosition;
+  final double idToLookFor;
+  boolean driveAtPosition;
 
-  public LimelightAutoCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
+  public LimelightAutoCmd(ReefSide reefSide, ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
       RequestState state, SwerveRequest.RobotCentric swerve) {
-    this(e, drivetrain, snap, state, swerve, 0.25);
+    this(reefSide, e, drivetrain, snap, state, swerve, 0.25);
   }
 
-  public LimelightAutoCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
+  public LimelightAutoCmd(ReefSide reefSide, ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
       RequestState state, SwerveRequest.RobotCentric swerve, double epsilon) {
     this.e = e;
     this.drive = drivetrain;
@@ -51,7 +50,7 @@ public class LimelightAutoCmd extends Command {
     this.swerve = swerve;
     shootTimer = new Timer();
     abandonTimer = new Timer();
-    llMeasurement = null;
+    idToLookFor = reefSide.getTag();
 
     addRequirements(e, drivetrain); // TODO should this be required? We do command the drivetrain...
   }
@@ -64,24 +63,21 @@ public class LimelightAutoCmd extends Command {
     abandonTimer.stop();
     abandonTimer.reset();
     finished = false;
-    idToLookFor = null;
-    e.setClawStartPosition();
-    e.positionControl = true;
-    stopRequesting = false;
-    llMeasurement = null;
 
     positionError = Double.MAX_VALUE; // update me later
+    e.requestState(state);
+
   }
 
   @Override
   public void execute() {
 
     // e movement stuff
-    if (e.atPosition(ep) && state.finaleState() == e.state && shootTimer.get() == 0 && driveAtPosition) {
+    if (e.atFinalPosition(ep) && shootTimer.get() == 0 && driveAtPosition) {
       e.shootLust = true;
       shootTimer.restart();
     }
-    if (e.atPosition(ep) && state.finaleState() == e.state && abandonTimer.get() == 0) {
+    if (e.atFinalPosition(ep) && abandonTimer.get() == 0) {
       abandonTimer.restart();
     }
     // TODO adjust the value
@@ -89,21 +85,8 @@ public class LimelightAutoCmd extends Command {
       e.shootLust = true;
     }
     if (shootTimer.get() > 0.3 || abandonTimer.get() > 1.5) {
-      stopRequesting = true;
       e.shootLust = false;
       e.requestState(RequestState.None);
-      if (snap == SnapButton.Right) {
-        llMeasurementTemp = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-        if (llMeasurementTemp != null) {
-          llMeasurement = llMeasurementTemp.pose;
-        }
-      }
-      if (snap == SnapButton.Left) {
-        llMeasurementTemp = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-Right");
-        if (llMeasurementTemp != null) {
-          llMeasurement = llMeasurementTemp.pose;
-        }
-      }
     }
 
     if (shootTimer.get() > 0.8 || abandonTimer.get() > 2.0) {
@@ -141,15 +124,7 @@ public class LimelightAutoCmd extends Command {
 
       camRet = OURLimelightHelpers.getBotPoseTargetSpace(primaryCam, fallbackCam, idToLookFor, 10000000.0);
       if (camRet != null) {
-        idToLookFor = camRet[1][0];
         botPose = camRet[0];
-        SmartDashboard.putNumber("idlooking", idToLookFor);
-      }
-
-      if (idToLookFor != null) {
-        if (!stopRequesting) {
-          e.requestState(state);
-        }
       }
 
       double brainYRC;
