@@ -83,7 +83,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
    m_robotContainer.autoChooser.onChange(
         auto -> {
-          m_field.getObject("path").setPoses(auto.getAllPathPoses());
+          m_field.getObject("path").setPoses(auto.getAllProperFlippedPathPoses());
         });
   }
 

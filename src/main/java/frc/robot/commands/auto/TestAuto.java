@@ -40,15 +40,14 @@ public class TestAuto extends AutoCommand {
   }
 
   @Override
-  public List<Pose2d> getAllPathPoses() {
-    return Stream.of(
-        path1.getPathPoses())
+  List<Pose2d> getAllRawPathPoses() {
+    return Stream.of(path1.getPathPoses())
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
   }
 
   @Override
-  public Pose2d getStartingPose() {
+  public Pose2d getRawStartingPose() {
     return path1.getStartingHolonomicPose().orElseThrow();
   }
 

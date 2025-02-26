@@ -38,7 +38,7 @@ public class RightTwoLvl4 extends AutoCommand {
   }
 
   @Override
-  public List<Pose2d> getAllPathPoses() {
+  List<Pose2d> getAllRawPathPoses() {
     return Stream.of(
         path1.getPathPoses())
         .flatMap(Collection::stream)
@@ -46,7 +46,7 @@ public class RightTwoLvl4 extends AutoCommand {
   }
 
   @Override
-  public Pose2d getStartingPose() {
+  public Pose2d getRawStartingPose() {
     return path1.getStartingHolonomicPose().orElseThrow();
   }
 
