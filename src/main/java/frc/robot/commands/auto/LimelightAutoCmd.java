@@ -55,7 +55,7 @@ public class LimelightAutoCmd extends Command {
     abandonTimer = new Timer();
     llMeasurement = null;
 
-    addRequirements(e, drivetrain);
+    addRequirements(e);
   }
 
   @Override
@@ -73,6 +73,7 @@ public class LimelightAutoCmd extends Command {
     llMeasurement = null;
 
     positionError = Double.MAX_VALUE; // update me later
+    drive.isLimelightDriving = true;
     // Override the X feedback
     // PPHolonomicDriveController.overrideXFeedback(() -> {
     // // Calculate feedback from your custom PID controller
@@ -202,15 +203,21 @@ public class LimelightAutoCmd extends Command {
         SmartDashboard.putNumber("Velocity X", brainXRC);
         SmartDashboard.putNumber("Velocity Y", brainYRC);
         SmartDashboard.putNumber("Rotation", thetaRadians);
-        // Y goes in X and X goes in y because of
+        // Y goes in X and X goes in y because of uhhhhh
         // setDefaultCommand
-        drive.applyRequest(() -> swerve.withVelocityX(brainYRC)
-            .withVelocityY(brainXRC)
-            .withRotationalRate(brainRot)).schedule(); // TODO: not sure if this is the right way to do it...
+        drive.limelightXRC = brainYRC; // Again, Y go in X and X in Y because uhhhhhhhh
+        drive.limelightYRC = brainXRC;
+        drive.limelightRot = brainRot;
+//        drive.applyRequest(() -> swerve.withVelocityX(brainYRC)
+//            .withVelocityY(brainXRC)
+//            .withRotationalRate(brainRot)).schedule(); // TODO: not sure if this is the right way to do it...
       } else {
-        drive.applyRequest(() -> swerve.withVelocityX(0)
-            .withVelocityY(0)
-            .withRotationalRate(0)).schedule();
+        drive.limelightXRC = 0;
+        drive.limelightYRC = 0;
+        drive.limelightRot = 0;
+//        drive.applyRequest(() -> swerve.withVelocityX(0)
+//            .withVelocityY(0)
+//            .withRotationalRate(0)).schedule();
       }
     }
   }
@@ -226,6 +233,7 @@ public class LimelightAutoCmd extends Command {
     // still stow if interrupted
     // e.requestState(RequestState.None);
     // e.shootLust = false;
+    drive.isLimelightDriving = false;
     int[] ids = {};
     LimelightHelpers.SetFiducialIDFiltersOverride("limelight-left", ids);
     LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", ids);

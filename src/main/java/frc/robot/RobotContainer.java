@@ -364,6 +364,11 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> {
+          if (drivetrain.isLimelightDriving) {
+            return driveRC.withVelocityX(drivetrain.limelightXRC)
+                .withVelocityY(drivetrain.limelightYRC)
+                .withRotationalRate(drivetrain.limelightRot);
+          }
           if (climber.climbMotor.getPosition() < -140) {
             // point wheels to 0 when climbed for easier manipulation post match
             return point.withModuleDirection(Rotation2d.fromDegrees(0));
