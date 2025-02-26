@@ -29,12 +29,13 @@ public class TestAuto extends AutoCommand {
     addCommands(
         AutoBuildingBlocks.resetOdom(drivetrain, path1),
         Commands.sequence(
-                AutoBuildingBlocks.autoStep("FOLLOW"),
-                AutoBuilder.followPath(path1),
-                AutoBuildingBlocks.autoStep("GO UP"),
-                new LimelightAutoCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)),
-                AutoBuildingBlocks.autoStep("DONE")
-                );
+            AutoBuildingBlocks.autoStep("FOLLOW"),
+            AutoBuilder.followPath(path1),
+            AutoBuildingBlocks.autoStep("GO UP"),
+            new LimelightAutoCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)
+        ),
+        AutoBuildingBlocks.autoStep("DONE")
+    );
 
   }
 
