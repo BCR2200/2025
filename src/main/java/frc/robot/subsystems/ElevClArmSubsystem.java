@@ -743,6 +743,18 @@ public class ElevClArmSubsystem extends SubsystemBase {
     AtomicBoolean retVal = new AtomicBoolean(false);
     TimingUtils.logDuration("ElevClArmSubsystem.atPosition", () -> {
       retVal.set(
+              
+                      rightElevatorMotor.atPosition(epsilon) &&
+                      shoulderMotor.atPosition(epsilon)
+      );
+    });
+    return retVal.get();
+  }
+
+  public boolean atFinalPosition(double epsilon) {
+    AtomicBoolean retVal = new AtomicBoolean(false);
+    TimingUtils.logDuration("ElevClArmSubsystem.atFinalPosition", () -> {
+      retVal.set(
               requestState.finaleState() == state &&
                       rightElevatorMotor.atPosition(epsilon) &&
                       shoulderMotor.atPosition(epsilon)

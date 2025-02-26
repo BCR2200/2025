@@ -28,8 +28,10 @@ import frc.robot.commands.AutoStateShootCmd;
 import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.commands.ShootCmd;
-import frc.robot.commands.LimelightCmd;
+import frc.robot.commands.LimelightAutoCmd;
 import frc.robot.commands.SuckCmd;
+import frc.robot.commands.auto.AutoCommand;
+import frc.robot.commands.auto.TestAuto;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
 import frc.robot.drive.TunerConstants;
@@ -152,7 +154,7 @@ public class RobotContainer {
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   double heightFactor;
 
-  private final SendableChooser<Command> autoChooser;
+  final SendableChooser<AutoCommand> autoChooser;
 
   Timer backItUpTimer;
 
@@ -166,15 +168,17 @@ public class RobotContainer {
     backItUpTimer.start();
 
     NamedCommands.registerCommand("limelight-L",
-        new LimelightCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, 2));
+        new LimelightAutoCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, driveRC, 2));
     NamedCommands.registerCommand("limelight-R",
-        new LimelightCmd(e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, 2));
+        new LimelightAutoCmd(e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, driveRC,  2));
 
     NamedCommands.registerCommand("level 2", new AutoStateShootCmd(e, RequestState.CoralLevel2));
     NamedCommands.registerCommand("level 3", new AutoStateShootCmd(e, RequestState.CoralLevel3));
     NamedCommands.registerCommand("level 4", new AutoStateShootCmd(e, RequestState.CoralLevel4));
 
-    autoChooser = AutoBuilder.buildAutoChooser();
+    autoChooser = new SendableChooser<>();
+    autoChooser.setDefaultOption("TestAuto", new TestAuto(e, drivetrain, driveRC));
+
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
     configureBindings();
@@ -481,7 +485,7 @@ public class RobotContainer {
               SmartDashboard.putNumber("joystic velocity", vertical);
               // If we just released the center alignment in algae mode... drive back 0.4 seconds TODO
               if(backItUpTimer.get() < 0.4 && e.getEMode() == ControlMode.Algae){
-                return driveRC.withVelocityX(0.5) // ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
+                return driveRC.withVelocityX(-1.5) // ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
                     .withVelocityY(horizontal)
                     .withRotationalRate(rotate);
               } else{

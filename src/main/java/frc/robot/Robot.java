@@ -45,6 +45,8 @@ public class Robot extends TimedRobot {
   Timer climbToCoast;
 
   public Robot() {
+    PathfindingCommand.warmupCommand().schedule();
+
     m_robotContainer = new RobotContainer();
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog());
@@ -79,7 +81,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-   PathfindingCommand.warmupCommand().schedule();
+   m_robotContainer.autoChooser.onChange(
+        auto -> {
+          m_field.getObject("path").setPoses(auto.getAllPathPoses());
+        });
   }
 
   @Override
@@ -162,29 +167,6 @@ public class Robot extends TimedRobot {
         m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
       }
     });
-
-    newAutoName = m_robotContainer.getAutonomousCommand().getName();
-    if (autoName != newAutoName) {
-      autoName = newAutoName;
-      if (AutoBuilder.getAllAutoNames().contains(autoName)) {
-          System.out.println("Displaying " + autoName);
-          List<PathPlannerPath> pathPlannerPaths;
-          try {
-            pathPlannerPaths = PathPlannerAuto.getPathGroupFromAutoFile(autoName);
-            List<Pose2d> poses = new ArrayList<>();
-            for (PathPlannerPath path : pathPlannerPaths) {
-                poses.addAll(path.getAllPathPoints().stream().map(point -> new Pose2d(point.position.getX(), point.position.getY(), new Rotation2d())).collect(Collectors.toList()));
-            }
-            m_field.getObject("path").setPoses(poses);
-          } catch (IOException e) {
-            // Auto-generated catch block
-            e.printStackTrace();
-          } catch (ParseException e) {
-            // Auto-generated catch block
-            e.printStackTrace();
-          }
-      }
-    }
   }
 
   @Override
