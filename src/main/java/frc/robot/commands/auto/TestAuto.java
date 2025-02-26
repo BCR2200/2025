@@ -31,40 +31,12 @@ public class TestAuto extends AutoCommand {
 
   public TestAuto(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
     path1 = AutoBuildingBlocks.loadPathOrThrow("testing testy path");
-    RobotConfig config;
-    try {
-      config = RobotConfig.fromGUISettings();
-    } catch (IOException | ParseException e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
-      throw new IllegalArgumentException();
-    }
     addCommands(
 
         AutoBuildingBlocks.resetOdom(drivetrain, path1),
         Commands.sequence(
             AutoBuildingBlocks.autoStep("FOLLOW"),
-
-            new FollowPathCommand(
-                path1,
-                () -> drivetrain.getState().Pose,
-                () -> drivetrain.getState().Speeds,
-                (speeds, feedforwards) -> drivetrain.setControl(
-                    drivetrain.m_pathApplyRobotSpeeds.withSpeeds(speeds)
-                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
-                new PPHolonomicDriveController(
-                    // PID constants for translation
-                    new PIDConstants(5, 0, 0),
-                    // PID constants for rotation
-                    new PIDConstants(7.0, 0, 0)),
-                config,
-                // Assume the path needs to be flipped for Red vs Blue, this is normally the
-                // case
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-                drivetrain // Subsystem for requirements
-            ),
-
+            AutoBuildingBlocks.followPathCommand(path1),
             AutoBuildingBlocks.autoStep("GO UP"),
             new LimelightAutoCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)),
         AutoBuildingBlocks.autoStep("DONE"));

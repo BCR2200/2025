@@ -27,6 +27,7 @@ import frc.robot.commands.AutoStateShootCmd;
 import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.commands.ShootCmd;
+import frc.robot.commands.auto.AutoBuildingBlocks;
 import frc.robot.commands.auto.LimelightAutoCmd;
 import frc.robot.commands.SuckCmd;
 import frc.robot.commands.auto.AutoCommand;
@@ -165,6 +166,8 @@ public class RobotContainer {
 
     backItUpTimer = new Timer();
     backItUpTimer.start();
+
+    AutoBuildingBlocks.drivetrain = drivetrain;
 
     NamedCommands.registerCommand("limelight-L",
         new LimelightAutoCmd(e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, driveRC, 2));
@@ -364,13 +367,6 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> {
-          System.out.println("in the default drivetrain command!!");
-          if (drivetrain.isLimelightDriving) {
-            System.out.println("in the default drivetrain command, doing limelight driving!!");
-            return driveRC.withVelocityX(drivetrain.limelightXRC)
-                .withVelocityY(drivetrain.limelightYRC)
-                .withRotationalRate(drivetrain.limelightRot);
-          }
           if (climber.climbMotor.getPosition() < -140) {
             // point wheels to 0 when climbed for easier manipulation post match
             return point.withModuleDirection(Rotation2d.fromDegrees(0));

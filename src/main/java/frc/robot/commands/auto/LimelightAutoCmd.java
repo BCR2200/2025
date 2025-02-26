@@ -10,7 +10,6 @@ import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
@@ -34,12 +33,8 @@ public class LimelightAutoCmd extends Command {
 
   private double positionError;
 
-  private double brainXRC, brainYRC, brainRot = 0.0;
-
   Double idToLookFor;
   Boolean driveAtPosition;
-
-  Command driveCommand;
 
   public LimelightAutoCmd(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
       RequestState state, SwerveRequest.RobotCentric swerve) {
@@ -58,7 +53,7 @@ public class LimelightAutoCmd extends Command {
     abandonTimer = new Timer();
     llMeasurement = null;
 
-    addRequirements(e);
+    addRequirements(e, drivetrain); // TODO should this be required? We do command the drivetrain...
   }
 
   @Override
@@ -76,25 +71,6 @@ public class LimelightAutoCmd extends Command {
     llMeasurement = null;
 
     positionError = Double.MAX_VALUE; // update me later
-    // drive.isLimelightDriving = true;
-    // Override the X feedback
-    // PPHolonomicDriveController.overrideXFeedback(() -> {
-    // // Calculate feedback from your custom PID controller
-    // return overrideX;
-    // });
-
-    // PPHolonomicDriveController.overrideYFeedback(() -> {
-    // // Calculate feedback from your custom PID controller
-    // return overrideY;
-    // });
-    // PPHolonomicDriveController.overrideRotationFeedback(() -> {
-    // // Calculate feedback from your custom PID controller
-    // return overrideRot;
-    // });
-    // driveCommand = drive.applyRequest(() -> swerve.withVelocityX(brainXRC)
-    // .withVelocityY(brainYRC)
-    // .withRotationalRate(brainRot)); // TODO: not sure if this is the right way to do it...
-    // driveCommand.schedule();
   }
 
   @Override
@@ -176,6 +152,9 @@ public class LimelightAutoCmd extends Command {
         }
       }
 
+      double brainYRC;
+      double brainXRC;
+      double brainRot;
       if (botPose != null) {
         tx = botPose[0]; // meters
         ty = -botPose[2]; // meters - secretly grabbing tz - away is
@@ -199,54 +178,26 @@ public class LimelightAutoCmd extends Command {
         if (Math.abs(positionError) < 0.045) {
           driveAtPosition = true;
         }
-        
 
-        double thetaRadians = drive.getState().Pose.getRotation().getRadians();
-        // // Apply the 2D rotation formula
-        // overrideX = overrideXRC * Math.cos(thetaRadians) - overrideYRC *
-        // Math.sin(thetaRadians);
-        // overrideY = overrideXRC * Math.sin(thetaRadians) + overrideYRC *
-        // Math.cos(thetaRadians);
-        SmartDashboard.putNumber("Position Error", positionError);
-        SmartDashboard.putNumber("Velocity X", brainXRC);
-        SmartDashboard.putNumber("Velocity Y", brainYRC);
-        SmartDashboard.putNumber("Rotation", thetaRadians);
-        // Y goes in X and X goes in y because of uhhhhh
-        // setDefaultCommand
-        // drive.limelightXRC = brainXRC; // Again, Y go in X and X in Y because uhhhhhhhh
-        // drive.limelightYRC = brainYRC;
-        // drive.limelightRot = brainRot;
-        drive.setControl(swerve.withVelocityX(brainXRC)
-           .withVelocityY(brainYRC)
-           .withRotationalRate(brainRot));
       } else {
-        brainXRC = 0;
-        brainYRC = 0;
-        brainRot = 0;
-
-        // drive.limelightXRC = 0;
-        // drive.limelightYRC = 0;
-        // drive.limelightRot = 0;
-        drive.setControl(swerve.withVelocityX(brainXRC)
-           .withVelocityY(brainYRC)
-           .withRotationalRate(brainRot));
+        brainXRC = brainYRC = brainRot = 0;
       }
+      double thetaRadians = drive.getState().Pose.getRotation().getRadians();
+      SmartDashboard.putNumber("Position Error", positionError);
+      SmartDashboard.putNumber("Velocity X", brainXRC);
+      SmartDashboard.putNumber("Velocity Y", brainYRC);
+      SmartDashboard.putNumber("Rotation", thetaRadians);
+      drive.setControl(swerve.withVelocityX(brainXRC)
+          .withVelocityY(brainYRC)
+          .withRotationalRate(brainRot));
     }
   }
 
   @Override
   public void end(boolean interrupted) {
-    // Clear all feedback overrides
-    // if(llMeasurement != null){
-    // drive.resetPose(llMeasurement);
-    // }
-
-    // PPHolonomicDriveController.clearFeedbackOverrides();
     // still stow if interrupted
-    // e.requestState(RequestState.None);
-    // e.shootLust = false;
-    // drive.isLimelightDriving = false;
-    driveCommand.cancel();
+    e.requestState(RequestState.None);
+    e.shootLust = false;
     int[] ids = {};
     LimelightHelpers.SetFiducialIDFiltersOverride("limelight-left", ids);
     LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", ids);
