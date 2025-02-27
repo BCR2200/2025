@@ -10,10 +10,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -23,12 +21,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.AutoStateShootCmd;
 import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.commands.ShootCmd;
 import frc.robot.commands.auto.AutoBuildingBlocks;
-import frc.robot.commands.auto.LimelightAutoCmd;
 import frc.robot.commands.SuckCmd;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.TestAuto;
@@ -170,7 +166,8 @@ public class RobotContainer {
     AutoBuildingBlocks.drivetrain = drivetrain;
 
     autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("TestAuto", new TestAuto(e, drivetrain, driveRC));
+    autoChooser.setDefaultOption("None", null);
+    autoChooser.addOption("TestAuto", new TestAuto(e, drivetrain, driveRC));
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -338,8 +335,7 @@ public class RobotContainer {
         .onTrue(new InstantCommand(() -> snap = SnapButton.None));
 
     driverController.start().and(driverController.back().negate()).onTrue(new InstantCommand(() -> {
-      Alliance alliance = DriverStation.getAlliance().orElse(null);
-      if (alliance == Alliance.Red) {
+      if (Robot.alliance == Alliance.Red) {
         drivetrain.setOperatorPerspectiveForward(new Rotation2d(Math.PI));
       } else {
         drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
@@ -489,41 +485,6 @@ public class RobotContainer {
             }
           }
         }));
-
-    // it's drivin time
-    // Load the path we want to pathfind to and follow
-    // PathPlannerPath path = null;
-    // try {
-    // path = PathPlannerPath.fromPathFile("testy");
-    // } catch (FileVersionException e1) {
-    // // TODO Auto-generated catch block
-    // System.exit(1);
-    // e1.printStackTrace();
-    // } catch (IOException e1) {
-    // System.exit(1);
-    // // TODO Auto-generated catch block
-    // e1.printStackTrace();
-    // } catch (ParseException e1) {
-    // System.exit(1);
-    // // TODO Auto-generated catch block
-    // e1.printStackTrace();
-    // }
-
-    // // Create the constraints to use while pathfinding. The constraints defined
-    // in
-    // // the path will only be used for the path.
-    // PathConstraints constraints = new PathConstraints(
-    // 2, 2,
-    // Units.degreesToRadians(540), Units.degreesToRadians(720));
-
-    // Pose2d targetPose = new Pose2d(6.198, 4.007, Rotation2d.fromDegrees(180));
-    // // Since AutoBuilder is configured, we can use it to build pathfinding
-    // commands
-    // Command testyCommand = AutoBuilder.pathfindToPose(
-    // targetPose,
-    // constraints, 0.0);
-
-    // codriverController.start().whileTrue(testyCommand);
 
     drivetrain.registerTelemetry(logger::telemeterize);
   }
