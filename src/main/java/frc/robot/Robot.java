@@ -78,10 +78,12 @@ public class Robot extends TimedRobot {
         var driveState = m_robotContainer.drivetrain.getState();
         m_field.setRobotPose(driveState.Pose);
         SmartDashboard.putBoolean("RobotThinksItIsOnRed", alliance == Alliance.Red);
-      }
-      if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
-        updateAlliance();
-        updateFieldPaths(m_robotContainer.autoChooser.getSelected());
+        SmartDashboard.putNumber("idlooking", m_robotContainer.idToLookFor);
+
+        if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
+          updateAlliance();
+          updateFieldPaths(m_robotContainer.autoChooser.getSelected());
+        }
       }
     // });
   }

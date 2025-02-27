@@ -174,7 +174,7 @@ public class RobotContainer {
     configureBindings();
   }
 
-  Double idToLookFor = null;
+  double idToLookFor;
 
   private void configureBindings() {
     // climber engage - toggle? change controls when climbed? make sure arm is
@@ -375,7 +375,6 @@ public class RobotContainer {
           double vertical = ExtraMath.deadzone(
               -driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
 
-          SmartDashboard.putString("idlooking", (idToLookFor != null) ? idToLookFor.toString() : "null");
           // limelight snaps
           if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center) {
             double tx, ty, yaw;
@@ -412,9 +411,9 @@ public class RobotContainer {
             targetTx = targetTx + dpadShiftX;
             targetTy = targetTy + dpadShiftY;
 
+            idToLookFor = getFacingSide().getTag();
             camRet = OURLimelightHelpers.getBotPoseTargetSpace(primaryCam, fallbackCam, idToLookFor);
             if (camRet != null) {
-              idToLookFor = camRet[1][0];
               botPose = camRet[0];
             }
 
@@ -449,7 +448,6 @@ public class RobotContainer {
                   .withRotationalRate(rotate);
             }
           } else {
-            idToLookFor = null;
             int[] ids = {};
             LimelightHelpers.SetFiducialIDFiltersOverride("limelight-left", ids);
             LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", ids);
@@ -488,6 +486,32 @@ public class RobotContainer {
 
     drivetrain.registerTelemetry(logger::telemeterize);
   }
+  
+  public ReefSide getFacingSide() {
+    boolean isOnRed = Robot.alliance == Alliance.Red;
+    double angle = drivetrain.getState().Pose.getRotation().getDegrees();
+    if (isOnRed) {
+      angle = (angle + 180) % 360;
+    }
+    if (330 <= angle || angle < 30) {
+      return ReefSide.FC;
+    } else if (30 <= angle && angle < 90) {
+      return ReefSide.FR;
+    } else if (90 <= angle && angle < 150) {
+      return ReefSide.BR;
+    } else if (150 <= angle && angle < 210) {
+      return ReefSide.BC;
+    } else if (210 <= angle && angle < 270) {
+      return ReefSide.BL;
+    } else if (270 <= angle && angle < 330) {
+      return ReefSide.FL;
+    } else {
+      // This should never happen, but if it does, don't fail
+      System.out.println("Invalid angle in getFacingSide");
+      System.out.println(angle);
+      return ReefSide.FC;
+    }
+}
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();

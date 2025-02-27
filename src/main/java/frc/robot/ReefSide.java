@@ -16,6 +16,4 @@ public enum ReefSide {
             case FR -> isOnRed ? 8 : 17;
         };
     }
-
-    
 }
