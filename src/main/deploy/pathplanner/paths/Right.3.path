@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.440499999999999,
-        "y": 2.465
+        "x": 1.3306352459016395,
+        "y": 0.722387295081968
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.690300239680447,
-        "y": 2.4749920095872184
+        "x": 2.0702291161936297,
+        "y": 1.3264950551443455
       },
       "isLocked": false,
-      "linkedName": "Approach FC Start"
+      "linkedName": "Right.2.End"
     },
     {
       "anchor": {
-        "x": 3.20775,
-        "y": 4.03475
+        "x": 3.728176229508197,
+        "y": 2.652407786885245
       },
       "prevControl": {
-        "x": 3.0416572709987792,
-        "y": 3.8478992430496275
+        "x": 3.513637494704319,
+        "y": 2.4493288266700635
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.1,
-    "maxAcceleration": 0.1,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 57.99461679191651
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Right",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 123.3885135761115
+    "rotation": 52.1934700552955
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

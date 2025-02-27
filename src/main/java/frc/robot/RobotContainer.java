@@ -27,7 +27,9 @@ import frc.robot.commands.ShootCmd;
 import frc.robot.commands.auto.AutoBuildingBlocks;
 import frc.robot.commands.SuckCmd;
 import frc.robot.commands.auto.AutoCommand;
-import frc.robot.commands.auto.TestAuto;
+import frc.robot.commands.auto.CenterAuto;
+import frc.robot.commands.auto.LeftAuto;
+import frc.robot.commands.auto.RightAuto;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
 import frc.robot.drive.TunerConstants;
@@ -167,7 +169,9 @@ public class RobotContainer {
 
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("None", null);
-    autoChooser.addOption("TestAuto", new TestAuto(e, drivetrain, driveRC));
+    autoChooser.addOption("LeftAuto", new LeftAuto(e, drivetrain, driveRC));
+    autoChooser.addOption("RightAuto", new RightAuto(e, drivetrain, driveRC));
+    autoChooser.addOption("CenterAuto", new CenterAuto(e, drivetrain, driveRC));
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
