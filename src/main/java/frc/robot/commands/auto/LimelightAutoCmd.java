@@ -31,37 +31,41 @@ public class LimelightAutoCmd extends Command {
 
   private double positionError;
 
-  final double idToLookFor;
-  boolean driveAtPosition;
+  double idToLookFor;
+    boolean driveAtPosition;
+  ReefSide reefSide;
+  
+    public LimelightAutoCmd(ReefSide reefSide, ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
+        RequestState state, SwerveRequest.RobotCentric swerve) {
+      this(reefSide, e, drivetrain, snap, state, swerve, 0.25);
+    }
+  
+    public LimelightAutoCmd(ReefSide reefSide, ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
+        RequestState state, SwerveRequest.RobotCentric swerve, double epsilon) {
+      this.e = e;
+      this.drive = drivetrain;
+      this.snap = snap;
+      this.state = state;
+      this.ep = epsilon;
+      this.swerve = swerve;
+      this.reefSide = reefSide;
+      shootTimer = new Timer();
 
-  public LimelightAutoCmd(ReefSide reefSide, ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
-      RequestState state, SwerveRequest.RobotCentric swerve) {
-    this(reefSide, e, drivetrain, snap, state, swerve, 0.25);
-  }
 
-  public LimelightAutoCmd(ReefSide reefSide, ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SnapButton snap,
-      RequestState state, SwerveRequest.RobotCentric swerve, double epsilon) {
-    this.e = e;
-    this.drive = drivetrain;
-    this.snap = snap;
-    this.state = state;
-    this.ep = epsilon;
-    this.swerve = swerve;
-    shootTimer = new Timer();
-    abandonTimer = new Timer();
-    idToLookFor = reefSide.getTag();
-
-    addRequirements(e, drivetrain); // TODO should this be required? We do command the drivetrain...
-  }
-
-  @Override
-  public void initialize() {
-    driveAtPosition = false;
-    shootTimer.stop();
-    shootTimer.reset();
-    abandonTimer.stop();
-    abandonTimer.reset();
-    finished = false;
+      abandonTimer = new Timer();
+  
+      addRequirements(e, drivetrain); // TODO should this be required? We do command the drivetrain...
+    }
+  
+    @Override
+    public void initialize() {
+      driveAtPosition = false;
+      shootTimer.stop();
+      shootTimer.reset();
+      abandonTimer.stop();
+      abandonTimer.reset();
+      finished = false;
+      idToLookFor = reefSide.getTag();
 
     positionError = Double.MAX_VALUE; // update me later
     e.requestState(state);
@@ -105,14 +109,20 @@ public class LimelightAutoCmd extends Command {
         case Right:
           primaryCam = "limelight-left";
           fallbackCam = "limelight-right";
-          targetTx = 0.150;
           // targetTy = 0.587;
           // targetYaw = 0;
+          targetTx = 0.150;
+          if(idToLookFor == 6){
+            targetTx = 0.130;
+          }
           break;
         case Left:
           primaryCam = "limelight-right";
           fallbackCam = "limelight-left";
           targetTx = -0.18;
+          if(idToLookFor == 6){
+            targetTx = -0.22;
+          }
           break;
         default:
           primaryCam = "limelight-left";
@@ -122,6 +132,8 @@ public class LimelightAutoCmd extends Command {
       }
 
       camRet = OURLimelightHelpers.getBotPoseTargetSpace(primaryCam, fallbackCam, idToLookFor, 10000000.0);
+      SmartDashboard.putNumber("idlooking", idToLookFor);
+
       if (camRet != null) {
         botPose = camRet[0];
       }

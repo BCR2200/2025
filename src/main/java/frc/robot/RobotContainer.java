@@ -28,6 +28,7 @@ import frc.robot.commands.auto.AutoBuildingBlocks;
 import frc.robot.commands.SuckCmd;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.CenterAuto;
+import frc.robot.commands.auto.L3LAuto;
 import frc.robot.commands.auto.LeftAuto;
 import frc.robot.commands.auto.RightAuto;
 import frc.robot.drive.CommandSwerveDrivetrain;
@@ -45,8 +46,8 @@ import frc.robot.subsystems.ClimberSubsystem.ClimbState;
 import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.ControlMode;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
-import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.PigeonSubsystem;
+import frc.robot.subsystems.ReaLEDSubsystem;
 
 public class RobotContainer {
   public final CommandXboxController driverController = new CommandXboxController(
@@ -60,7 +61,7 @@ public class RobotContainer {
   public PigeonSubsystem gyro;
   public ClimberSubsystem climber;
   public ElevClArmSubsystem e;
-  public LEDSubsystem led;
+  public ReaLEDSubsystem led;
   public PowerDistribution pdp;
 
   // modes keybind
@@ -154,13 +155,14 @@ public class RobotContainer {
 
   final SendableChooser<AutoCommand> autoChooser;
 
-  Timer backItUpTimer;
+  public Timer backItUpTimer;
 
   public RobotContainer() {
     gyro = new PigeonSubsystem();
     pdp = new PowerDistribution(Constants.PDP_ID, ModuleType.kCTRE);
     e = new ElevClArmSubsystem();
     climber = new ClimberSubsystem();
+    led = new ReaLEDSubsystem();
 
     backItUpTimer = new Timer();
     backItUpTimer.start();
@@ -172,6 +174,7 @@ public class RobotContainer {
     autoChooser.addOption("LeftAuto", new LeftAuto(e, drivetrain, driveRC));
     autoChooser.addOption("RightAuto", new RightAuto(e, drivetrain, driveRC));
     autoChooser.addOption("CenterAuto", new CenterAuto(e, drivetrain, driveRC));
+    autoChooser.addOption("L3LAuto", new L3LAuto(e, drivetrain, driveRC));
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
 

@@ -127,11 +127,13 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    m_robotContainer.e.shoulderMotor.setIdleBrakeMode();
   }
 
   @Override
   public void teleopInit() {
-
+    m_robotContainer.e.shoulderMotor.setIdleCoastMode();
   }
 
   @Override
