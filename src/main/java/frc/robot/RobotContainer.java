@@ -411,7 +411,7 @@ public class RobotContainer {
                 targetTy = 0.65;
                 if (e.getEMode() == ControlMode.Algae) {
                   targetTx = 0.0;
-                  targetTy = 0.45;
+                  targetTy = 0.49;
                 }
             }
 
