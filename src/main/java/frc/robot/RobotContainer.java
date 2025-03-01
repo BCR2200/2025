@@ -33,7 +33,8 @@ import frc.robot.commands.auto.LeftAuto;
 import frc.robot.commands.auto.RightAuto;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
-import frc.robot.drive.TunerConstants;
+import frc.robot.drive.TunerConstantsComp;
+import frc.robot.drive.TunerConstantsPrac;
 import frc.robot.input.AnalogTrigger;
 import frc.robot.input.DPadButton;
 import frc.robot.input.AnalogTrigger.Axis;
@@ -118,16 +119,10 @@ public class RobotContainer {
   static Rotation2d ReefBRAngle = Rotation2d.fromDegrees(120);
   static Rotation2d ReefBAngle = Rotation2d.fromDegrees(180);
   Rotation2d direction;
-
-  private final double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor; // kSpeedAt12Volts
-                                                                                                    // desired top
-                                                                                                    // speed
-  private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor; // 3/4 of
-                                                                                                        // a
-                                                                                                        // rotation
-                                                                                                        // per
-                                                                                                        // second
-  // max angular velocity
+  // kSpeedAt12Volts desired top speed
+  private final double MaxSpeed;
+  // 3/4 of a rotation per second max angular velocity
+  private final double MaxAngularRate;
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final SwerveRequest.FieldCentric driveFC = new SwerveRequest.FieldCentric()
@@ -148,9 +143,9 @@ public class RobotContainer {
   // SwerveRequest.SwerveDriveBrake();
   public final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-  private final Telemetry logger = new Telemetry(MaxSpeed);
+  private final Telemetry logger;
 
-  public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+  public final CommandSwerveDrivetrain drivetrain;
   double heightFactor;
 
   final SendableChooser<AutoCommand> autoChooser;
@@ -167,6 +162,16 @@ public class RobotContainer {
     backItUpTimer = new Timer();
     backItUpTimer.start();
 
+    if (Robot.isCompBot) {
+      drivetrain = TunerConstantsComp.createDrivetrain();
+      MaxSpeed = TunerConstantsComp.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor;
+      MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor;
+    } else {
+      drivetrain = TunerConstantsPrac.createDrivetrain();
+      MaxSpeed = TunerConstantsPrac.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor;
+      MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor;
+    }
+    logger = new Telemetry(MaxSpeed);
     AutoBuildingBlocks.drivetrain = drivetrain;
 
     autoChooser = new SendableChooser<>();
