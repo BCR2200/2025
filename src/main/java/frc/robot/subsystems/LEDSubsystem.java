@@ -96,13 +96,12 @@ public class LEDSubsystem implements Runnable {
   public void run() {
     while (true) {
       synchronized (this) {
-        // if (robot.mode == Coral booom or something)
-        // ElevClArm, led, enum declaring the different levels
         allianceCheck();
+
         // checkConditions();
         // priorityCheck();
 
-        displayTheMode();
+        modesAndBeams();
 
         disabledModePicker();
 
@@ -220,62 +219,79 @@ public class LEDSubsystem implements Runnable {
     }
   }
 
-  /* Displays the mode (coral, algae, climb in one uniform color on all the leds) */
-  public void displayTheMode() {
-    synchronized (this) {
-      ControlMode mode = arm.getEMode();
-      Color algaeColor = Color.kGreen;
-      Color coralColor = Color.kHotPink;
-      Color climbColor = Color.kOrange;
-      if (mode == ControlMode.Coral) {
-        setColour(fullStrip, coralColor);
-      }
-      if (mode == ControlMode.Algae) {
-        setColour(fullStrip, algaeColor);
-      }
-      if (mode == ControlMode.Climb) {
-        setColour(fullStrip, climbColor);
-      }
-    }
-  }
+  /* Displays the mode, as well as if there's a coral/algae in the claw/hopper */
+  public void modesAndBeams() {
 
-  /* Displays if we have an algae in the claw when in algae mode (no idea if current threshold is accurate, colors are temporary) */
-  public void algaeClaw() {
-    synchronized (this) {
-      ControlMode mode = arm.getEMode();
-      double current = arm.clawMotor.getCurrent();
-      Color color1 = Color.kSeaGreen;
-      Color color2 = Color.kLimeGreen;
-      if (mode == ControlMode.Algae && current > 20) {
-        twoColourProgressBar(fullStrip, 50, color1, color2);
-      }
-    }
-  }
-
-/* Displays if we have a coral in the hopper with a single color (colors are temporary) */
-public void coralHopper() {
-  synchronized (this) {
+    // Gather data
     ControlMode mode = arm.getEMode();
+    double current = arm.clawMotor.getCurrent();
     Boolean coralInHopper = arm.isCoralInHopper();
-    Color color = Color.kMediumVioletRed;
+    Boolean coralInClaw = arm.isCoralInClaw();
+
+    // Display mode
+    Color algaeColor = Color.kGreen;
+    Color coralColor = Color.kHotPink;
+    Color climbColor = Color.kOrange;
+    if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
+      setColour(fullStrip, coralColor);
+    }
+    if (mode == ControlMode.Algae && current < 20) {
+      setColour(fullStrip, algaeColor);
+    }
+    if (mode == ControlMode.Climb) {
+      setColour(fullStrip, climbColor);
+    }
+
+    // Display if algae is in claw
+    Color colorAlgaeClaw1 = Color.kSeaGreen;
+    Color colorAlgaeClaw2 = Color.kLimeGreen;
+    if (mode == ControlMode.Algae && current >= 20) {
+      twoColourProgressBar(fullStrip, 50, colorAlgaeClaw1, colorAlgaeClaw2);
+    }
+
+    // Display if coral is in hopper
+    Color colorCoralHopper = Color.kMediumVioletRed;
     if (mode == ControlMode.Coral && coralInHopper == true) {
-      setColour(fullStrip, color);
+      setColour(fullStrip, colorCoralHopper);
+    }
+
+    // Display if coral is in claw
+    Color colorCoralClaw1 = Color.kLightPink;
+    Color colorCoralClaw2 = Color.kDeepPink;
+    if (mode == ControlMode.Coral && coralInClaw == true) {
+      twoColourProgressBar(fullStrip, 50, colorCoralClaw1, colorCoralClaw2);
     }
   }
-}
-  
-  /* Displays if we have a coral in the claw when in coral mode (colors are temporary) */
+  /* This were the individual functions before they were combined into modesAndBeams
+  public void algaeClaw() {
+  synchronized (this) {
+  ControlMode mode = arm.getEMode();
+  double current = arm.clawMotor.getCurrent();
+  Color color1 = Color.kSeaGreen;
+  Color color2 = Color.kLimeGreen;
+  if (mode == ControlMode.Algae && current > 20) {
+  twoColourProgressBar(fullStrip, 50, color1, color2);
+  }}}
+
+  public void coralHopper() {
+  synchronized (this) {
+  ControlMode mode = arm.getEMode();
+  Boolean coralInHopper = arm.isCoralInHopper();
+  Color color = Color.kMediumVioletRed;
+  if (mode == ControlMode.Coral && coralInHopper == true) {
+  setColour(fullStrip, color);
+  }}}
+
   public void coralClaw() {
-    synchronized (this) {
-      ControlMode mode = arm.getEMode();
-      Boolean coralInClaw = arm.isCoralInClaw();
-      Color color1 = Color.kLightPink;
-      Color color2 = Color.kDeepPink;
-      if (mode == ControlMode.Coral && coralInClaw == true) {
-        twoColourProgressBar(fullStrip, 50, color1, color2);
-      }
-    }
-  }
+  synchronized (this) {
+  ControlMode mode = arm.getEMode();
+  Boolean coralInClaw = arm.isCoralInClaw();
+  Color color1 = Color.kLightPink;
+  Color color2 = Color.kDeepPink;
+  if (mode == ControlMode.Coral && coralInClaw == true) {
+  twoColourProgressBar(fullStrip, 50, color1, color2);
+  }}}
+  */
 
   /** Gets voltage from the PDP and displays it as a percentage */
   public void displayVoltage() {
@@ -342,18 +358,18 @@ public void coralHopper() {
     // int pickedDisableMode = chosen.intValue();
     // disabledMode = pickedDisableMode;
     // if (disabledMode != lastLoopDisabledMode) {
-    //   stripIndex = 0;
-    //   stripIndex2 = 0;
-    //   modeInit = true;
+    // stripIndex = 0;
+    // stripIndex2 = 0;
+    // modeInit = true;
     // }
     // lastLoopDisabledMode = disabledMode;
     // switch (disabledMode) {
-    //   case 0:
-    //     riseMode(allianceColor, BetterWhite);
-    //     break;
-    //   case 1:
-    //     setColour(fullStrip, allianceColor);
-    //     break;
+    // case 0:
+    // riseMode(allianceColor, BetterWhite);
+    // break;
+    // case 1:
+    // setColour(fullStrip, allianceColor);
+    // break;
     // }
   }
 
