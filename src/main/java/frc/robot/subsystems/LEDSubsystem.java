@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.CANdi;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
@@ -20,6 +21,8 @@ import frc.robot.subsystems.led.LEDDrawer;
 import frc.robot.subsystems.led.Strip;
 import frc.robot.subsystems.led.disabledmodes.Full;
 import frc.robot.subsystems.led.disabledmodes.Rise;
+import frc.robot.subsystems.led.disabledmodes.Sink;
+import frc.robot.subsystems.led.disabledmodes.testcolors;
 
 public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
@@ -80,9 +83,13 @@ public class LEDSubsystem implements Runnable {
     timer = new Timer();
     timer.restart();
 
+  
     disableChooser = new SendableChooser<>();
     disableChooser.setDefaultOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Full", new Full(this, ledStrip, buffer));
+    disableChooser.addOption("Sink", new Sink(this, ledStrip, buffer, BetterWhite));
+    disableChooser.addOption("testcolors", new testcolors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
+
 
     SmartDashboard.putData(disableChooser);
     new Thread(this, "LED Thread").start();
@@ -93,15 +100,18 @@ public class LEDSubsystem implements Runnable {
     while (true) {
       synchronized (this) {
         allianceCheck();
-        modes();
-        disabledModePicker();
+        if (DriverStation.isEnabled()) {
+          modes();
+        }
+        if (DriverStation.isDisabled()) {
+          disabledModePicker();
+        }
         // riseMode(allianceColor, Color.kWhite);
         // setColour(fullStrip, allianceColor);
         // switch (functionIndex) {
 
         // }
         ledStrip.setData(buffer);
-
       }
       try {
         Thread.sleep(sleepInterval);
@@ -193,8 +203,8 @@ public class LEDSubsystem implements Runnable {
 
     // Display mode
     Color algaeColor = Color.kGreen;
-    Color coralColor = Color.kHotPink;
-    Color climbColor = Color.kOrange;
+    Color coralColor = Color.kCoral;
+    Color climbColor = Color.kDarkOrange;
     if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
       setColour(fullStrip, coralColor);
     }
@@ -219,10 +229,9 @@ public class LEDSubsystem implements Runnable {
     }
 
     // Display if coral is in claw
-    Color colorCoralClaw1 = Color.kLightPink;
-    Color colorCoralClaw2 = Color.kDeepPink;
+    Color colorCoralClaw = Color.kDeepPink;
     if (mode == ControlMode.Coral && coralInClaw == true) {
-      twoColourProgressBar(fullStrip, 50, colorCoralClaw1, colorCoralClaw2);
+      setColour(fullStrip, colorCoralClaw);
     }
   }
   /* This were the individual functions before they were combined into modesAndBeams
@@ -317,23 +326,6 @@ public class LEDSubsystem implements Runnable {
     }
     chosen.draw();
     sleepInterval = chosen.sleepInterval();
-    // return;
-    // int pickedDisableMode = chosen.intValue();
-    // disabledMode = pickedDisableMode;
-    // if (disabledMode != lastLoopDisabledMode) {
-    // stripIndex = 0;
-    // stripIndex2 = 0;
-    // modeInit = true;
-    // }
-    // lastLoopDisabledMode = disabledMode;
-    // switch (disabledMode) {
-    // case 0:
-    // riseMode(allianceColor, BetterWhite);
-    // break;
-    // case 1:
-    // setColour(fullStrip, allianceColor);
-    // break;
-    // }
   }
 
   /**
