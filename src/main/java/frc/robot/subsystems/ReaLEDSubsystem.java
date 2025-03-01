@@ -13,15 +13,18 @@ import frc.robot.Constants;
 import frc.robot.ExtraMath;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.led.LEDDrawer;
 import frc.robot.subsystems.led.Strip;
+import frc.robot.subsystems.led.disabledmodes.Full;
+import frc.robot.subsystems.led.disabledmodes.Rise;
 
 public class ReaLEDSubsystem implements Runnable {
   AddressableLED ledStrip;
   AddressableLEDBuffer buffer;
   Timer timer;
 
-  Strip fullStrip;
-  Strip[] strips;
+  public Strip fullStrip;
+  public Strip[] strips;
 
   // ADD MANUAL CORAL INDICATOR
 
@@ -34,17 +37,17 @@ public class ReaLEDSubsystem implements Runnable {
   Color BetterRed = new Color(75, 0, 0);
   Color BetterBlue = new Color(0, 0, 75);
   Color BetterWhite = Color.kViolet;
-  Color allianceColor = BetterRed;
+  public Color allianceColor = BetterRed;
 
   int sleepInterval = 20;
-  int stripIndex = 0;
+  public int stripIndex = 0;
   int stripIndex2 = 0;
 
   int[] cursorPositions = { 0, 1, 2 };
 
   boolean modeInit = true;
   public int disabledMode;
-  SendableChooser<Integer> disableChooser;
+  SendableChooser<LEDDrawer> disableChooser;
   int lastLoopDisabledMode;
 
   RobotContainer robot;
@@ -79,8 +82,8 @@ public class ReaLEDSubsystem implements Runnable {
     conditions = new boolean[5];
 
     disableChooser = new SendableChooser<>();
-    disableChooser.setDefaultOption("Rise", Integer.valueOf(0));
-    disableChooser.addOption("FullStrip", Integer.valueOf(1));
+    disableChooser.setDefaultOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
+    disableChooser.addOption("Full", new Full(this, ledStrip, buffer));
 
     SmartDashboard.putData(disableChooser);
     new Thread(this, "LED Thread").start();
@@ -269,24 +272,27 @@ public class ReaLEDSubsystem implements Runnable {
   public void disabledModePicker() {
     var chosen = disableChooser.getSelected();
     if (chosen == null) {
-      chosen = Integer.valueOf(0);
+      return;
     }
-    int pickedDisableMode = chosen.intValue();
-    disabledMode = pickedDisableMode;
-    if (disabledMode != lastLoopDisabledMode) {
-      stripIndex = 0;
-      stripIndex2 = 0;
-      modeInit = true;
-    }
-    lastLoopDisabledMode = disabledMode;
-    switch (disabledMode) {
-      case 0:
-        riseMode(allianceColor, BetterWhite);
-        break;
-      case 1:
-        setColour(fullStrip, allianceColor);
-        break;
-    }
+    chosen.draw();
+    sleepInterval = chosen.sleepInterval();
+    // return;
+    // int pickedDisableMode = chosen.intValue();
+    // disabledMode = pickedDisableMode;
+    // if (disabledMode != lastLoopDisabledMode) {
+    //   stripIndex = 0;
+    //   stripIndex2 = 0;
+    //   modeInit = true;
+    // }
+    // lastLoopDisabledMode = disabledMode;
+    // switch (disabledMode) {
+    //   case 0:
+    //     riseMode(allianceColor, BetterWhite);
+    //     break;
+    //   case 1:
+    //     setColour(fullStrip, allianceColor);
+    //     break;
+    // }
   }
 
   /**

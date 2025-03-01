@@ -228,7 +228,7 @@ public class RobotContainer {
     selectButton.trigger().and(startButton.trigger().negate())
         .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Algae)));
 
-    rightStickClick.trigger().and(leftStickClick.trigger())
+    rightStickClick.trigger().negate().and(leftStickClick.trigger())
         .onTrue(new InstantCommand(() -> e.manualCoral = true));
     rightStickClick.trigger().and(leftStickClick.trigger().negate())
         .onTrue(new InstantCommand(() -> e.manualCoral = false));
