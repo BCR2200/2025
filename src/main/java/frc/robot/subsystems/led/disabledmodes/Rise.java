@@ -25,10 +25,7 @@ public class Rise extends LEDDrawer {
       for (int i = 0; i < susystem.strips.length; i++) {
         susystem.safeSetLED(susystem.strips[i].start + susystem.strips[i].direction * susystem.stripIndex, fg);
       }
-      susystem.stripIndex++;
-      if (susystem.stripIndex == susystem.strips[0].numLEDs) {
-        susystem.stripIndex = 0;
-      }
+      susystem.stripIndex = (susystem.stripIndex+1) % susystem.strips[0].numLEDs; //modulo thingy, ask hugo if confused
     }
 
 	@Override
