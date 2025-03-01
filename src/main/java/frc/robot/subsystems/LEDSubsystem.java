@@ -34,9 +34,6 @@ public class LEDSubsystem implements Runnable {
   PowerDistribution pdp;
   ElevClArmSubsystem arm;
 
-  boolean[] conditions;
-  int functionIndex = -1;
-
   Color BetterRed = new Color(75, 0, 0);
   Color BetterBlue = new Color(0, 0, 75);
   Color BetterWhite = Color.kViolet;
@@ -55,10 +52,10 @@ public class LEDSubsystem implements Runnable {
 
   RobotContainer robot;
 
-  public LEDSubsystem() {
-    // this.pdp = robot.pdp;
-    // this.arm = robot.e;
-    // this.robot = robot;
+  public LEDSubsystem(RobotContainer robot) {
+    this.pdp = robot.pdp;
+    this.arm = robot.e;
+    this.robot = robot;
 
     /*
      * There are 2 vertical strips of LEDs
@@ -82,7 +79,6 @@ public class LEDSubsystem implements Runnable {
     ledStrip.start();
     timer = new Timer();
     timer.restart();
-    conditions = new boolean[5];
 
     disableChooser = new SendableChooser<>();
     disableChooser.setDefaultOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
@@ -97,52 +93,19 @@ public class LEDSubsystem implements Runnable {
     while (true) {
       synchronized (this) {
         allianceCheck();
-
-        // checkConditions();
-        // priorityCheck();
-
-        modesAndBeams();
-
+        modes();
         disabledModePicker();
-
         // riseMode(allianceColor, Color.kWhite);
         // setColour(fullStrip, allianceColor);
         // switch (functionIndex) {
 
         // }
         ledStrip.setData(buffer);
+
       }
       try {
         Thread.sleep(sleepInterval);
       } catch (InterruptedException iex) {
-      }
-    }
-  }
-
-  /** Checks conditions for all LED methods. */
-  public void checkConditions() {
-    synchronized (this) {
-      for (int i = 0; i < conditions.length; i++) {
-        conditions[i] = false;
-      }
-      if (DriverStation.isDisabled()) {
-        conditions[4] = true;
-      }
-      // if (limelight1.resultLength() > 0) {
-      // conditions[0] = true;
-      // }
-    }
-  }
-
-  /** Based on the conditions, decides which module to use. */
-  public void priorityCheck() {
-    synchronized (this) {
-      functionIndex = -1;
-      for (int i = 0; i < conditions.length; i++) {
-        if (conditions[i]) {
-          functionIndex = i;
-          break;
-        }
       }
     }
   }
@@ -220,7 +183,7 @@ public class LEDSubsystem implements Runnable {
   }
 
   /* Displays the mode, as well as if there's a coral/algae in the claw/hopper */
-  public void modesAndBeams() {
+  public void modes() {
 
     // Gather data
     ControlMode mode = arm.getEMode();

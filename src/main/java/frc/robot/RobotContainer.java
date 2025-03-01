@@ -158,7 +158,7 @@ public class RobotContainer {
     pdp = new PowerDistribution(Constants.PDP_ID, ModuleType.kCTRE);
     e = new ElevClArmSubsystem();
     climber = new ClimberSubsystem();
-    led = new LEDSubsystem();
+    led = new LEDSubsystem(this);
 
     backItUpTimer = new Timer();
     backItUpTimer.start();
@@ -355,7 +355,9 @@ public class RobotContainer {
         drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
       }
       var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-      drivetrain.resetPose(llMeasurement.pose);
+      if (llMeasurement != null){
+        drivetrain.resetPose(llMeasurement.pose);
+      }
     }));
     // driverController.start().onTrue(drivetrain.runOnce(() ->
     // drivetrain.seedFieldCentric()));
