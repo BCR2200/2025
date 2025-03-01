@@ -2,8 +2,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -11,7 +11,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
 import frc.robot.ExtraMath;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.led.Strip;
 
 public class ReaLEDSubsystem implements Runnable {
   AddressableLED ledStrip;
@@ -39,12 +41,11 @@ public class ReaLEDSubsystem implements Runnable {
   int stripIndex2 = 0;
 
   int[] cursorPositions = { 0, 1, 2 };
-  
+
   boolean modeInit = true;
   public int disabledMode;
-  public final int disabledModes = 10;
   SendableChooser<Integer> disableChooser;
-  int tempDisabledMode;
+  int lastLoopDisabledMode;
 
   RobotContainer robot;
 
@@ -53,23 +54,19 @@ public class ReaLEDSubsystem implements Runnable {
     // this.arm = robot.e;
     // this.robot = robot;
 
-
-    // disabledMode = (int) (Math.random() * disabledModes);
-    disabledMode = (int) (Math.random() * disabledModes);
-
-        /*
-        There are 2 vertical strips of LEDs    
-        30 left, 30 right                  
-                       
-                L *|----|* R
-         
-         */
+    /*
+     * There are 2 vertical strips of LEDs
+     * 30 left, 30 right
+     * 
+     * L *|----|* R
+     * 
+     */
 
     fullStrip = new Strip(0, 59);
 
     strips = new Strip[] {
-            new Strip(0, 29), // L
-            new Strip(30, 60), // R
+        new Strip(0, 29), // L
+        new Strip(30, 60), // R
     };
 
     int length = fullStrip.numLEDs;
@@ -86,30 +83,7 @@ public class ReaLEDSubsystem implements Runnable {
     disableChooser.addOption("FullStrip", Integer.valueOf(1));
 
     SmartDashboard.putData(disableChooser);
-    // TODO re-enable this if we want LEDs. Disabling to try to speed up robot code.
-     new Thread(this, "LED Thread").start();
-  }
-
-  private static class Strip {
-    // Both start and end are inclusive
-    public final int start;
-    public final int end;
-    public final int direction;
-    public final int numLEDs;
-
-    public Strip(int start, int end) {
-
-      this.start = start;
-      this.end = end;
-
-      numLEDs = Math.abs(start - end) + 1;
-
-      if (start < end) {
-        direction = 1;
-      } else {
-        direction = -1;
-      }
-    }
+    new Thread(this, "LED Thread").start();
   }
 
   @Override
@@ -123,18 +97,18 @@ public class ReaLEDSubsystem implements Runnable {
         priorityCheck();
 
         disabledModePicker();
-        
+
         // riseMode(allianceColor, Color.kWhite);
         // setColour(fullStrip, allianceColor);
         // switch (functionIndex) {
-          
+
         // }
         ledStrip.setData(buffer);
       }
       try {
-            Thread.sleep(sleepInterval);
-        } catch (InterruptedException iex) {
-        }
+        Thread.sleep(sleepInterval);
+      } catch (InterruptedException iex) {
+      }
     }
   }
 
@@ -167,11 +141,11 @@ public class ReaLEDSubsystem implements Runnable {
   }
 
   public void allianceCheck() {
-    // if (Constants.alliance == Alliance.Red) {
-    allianceColor = BetterRed;
-    // } else {
-    //     allianceColor = BetterBlue;
-    // }
+    if (Robot.alliance == Alliance.Red) {
+      allianceColor = BetterRed;
+    } else {
+      allianceColor = BetterBlue;
+    }
   }
 
   /**
@@ -191,14 +165,14 @@ public class ReaLEDSubsystem implements Runnable {
    * Clamps the index of the LED to "safely" set the LED to a buffer.
    *
    * @param index The index of the strip.
-   * @param r The desired red value to set the LED to.
-   * @param g The desired green value to set the LED to.
-   * @param b The desired blue value to set the LED to.
+   * @param r     The desired red value to set the LED to.
+   * @param g     The desired green value to set the LED to.
+   * @param b     The desired blue value to set the LED to.
    */
   public void safeSetLED(int index, double r, double g, double b) {
     synchronized (this) {
       int clampedIndex = ExtraMath.clamp(index, 0, buffer.getLength());
-      buffer.setRGB(clampedIndex, (int)(r * 255.0), (int)(g * 255.0), (int)(b * 255.0));
+      buffer.setRGB(clampedIndex, (int) (r * 255.0), (int) (g * 255.0), (int) (b * 255.0));
     }
   }
 
@@ -227,7 +201,7 @@ public class ReaLEDSubsystem implements Runnable {
    * @param color2     The background colour.
    */
   public void twoColourProgressBar(Strip strip, double percentage, Color color1,
-                                   Color color2) {
+      Color color2) {
     synchronized (this) {
       percentage = ExtraMath.clamp(percentage, 0, 1);
       int numLEDs = (int) (strip.numLEDs * percentage);
@@ -235,32 +209,6 @@ public class ReaLEDSubsystem implements Runnable {
       for (int i = strip.start; i != numLEDs * strip.direction + strip.start; i += strip.direction) {
         safeSetLED(i, color1);
       }
-    }
-  }
-
-  /**
-   * Draws cursors that vary in position and size depending on the location of
-   * notes
-   */
-  public void followNote() {
-    synchronized (this) {
-      // setColour(Color.kBlack, buffer, fullStrip);
-      // for (int i = 0; i < limelight1.resultLength(); i++) {
-      // int size = (int) ExtraMath.rangeMap(limelight1.getTargets()[i].ta, 0, 1,
-      // fullStrip.start, fullStrip.end);
-      // Color color;
-      // if (limelight1.getTargets()[i].className.equals("redbobot")) {
-      // color = Color.kRed;
-      // } else if (limelight1.getTargets()[i].className.equals("bluebobot")) {
-      // color = Color.kBlue;
-      // } else if (limelight1.resultLargestAreaTarget() == i) {
-      // color = Color.kWhite;
-      // } else {
-      // color = Color.kOrangeRed;
-      // }
-      // drawCursor(limelight1.getTargets()[i].tx, -29.8, 29.8, fullStrip,
-      // showingBuffer, color, size);
-      // }
     }
   }
 
@@ -317,7 +265,6 @@ public class ReaLEDSubsystem implements Runnable {
     return val >= min && val <= max;
   }
 
-
   /** Picks a mode to display while the robot is disabled. */
   public void disabledModePicker() {
     var chosen = disableChooser.getSelected();
@@ -325,14 +272,13 @@ public class ReaLEDSubsystem implements Runnable {
       chosen = Integer.valueOf(0);
     }
     int pickedDisableMode = chosen.intValue();
-    SmartDashboard.putNumber("picked", pickedDisableMode);
     disabledMode = pickedDisableMode;
-    if (disabledMode != tempDisabledMode) {
+    if (disabledMode != lastLoopDisabledMode) {
       stripIndex = 0;
       stripIndex2 = 0;
       modeInit = true;
     }
-    tempDisabledMode = disabledMode;
+    lastLoopDisabledMode = disabledMode;
     switch (disabledMode) {
       case 0:
         riseMode(allianceColor, BetterWhite);
@@ -387,29 +333,28 @@ public class ReaLEDSubsystem implements Runnable {
     }
   }
 
-
   /** Fades in and out the full strip to emulate breathing. */
-//   public void breatheMode() {
-//     synchronized (this) {
-//       sleepInterval = 15;
-//       setColour(fullStrip, Color.kBlack);
-//       if (allianceColor == BetterRed) {
-//         setColour(fullStrip, new Color(stripIndex, 0, 0));
-//       } else {
-//         setColour(fullStrip, new Color(0, 0, stripIndex));
-//       }
-//       if (stripIndex >= 75) {
-//         breatheDirection = false;
-//       } else if (stripIndex <= 0) {
-//         breatheDirection = true;
-//       }
-//       if (breatheDirection) {
-//         stripIndex++;
-//       } else {
-//         stripIndex--;
-//       }
-//     }
-//   }
+  // public void breatheMode() {
+  // synchronized (this) {
+  // sleepInterval = 15;
+  // setColour(fullStrip, Color.kBlack);
+  // if (allianceColor == BetterRed) {
+  // setColour(fullStrip, new Color(stripIndex, 0, 0));
+  // } else {
+  // setColour(fullStrip, new Color(0, 0, stripIndex));
+  // }
+  // if (stripIndex >= 75) {
+  // breatheDirection = false;
+  // } else if (stripIndex <= 0) {
+  // breatheDirection = true;
+  // }
+  // if (breatheDirection) {
+  // stripIndex++;
+  // } else {
+  // stripIndex--;
+  // }
+  // }
+  // }
 
   /** Blends two colours together by a variable amount. */
   public Color blend(Color color1, Color color2, double blendFactor) {
@@ -426,26 +371,26 @@ public class ReaLEDSubsystem implements Runnable {
    * @param color1 A colour to flash.
    * @param color2 A colour to flash.
    */
-//   public void sirenMode(Color color1, Color color2) {
-//     synchronized (this) {
-//       sleepInterval = 100;
-//       Color colorA;
-//       Color colorB;
-//       if (sirenState) {
-//         colorA = color2;
-//         colorB = color1;
-//       } else {
-//         colorA = color1;
-//         colorB = color2;
-//       }
-//       for (var strip : halfTopStrips) {
-//         setColour(strip, colorA);
-//       }
-//       for (var strip : halfBotStrips) {
-//         setColour(strip, colorB);
-//       }
-//       sirenState = !sirenState;
-//     }
-//   }
+  // public void sirenMode(Color color1, Color color2) {
+  // synchronized (this) {
+  // sleepInterval = 100;
+  // Color colorA;
+  // Color colorB;
+  // if (sirenState) {
+  // colorA = color2;
+  // colorB = color1;
+  // } else {
+  // colorA = color1;
+  // colorB = color2;
+  // }
+  // for (var strip : halfTopStrips) {
+  // setColour(strip, colorA);
+  // }
+  // for (var strip : halfBotStrips) {
+  // setColour(strip, colorB);
+  // }
+  // sirenState = !sirenState;
+  // }
+  // }
 
 }
