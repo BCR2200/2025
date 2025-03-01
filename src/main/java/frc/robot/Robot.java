@@ -30,6 +30,8 @@ public class Robot extends TimedRobot {
   Timer climbToCoast;
 
   public static Alliance alliance = Alliance.Blue; // Default
+  // Controls all configs for comp/practice bot
+  public static final boolean isCompBot = false;
 
   public Robot() {
     PathfindingCommand.warmupCommand().schedule();
