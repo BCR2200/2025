@@ -740,7 +740,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       }
 
       clawTargetPosition = (shoulderMotor.getPosition() * -(24.0 / 73.4)) + clawStartPosition;
-
+      
       if (!positionControl) {
         clawMotor.setPercentOutput(clawstate.speed());
       } else {
