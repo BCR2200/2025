@@ -4,7 +4,7 @@ import edu.wpi.first.hal.simulation.RoboRioDataJNI;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.subsystems.ReaLEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.led.LEDDrawer;
 
 public class Full extends LEDDrawer {
@@ -12,13 +12,13 @@ public class Full extends LEDDrawer {
   private final Color clr;
   private Color colour;
 
-  public Full(ReaLEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer,
+  public Full(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer,
       Color clr) {
     super(susystem, ledStrip, buffer);
     this.clr = clr;
   }
 
-  public Full(ReaLEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer) {
+  public Full(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer) {
     super(susystem, ledStrip, buffer);
     clr = null;
   }

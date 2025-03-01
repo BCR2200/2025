@@ -1,9 +1,11 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.CANdi;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -11,28 +13,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
 import frc.robot.ExtraMath;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.ElevClArmSubsystem.ControlMode;
+import frc.robot.subsystems.led.LEDDrawer;
+import frc.robot.subsystems.led.Strip;
+import frc.robot.subsystems.led.disabledmodes.Full;
+import frc.robot.subsystems.led.disabledmodes.Rise;
 
 public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
   AddressableLEDBuffer buffer;
   Timer timer;
 
-  Strip fullStrip;
-  Strip[] strips;
-  Strip[] cornerStrips;
-  Strip[] halfStrips;
-  Strip[] halfTopStrips;
-  Strip[] halfBotStrips;
-  Strip[] quarter1Strips;
-  Strip[] quarter2Strips;
-  Strip[] quarter3Strips;
-  Strip[] quarter4Strips;
-  Strip[] circleStripFront;
-  Strip[] circleStripLeft;
-  Strip[] circleStripBack;
-  Strip[] circleStripRight;
-  Strip[][] circleStrips;
+  public Strip fullStrip;
+  public Strip[] strips;
 
   // ADD MANUAL CORAL INDICATOR
 
@@ -42,184 +37,42 @@ public class LEDSubsystem implements Runnable {
   boolean[] conditions;
   int functionIndex = -1;
 
-  AnalogInput micInput;
-  // double micVal = 5;
-  double volumeLow = 5;
-  double volumeHigh = 0;
-
-  int[] cursorPositions = { 0, 1, 2 };
-  boolean sirenState = false;
-  public boolean exciteMode = false;
-
-  public double fakeVUInput = 0.0;
-
   Color BetterRed = new Color(75, 0, 0);
   Color BetterBlue = new Color(0, 0, 75);
   Color BetterWhite = Color.kViolet;
-  Color allianceColor = BetterBlue;
+  public Color allianceColor = BetterRed;
 
   int sleepInterval = 20;
-  int stripIndex = 0;
+  public int stripIndex = 0;
   int stripIndex2 = 0;
-  boolean breatheDirection = true;
-  int[] sparkleBrightness = { 0, 0, 0, 0, 0, 0, 0, 0 };
-  int[] sparklePosition = { 0, 0, 0, 0, 0, 0, 0, 0 };
-  boolean[] sparkleDirection = { true, false, true, false, true, false, true, false };
-  public boolean isSignaling = false;
-  Color[] cursorTrailFade = { allianceColor, allianceColor, allianceColor, allianceColor };
+
+  int[] cursorPositions = { 0, 1, 2 };
+
   boolean modeInit = true;
   public int disabledMode;
-  public final int disabledModes = 10;
-  SendableChooser<Integer> disableChooser;
-  int tempDisabledMode;
-  double fakeVUSaved = 0;
+  SendableChooser<LEDDrawer> disableChooser;
+  int lastLoopDisabledMode;
+
   RobotContainer robot;
 
-  public LEDSubsystem(RobotContainer robot) {
-    this.pdp = robot.pdp;
-    this.arm = robot.e;
-    this.robot = robot;
+  public LEDSubsystem() {
+    // this.pdp = robot.pdp;
+    // this.arm = robot.e;
+    // this.robot = robot;
 
+    /*
+     * There are 2 vertical strips of LEDs
+     * 30 left, 30 right
+     * 
+     * L *|----|* R
+     * 
+     */
 
-    // disabledMode = (int) (Math.random() * disabledModes);
-    disabledMode = (int) (Math.random() * disabledModes);
-
-        /*
-        There are 4 vertical strips of LEDs                      
-                   *    *
-                L *╔----╗* R
-                   |    |
-                   |    |
-                   |    |
-                  *╚----╝* 
-                   *    *
-                  BL    BR
-
-         
-         */
-
-    fullStrip = new Strip(0, 87);
+    fullStrip = new Strip(0, 59);
 
     strips = new Strip[] {
-            new Strip(0, 10), // FL
-            new Strip(21, 11), // LF
-            new Strip(22, 32), // LB
-            new Strip(43, 33), // BL
-            new Strip(44, 54), // BR
-            new Strip(65, 55), // RB
-            new Strip(66, 76), // RF
-            new Strip(87, 77), // FR
-    };
-
-    cornerStrips = new Strip[] {
-            new Strip(0, 21), // FL + LF
-            new Strip(22, 43), // LB + BL
-            new Strip(44, 65), // BR + RB
-            new Strip(66, 87), // RF + FR
-    };
-
-    halfStrips = new Strip[] {
-            new Strip(0, 5), // Front Left Bottom
-            new Strip(6, 10), // Front Left Top
-            new Strip(15, 11), // Left Front Top
-            new Strip(21, 16), // Left Front Bottom
-            new Strip(22, 27), // Left Back Bottom
-            new Strip(28, 32), // Left Back Top
-            new Strip(37, 33), // Back Left Top
-            new Strip(43, 38), // Back Left Bottom
-            new Strip(44, 49), // Back Right Bottom
-            new Strip(50, 54), // Back Right Top
-            new Strip(59, 55), // Right Back Top
-            new Strip(65, 60), // Right Back Bottom
-            new Strip(66, 71), // Right Front Bottom
-            new Strip(72, 76), // Right Front Top
-            new Strip(81, 77), // Front Right Top
-            new Strip(87, 82), // Front Right Bottom
-    };
-
-    halfTopStrips = new Strip[] {
-            new Strip(6, 10), // Front Left Top
-            new Strip(15, 11), // Left Front Top
-            new Strip(28, 32), // Left Back Top
-            new Strip(37, 33), // Back Left Top
-            new Strip(50, 54), // Back Right Top
-            new Strip(59, 55), // Right Back Top
-            new Strip(72, 76), // Right Front Top
-            new Strip(81, 77), // Front Right Top
-    };
-
-    halfBotStrips = new Strip[] {
-            new Strip(0, 5), // Front Left Bottom
-            new Strip(21, 16), // Left Front Bottom
-            new Strip(22, 27), // Left Back Bottom
-            new Strip(43, 38), // Back Left Bottom
-            new Strip(44, 49), // Back Right Bottom
-            new Strip(65, 60), // Right Back Bottom
-            new Strip(66, 71), // Right Front Bottom
-            new Strip(87, 82), // Front Right Bottom
-    };
-
-    quarter1Strips = new Strip[] {
-            new Strip(0, 2),
-            new Strip(21, 19),
-            new Strip(22, 24),
-            new Strip(43, 41),
-            new Strip(44, 46),
-            new Strip(65, 63),
-            new Strip(66, 68),
-            new Strip(87, 85),
-    };
-    quarter2Strips = new Strip[] {
-            new Strip(3, 5),
-            new Strip(18, 16),
-            new Strip(25, 27),
-            new Strip(40, 38),
-            new Strip(47, 49),
-            new Strip(62, 60),
-            new Strip(69, 71),
-            new Strip(84, 82),
-    };
-    quarter3Strips = new Strip[] {
-            new Strip(6, 8),
-            new Strip(15, 13),
-            new Strip(28, 30),
-            new Strip(37, 35),
-            new Strip(50, 52),
-            new Strip(59, 57),
-            new Strip(72, 74),
-            new Strip(81, 79),
-    };
-    quarter4Strips = new Strip[] {
-            new Strip(9, 10),
-            new Strip(12, 11),
-            new Strip(31, 32),
-            new Strip(34, 33),
-            new Strip(53, 54),
-            new Strip(56, 55),
-            new Strip(75, 76),
-            new Strip(78, 77),
-    };
-    circleStripFront = new Strip[]{
-            new Strip(0, 10),
-            new Strip(77, 87)
-    };
-    circleStripLeft = new Strip[]{
-            new Strip(21, 11),
-            new Strip(32, 22)
-    };
-    circleStripBack = new Strip[]{
-            new Strip(43, 33),
-            new Strip(54, 44)
-    };
-    circleStripRight = new Strip[]{
-            new Strip(65, 55),
-            new Strip(76, 66)
-    };
-    circleStrips = new Strip[][]{
-            circleStripFront,
-            circleStripLeft,
-            circleStripBack,
-            circleStripRight
+        new Strip(0, 29), // L
+        new Strip(30, 60), // R
     };
 
     int length = fullStrip.numLEDs;
@@ -230,59 +83,13 @@ public class LEDSubsystem implements Runnable {
     timer = new Timer();
     timer.restart();
     conditions = new boolean[5];
-    for (int i = 0; i < strips.length; i++) {
-      sparkleBrightness[i] = (int) (Math.random() * 76);
-    }
-    for (int i = 0; i < strips.length; i++) {
-      sparklePosition[i] = (int) (Math.random() * 11);
-    }
-
-    micInput = new AnalogInput(0);
-    micInput.setAverageBits(250);
 
     disableChooser = new SendableChooser<>();
-    disableChooser.setDefaultOption("Cursor", Integer.valueOf(0));
-    disableChooser.addOption("Rise", Integer.valueOf(1));
-    disableChooser.addOption("Spin", Integer.valueOf(2));
-    disableChooser.addOption("Breathe", Integer.valueOf(3));
-    disableChooser.addOption("Crackle", Integer.valueOf(4));
-    disableChooser.addOption("Sparkle", Integer.valueOf(5));
-    disableChooser.addOption("Sparkle2", Integer.valueOf(6));
-    disableChooser.addOption("TV Static", Integer.valueOf(7));
-    disableChooser.addOption("Siren", Integer.valueOf(8));
-    disableChooser.addOption("Snail", Integer.valueOf(9));
-    disableChooser.addOption("Circle", Integer.valueOf(10));
-    disableChooser.addOption("Real VU", Integer.valueOf(11));
-    disableChooser.addOption("Fake VU", Integer.valueOf(12));
-    disableChooser.addOption("Fake VU 2", Integer.valueOf(13));
-    disableChooser.addOption("Spiral",Integer.valueOf(14));
-    disableChooser.addOption("Fire", Integer.valueOf(15));
+    disableChooser.setDefaultOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
+    disableChooser.addOption("Full", new Full(this, ledStrip, buffer));
 
     SmartDashboard.putData(disableChooser);
-    // TODO re-enable this if we want LEDs. Disabling to try to speed up robot code.
-    // new Thread(this, "LED Thread").start();
-  }
-
-  private static class Strip {
-    // Both start and end are inclusive
-    public final int start;
-    public final int end;
-    public final int direction;
-    public final int numLEDs;
-
-    public Strip(int start, int end) {
-
-      this.start = start;
-      this.end = end;
-
-      numLEDs = Math.abs(start - end) + 1;
-
-      if (start < end) {
-        direction = 1;
-      } else {
-        direction = -1;
-      }
-    }
+    new Thread(this, "LED Thread").start();
   }
 
   @Override
@@ -292,41 +99,24 @@ public class LEDSubsystem implements Runnable {
         // if (robot.mode == Coral booom or something)
         // ElevClArm, led, enum declaring the different levels
         allianceCheck();
-        checkConditions();
-        priorityCheck();
-        switch (functionIndex) {
-          case 0:
-            sirenMode(BetterBlue, BetterRed);
-            break;
-          case 1:
-            signalNote();
-            break;
-          case 2:
-            // shooterStatus();
-            break;
-          case 3:
-            hasNote();
-            break;
-          case 4:
-            disabledModePicker();
-            // vuMode();
-            break;
-          default:
-            setColour(fullStrip, Color.kBlack);
-            // displayVoltage();
-            break;
-        }
+        // checkConditions();
+        // priorityCheck();
+
+        displayTheMode();
+
+        disabledModePicker();
+
+        // riseMode(allianceColor, Color.kWhite);
+        // setColour(fullStrip, allianceColor);
+        // switch (functionIndex) {
+
+        // }
         ledStrip.setData(buffer);
       }
       try {
-        if (exciteMode) {
-          Thread.sleep(100);
-        } else {
-          Thread.sleep(sleepInterval);
-        }
-      } catch (InterruptedException ignored) {
+        Thread.sleep(sleepInterval);
+      } catch (InterruptedException iex) {
       }
-      SmartDashboard.putNumber("fake VU 2 input", fakeVUInput);
     }
   }
 
@@ -335,12 +125,6 @@ public class LEDSubsystem implements Runnable {
     synchronized (this) {
       for (int i = 0; i < conditions.length; i++) {
         conditions[i] = false;
-      }
-      if (exciteMode) {
-        conditions[0] = true;
-      }
-      if (isSignaling) {
-        conditions[1] = true;
       }
       if (DriverStation.isDisabled()) {
         conditions[4] = true;
@@ -365,11 +149,11 @@ public class LEDSubsystem implements Runnable {
   }
 
   public void allianceCheck() {
-    // if (Constants.alliance == Alliance.Red) {
-    allianceColor = BetterRed;
-    // } else {
-    //     allianceColor = BetterBlue;
-    // }
+    if (Robot.alliance == Alliance.Red) {
+      allianceColor = BetterRed;
+    } else {
+      allianceColor = BetterBlue;
+    }
   }
 
   /**
@@ -389,14 +173,14 @@ public class LEDSubsystem implements Runnable {
    * Clamps the index of the LED to "safely" set the LED to a buffer.
    *
    * @param index The index of the strip.
-   * @param r The desired red value to set the LED to.
-   * @param g The desired green value to set the LED to.
-   * @param b The desired blue value to set the LED to.
+   * @param r     The desired red value to set the LED to.
+   * @param g     The desired green value to set the LED to.
+   * @param b     The desired blue value to set the LED to.
    */
   public void safeSetLED(int index, double r, double g, double b) {
     synchronized (this) {
       int clampedIndex = ExtraMath.clamp(index, 0, buffer.getLength());
-      buffer.setRGB(clampedIndex, (int)(r * 255.0), (int)(g * 255.0), (int)(b * 255.0));
+      buffer.setRGB(clampedIndex, (int) (r * 255.0), (int) (g * 255.0), (int) (b * 255.0));
     }
   }
 
@@ -425,7 +209,7 @@ public class LEDSubsystem implements Runnable {
    * @param color2     The background colour.
    */
   public void twoColourProgressBar(Strip strip, double percentage, Color color1,
-                                   Color color2) {
+      Color color2) {
     synchronized (this) {
       percentage = ExtraMath.clamp(percentage, 0, 1);
       int numLEDs = (int) (strip.numLEDs * percentage);
@@ -436,29 +220,60 @@ public class LEDSubsystem implements Runnable {
     }
   }
 
-  /**
-   * Draws cursors that vary in position and size depending on the location of
-   * notes
-   */
-  public void followNote() {
+  /* Displays the mode (coral, algae, climb in one uniform color on all the leds) */
+  public void displayTheMode() {
     synchronized (this) {
-      // setColour(Color.kBlack, buffer, fullStrip);
-      // for (int i = 0; i < limelight1.resultLength(); i++) {
-      // int size = (int) ExtraMath.rangeMap(limelight1.getTargets()[i].ta, 0, 1,
-      // fullStrip.start, fullStrip.end);
-      // Color color;
-      // if (limelight1.getTargets()[i].className.equals("redbobot")) {
-      // color = Color.kRed;
-      // } else if (limelight1.getTargets()[i].className.equals("bluebobot")) {
-      // color = Color.kBlue;
-      // } else if (limelight1.resultLargestAreaTarget() == i) {
-      // color = Color.kWhite;
-      // } else {
-      // color = Color.kOrangeRed;
-      // }
-      // drawCursor(limelight1.getTargets()[i].tx, -29.8, 29.8, fullStrip,
-      // showingBuffer, color, size);
-      // }
+      ControlMode mode = arm.getEMode();
+      Color algaeColor = Color.kGreen;
+      Color coralColor = Color.kHotPink;
+      Color climbColor = Color.kOrange;
+      if (mode == ControlMode.Coral) {
+        setColour(fullStrip, coralColor);
+      }
+      if (mode == ControlMode.Algae) {
+        setColour(fullStrip, algaeColor);
+      }
+      if (mode == ControlMode.Climb) {
+        setColour(fullStrip, climbColor);
+      }
+    }
+  }
+
+  /* Displays if we have an algae in the claw when in algae mode (no idea if current threshold is accurate, colors are temporary) */
+  public void algaeClaw() {
+    synchronized (this) {
+      ControlMode mode = arm.getEMode();
+      double current = arm.clawMotor.getCurrent();
+      Color color1 = Color.kSeaGreen;
+      Color color2 = Color.kLimeGreen;
+      if (mode == ControlMode.Algae && current > 20) {
+        twoColourProgressBar(fullStrip, 50, color1, color2);
+      }
+    }
+  }
+
+/* Displays if we have a coral in the hopper with a single color (colors are temporary) */
+public void coralHopper() {
+  synchronized (this) {
+    ControlMode mode = arm.getEMode();
+    Boolean coralInHopper = arm.isCoralInHopper();
+    Color color = Color.kMediumVioletRed;
+    if (mode == ControlMode.Coral && coralInHopper == true) {
+      setColour(fullStrip, color);
+    }
+  }
+}
+  
+  /* Displays if we have a coral in the claw when in coral mode (colors are temporary) */
+  public void coralClaw() {
+    synchronized (this) {
+      ControlMode mode = arm.getEMode();
+      Boolean coralInClaw = arm.isCoralInClaw();
+      Color color1 = Color.kLightPink;
+      Color color2 = Color.kDeepPink;
+      if (mode == ControlMode.Coral && coralInClaw == true) {
+        twoColourProgressBar(fullStrip, 50, color1, color2);
+      }
     }
   }
 
@@ -515,92 +330,31 @@ public class LEDSubsystem implements Runnable {
     return val >= min && val <= max;
   }
 
-  /** Colours the entire strip orange when a note is visible */
-  public void seeingNote() {
-    synchronized (this) {
-      setColour(fullStrip, Color.kOrangeRed);
-    }
-  }
-
-  /**
-   * Checks whether the current in the shooter rollers exceeds a certain amount,
-   * which happens when a note has entered the shooter.
-   */
-  public void hasNote() {
-    setColour(fullStrip, BetterWhite);
-  }
-
-  /** Signals to the Human Player to drop a note. */
-  public void signalNote(){
-    setColour(fullStrip, Color.kOrangeRed);
-  }
-
   /** Picks a mode to display while the robot is disabled. */
   public void disabledModePicker() {
     var chosen = disableChooser.getSelected();
     if (chosen == null) {
-      chosen = Integer.valueOf(0);
+      return;
     }
-    int pickedDisableMode = chosen.intValue();
-    SmartDashboard.putNumber("picked", pickedDisableMode);
-    disabledMode = pickedDisableMode;
-    if (disabledMode != tempDisabledMode) {
-      stripIndex = 0;
-      stripIndex2 = 0;
-      modeInit = true;
-    }
-    tempDisabledMode = disabledMode;
-    switch (disabledMode) {
-      case 0:
-        cursorMode(allianceColor, BetterWhite);
-        break;
-      case 1:
-        riseMode(allianceColor, BetterWhite);
-        break;
-      case 2:
-        spinMode(Color.kBlack, allianceColor);
-        break;
-      case 3:
-        breatheMode();
-        break;
-      case 4:
-        crackleMode(Color.kBlack, allianceColor);
-        break;
-      case 5:
-        sparkleMode();
-        break;
-      case 6:
-        sparkle2Mode();
-        break;
-      case 7:
-        tvStatic();
-        break;
-      case 8:
-        sirenMode(BetterBlue, BetterRed);
-        break;
-      case 9:
-        snailMode(allianceColor, BetterWhite);
-        // snailMode(Color.kBlack, allianceColor);
-        break;
-      case 10:
-        circleMode(allianceColor, BetterWhite);
-        break;
-      case 11:
-        realVU();
-        break;
-      case 12:
-        fakeVU();
-        break;
-      case 13:
-        fakeVU2();
-        break;
-      case 14:
-        spiralMode(allianceColor, BetterWhite);
-        break;
-      case 15:
-        fire();
-        break;
-    }
+    chosen.draw();
+    sleepInterval = chosen.sleepInterval();
+    // return;
+    // int pickedDisableMode = chosen.intValue();
+    // disabledMode = pickedDisableMode;
+    // if (disabledMode != lastLoopDisabledMode) {
+    //   stripIndex = 0;
+    //   stripIndex2 = 0;
+    //   modeInit = true;
+    // }
+    // lastLoopDisabledMode = disabledMode;
+    // switch (disabledMode) {
+    //   case 0:
+    //     riseMode(allianceColor, BetterWhite);
+    //     break;
+    //   case 1:
+    //     setColour(fullStrip, allianceColor);
+    //     break;
+    // }
   }
 
   /**
@@ -620,7 +374,7 @@ public class LEDSubsystem implements Runnable {
       for (int i = 0; i < cursorPositions.length; i++) {
         safeSetLED(cursorPositions[i], fg);
         cursorPositions[i]++;
-        if (cursorPositions[i] == 88) {
+        if (cursorPositions[i] == 60) {
           cursorPositions[i] = 0;
         }
       }
@@ -635,7 +389,7 @@ public class LEDSubsystem implements Runnable {
    */
   public void riseMode(Color bg, Color fg) {
     synchronized (this) {
-      sleepInterval = 60;
+      sleepInterval = 30;
       setColour(fullStrip, bg);
       for (int i = 0; i < strips.length; i++) {
         safeSetLED(strips[i].start + strips[i].direction * stripIndex, fg);
@@ -647,220 +401,28 @@ public class LEDSubsystem implements Runnable {
     }
   }
 
-  /**
-   * Sets an entire strip to the given colour, looping around all the strips.
-   *
-   * @param bg Background colour.
-   * @param fg Foreground colour.
-   */
-  public void spinMode(Color bg, Color fg) {
-    synchronized (this) {
-      sleepInterval = 350;
-      setColour(fullStrip, bg);
-      setColour(cornerStrips[stripIndex], fg);
-      stripIndex++;
-      if (stripIndex == cornerStrips.length) {
-        stripIndex = 0;
-      }
-    }
-  }
-
   /** Fades in and out the full strip to emulate breathing. */
-  public void breatheMode() {
-    synchronized (this) {
-      sleepInterval = 15;
-      setColour(fullStrip, Color.kBlack);
-      if (allianceColor == BetterRed) {
-        setColour(fullStrip, new Color(stripIndex, 0, 0));
-      } else {
-        setColour(fullStrip, new Color(0, 0, stripIndex));
-      }
-      if (stripIndex >= 75) {
-        breatheDirection = false;
-      } else if (stripIndex <= 0) {
-        breatheDirection = true;
-      }
-      if (breatheDirection) {
-        stripIndex++;
-      } else {
-        stripIndex--;
-      }
-    }
-  }
-
-  /**
-   * Sets one LED to the given colour on each strip at random.
-   *
-   * @param bg Background colour.
-   * @param fg Foreground colour.
-   */
-  public void crackleMode(Color bg, Color fg) {
-    synchronized (this) {
-      sleepInterval = 60;
-      setColour(fullStrip, bg);
-      for (int i = 0; i < strips.length; i++) {
-        safeSetLED(strips[i].start + strips[i].direction * (int) (Math.random() * 11), fg);
-      }
-    }
-  }
-
-  /** Fades in and out a LED on each strip to create a sparkling effect. */
-  public void sparkleMode() {
-    synchronized (this) {
-      sleepInterval = 10;
-      setColour(fullStrip, Color.kBlack);
-      for (int i = 0; i < strips.length; i++) {
-        if (sparkleBrightness[i] == 0) {
-          sparklePosition[i] = (int) (Math.random() * 11);
-        }
-        int baseInd = strips[i].start + strips[i].direction * sparklePosition[i];
-        if (allianceColor == BetterRed) {
-          safeSetLED(baseInd,
-                  new Color(sparkleBrightness[i], 0, 0));
-          if (indexInRange(baseInd + 1, strips[i])) {
-            safeSetLED(baseInd + 1,
-                    new Color((int) (sparkleBrightness[i] * 0.1), 0, 0));
-          }
-          if (indexInRange(baseInd - 1, strips[i])) {
-            safeSetLED(baseInd - 1,
-                    new Color((int) (sparkleBrightness[i] * 0.1), 0, 0));
-          }
-        } else {
-          safeSetLED(baseInd,
-                  new Color(0, 0, sparkleBrightness[i]));
-          if (indexInRange(baseInd + 1, strips[i])) {
-            safeSetLED(baseInd + 1,
-                    new Color(0, 0, (int) (sparkleBrightness[i] * 0.1)));
-          }
-          if (indexInRange(baseInd - 1, strips[i])) {
-            safeSetLED(baseInd - 1,
-                    new Color(0, 0, (int) (sparkleBrightness[i] * 0.1)));
-          }
-        }
-
-        if (sparkleBrightness[i] >= 75) {
-          sparkleDirection[i] = false;
-        } else if (sparkleBrightness[i] <= 0) {
-          sparkleDirection[i] = true;
-        }
-        if (sparkleDirection[i]) {
-          sparkleBrightness[i]++;
-        } else {
-          sparkleBrightness[i]--;
-        }
-      }
-    }
-  }
-
-  /** Fades in and out a LED on each strip to create a sparkling effect. */
-  public void sparkle2Mode() {
-    synchronized (this) {
-      sleepInterval = 20;
-
-      for (int i = 0; i < strips.length; i++) {
-        if (sparkleBrightness[i] <= 0) {
-          sparklePosition[i] = (int) (Math.random() * 11);
-        }
-
-        int baseInd = strips[i].start + strips[i].direction * sparklePosition[i];
-        if (allianceColor == BetterRed) {
-          setColour(strips[i], new Color(20, 0, 0));
-
-          safeSetLED(baseInd,
-                  new Color(sparkleBrightness[i], sparkleBrightness[i], sparkleBrightness[i]));
-          if (indexInRange(baseInd + 1, strips[i])) {
-            safeSetLED(baseInd + 1,
-                    new Color((int) (sparkleBrightness[i] * 0.3), (int) (sparkleBrightness[i] * 0.1),
-                            (int) (sparkleBrightness[i] * 0.1)));
-          }
-          if (indexInRange(baseInd - 1, strips[i])) {
-            safeSetLED(baseInd - 1,
-                    new Color((int) (sparkleBrightness[i] * 0.3), (int) (sparkleBrightness[i] * 0.1),
-                            (int) (sparkleBrightness[i] * 0.1)));
-          }
-        } else {
-          setColour(strips[i], new Color(0, 0, 20));
-
-          safeSetLED(baseInd,
-                  new Color(sparkleBrightness[i], sparkleBrightness[i], sparkleBrightness[i]));
-          if (indexInRange(baseInd + 1, strips[i])) {
-            safeSetLED(baseInd + 1,
-                    new Color((int) (sparkleBrightness[i] * 0.1), (int) (sparkleBrightness[i] * 0.1),
-                            (int) (sparkleBrightness[i] * 0.3)));
-          }
-          if (indexInRange(baseInd - 1, strips[i])) {
-            safeSetLED(baseInd - 1,
-                    new Color((int) (sparkleBrightness[i] * 0.1), (int) (sparkleBrightness[i] * 0.1),
-                            (int) (sparkleBrightness[i] * 0.3)));
-          }
-        }
-        if (sparkleBrightness[i] >= 75) {
-          sparkleDirection[i] = false;
-        } else if (sparkleBrightness[i] <= 0) {
-          sparkleDirection[i] = true;
-        }
-        if (sparkleDirection[i]) {
-          sparkleBrightness[i] += 4;
-        } else {
-          sparkleBrightness[i] -= 4;
-        }
-      }
-    }
-  }
-
-  /**
-   * Loops a cursor around the full strip with a fading trail behind it.
-   *
-   * @param bg Background colour.
-   * @param fg Foreground colour.
-   */
-  public void snailMode(Color bg, Color fg) {
-    synchronized (this) {
-      sleepInterval = 26;
-      if (modeInit) {
-        cursorPositions = new int[] { 0, 1, 2, 3, 4, 5, 6 };
-        cursorTrailFade[0] = blend(fg, bg, 0.05);
-        cursorTrailFade[1] = blend(fg, bg, 0.1);
-        cursorTrailFade[2] = blend(fg, bg, 0.2);
-        cursorTrailFade[3] = blend(fg, bg, 0.3);
-        modeInit = false;
-      }
-      setColour(fullStrip, bg);
-      for (int i = 0; i < cursorPositions.length; i++) {
-        if (i < 4) {
-          safeSetLED(cursorPositions[i], cursorTrailFade[i]);
-        } else {
-          safeSetLED(cursorPositions[i], fg);
-        }
-        cursorPositions[i]++;
-        if (cursorPositions[i] == 88) {
-          cursorPositions[i] = 0;
-        }
-      }
-    }
-  }
-
-  public void circleMode(Color bg, Color fg){
-    synchronized (this){
-      sleepInterval = 20;
-      setColour(fullStrip, bg);
-      stripIndex = (stripIndex >= circleStripFront[0].numLEDs+circleStripFront[1].numLEDs) ? 0 : stripIndex+1;
-      for(var circleStrip : circleStrips){
-        Strip curr = (stripIndex < circleStrip[0].numLEDs) ? circleStrip[0]: circleStrip[1];
-        safeSetLED(curr.start + (stripIndex-((stripIndex < circleStrip[0].numLEDs) ? 0 : circleStrip[0].numLEDs))*curr.direction, fg);
-      }
-    }
-  }
-
-  public void spiralMode(Color bg, Color fg){
-    synchronized (this) {
-      sleepInterval = 200;
-      setColour(fullStrip, bg);
-      safeSetLED(strips[stripIndex2%strips.length].start + strips[stripIndex2%strips.length].direction * stripIndex%strips[0].numLEDs, fg);
-      stripIndex++;
-      stripIndex2++;
-    }
-  }
+  // public void breatheMode() {
+  // synchronized (this) {
+  // sleepInterval = 15;
+  // setColour(fullStrip, Color.kBlack);
+  // if (allianceColor == BetterRed) {
+  // setColour(fullStrip, new Color(stripIndex, 0, 0));
+  // } else {
+  // setColour(fullStrip, new Color(0, 0, stripIndex));
+  // }
+  // if (stripIndex >= 75) {
+  // breatheDirection = false;
+  // } else if (stripIndex <= 0) {
+  // breatheDirection = true;
+  // }
+  // if (breatheDirection) {
+  // stripIndex++;
+  // } else {
+  // stripIndex--;
+  // }
+  // }
+  // }
 
   /** Blends two colours together by a variable amount. */
   public Color blend(Color color1, Color color2, double blendFactor) {
@@ -871,159 +433,32 @@ public class LEDSubsystem implements Runnable {
     return new Color(red, green, blue);
   }
 
-  /** TV static effect. */
-  public void tvStatic() {
-    synchronized (this) {
-      sleepInterval = 20;
-      for (int i = 0; i < fullStrip.numLEDs; i++) {
-        // 40% LEDS on white, 60% off. Random per LED per iteration
-        boolean isBright = Math.random() < 0.4;
-        if (isBright) {
-          safeSetLED(i, Color.kWhite);
-        } else {
-          safeSetLED(i, Color.kBlack);
-        }
-      }
-    }
-  }
-
   /**
    * Flashes between red and blue to create a police siren effect
    *
    * @param color1 A colour to flash.
    * @param color2 A colour to flash.
    */
-  public void sirenMode(Color color1, Color color2) {
-    synchronized (this) {
-      sleepInterval = 100;
-      Color colorA;
-      Color colorB;
-      if (sirenState) {
-        colorA = color2;
-        colorB = color1;
-      } else {
-        colorA = color1;
-        colorB = color2;
-      }
-      for (var strip : halfTopStrips) {
-        setColour(strip, colorA);
-      }
-      for (var strip : halfBotStrips) {
-        setColour(strip, colorB);
-      }
-      sirenState = !sirenState;
-    }
-  }
-
-  public void fakeVU() {
-    synchronized (this) {
-      sleepInterval = 20;
-      for (int i = 0; i < strips.length; i++) {
-        setColour(strips[i], Color.kBlack);
-        //double micVal = (int) ExtraMath.rangeMap(micInput.getAverageVoltage(), volumeLow, volumeHigh, 0, 11.9);
-        double interval = (((int)(Math.random()*3))-1)*0.3;
-        fakeVUSaved = fakeVUSaved + interval;
-        fakeVUSaved = ExtraMath.clamp(fakeVUSaved, 0, 11.9);
-        for (int j = strips[i].start; j != (int) fakeVUSaved * strips[i].direction
-                + strips[i].start; j += strips[i].direction) {
-          if (ExtraMath.within(j, strips[i].start, 11)) {
-            safeSetLED(j, Color.kRed);
-          }
-          if (ExtraMath.within(j, strips[i].start, 8)) {
-            safeSetLED(j, Color.kGold);
-          }
-          if (ExtraMath.within(j, strips[i].start, 6)) {
-            safeSetLED(j, Color.kGreen);
-          }
-        }
-        // SmartDashboard.putNumber("Mic Input", micInput.getAverageVoltage());
-      }
-    }
-  }
-
-  public void fakeVU2() {
-    synchronized (this) {
-      double micVal = (int) ExtraMath.rangeMap(fakeVUInput, 0, 1, 0, 11.9);
-      sleepInterval = 20;
-      micVal = ExtraMath.clamp(micVal, 2, 11.9);
-      SmartDashboard.putNumber("fakevu2 mic val", micVal);
-      for (var strip : strips) {
-        setColour(strip, Color.kBlack);
-        for (int j = strip.start; j != (int) micVal * strip.direction
-                + strip.start; j += strip.direction) {
-          if (ExtraMath.within(j, strip.start, 11)) {
-            safeSetLED(j, Color.kRed);
-          }
-          if (ExtraMath.within(j, strip.start, 8)) {
-            safeSetLED(j, Color.kGold);
-          }
-          if (ExtraMath.within(j, strip.start, 6)) {
-            safeSetLED(j, Color.kGreen);
-          }
-        }
-      }
-    }
-  }
-
-  /** Displays a VU Meter to bounce along with the music. */
-  public void realVU() {
-    synchronized (this) {
-      sleepInterval = 20;
-      for (int i = 0; i < strips.length; i++) {
-        setColour(strips[i], Color.kBlack);
-        if (micInput.getAverageVoltage() < volumeLow) {
-          volumeLow = micInput.getAverageVoltage();
-        }
-        if (micInput.getAverageVoltage() > volumeHigh) {
-          volumeHigh = micInput.getAverageVoltage();
-        }
-        volumeLow += 0.001;
-        volumeHigh -= 0.001;
-        double micVal = (int) ExtraMath.rangeMap(micInput.getAverageVoltage(), volumeLow, volumeHigh, 0, 11.9);
-        // double interval = (((int)(Math.random()*3))-1)*0.3;
-        // micVal = micVal + interval;
-        micVal = ExtraMath.clamp(micVal, 0, 11.9);
-        for (int j = strips[i].start; j != (int) micVal * strips[i].direction
-                + strips[i].start; j += strips[i].direction) {
-          if (ExtraMath.within(j, strips[i].start, 11)) {
-            safeSetLED(j, Color.kRed);
-          }
-          if (ExtraMath.within(j, strips[i].start, 8)) {
-            safeSetLED(j, Color.kGold);
-          }
-          if (ExtraMath.within(j, strips[i].start, 6)) {
-            safeSetLED(j, Color.kGreen);
-          }
-        }
-        // SmartDashboard.putNumber("Mic Input", micInput.getAverageVoltage());
-      }
-    }
-  }
-
-  public void fire() {
-    synchronized (this) {
-      sleepInterval = 20;
-      // desaturated alliance color looks cooler imo lol
-      double desaturated_red = allianceColor.red / 2.0 + 0.5;
-      double desaturated_green = allianceColor.green / 2.0 + 0.5;
-      double desaturated_blue = allianceColor.blue / 2.0 + 0.5;
-      for (int i = 0; i < fullStrip.numLEDs; i++) {
-        // get "random" frequency
-        double frequency = ExtraMath.hashPrand(i, 1.0, 2.0);
-        // downwards sawtooth oscillation
-        // use current timer value and restrict to a range from 0-1,
-        // then invert to make it ramp down from 1 to 0
-        double period = 1.0 - (timer.get() * frequency) % 1.0;
-        // use the period to calculate the brightness of this LED's color, ranging from 1 to 0.5.
-        double colorMult = period / 2.0 + 0.5;
-        // SET THE LED
-        safeSetLED(i, new Color(
-                desaturated_red  * colorMult,
-                desaturated_green * colorMult,
-                desaturated_blue * colorMult
-        ));
-      }
-    }
-  }
+  // public void sirenMode(Color color1, Color color2) {
+  // synchronized (this) {
+  // sleepInterval = 100;
+  // Color colorA;
+  // Color colorB;
+  // if (sirenState) {
+  // colorA = color2;
+  // colorB = color1;
+  // } else {
+  // colorA = color1;
+  // colorB = color2;
+  // }
+  // for (var strip : halfTopStrips) {
+  // setColour(strip, colorA);
+  // }
+  // for (var strip : halfBotStrips) {
+  // setColour(strip, colorB);
+  // }
+  // sirenState = !sirenState;
+  // }
+  // }
 
 }

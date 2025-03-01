@@ -4,14 +4,14 @@ import edu.wpi.first.hal.simulation.RoboRioDataJNI;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.subsystems.ReaLEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.led.LEDDrawer;
 
 public class Rise extends LEDDrawer {
 
     private final Color fg;
 
-    public Rise(ReaLEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer,
+    public Rise(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer,
         Color fg
     ) {
         super(susystem, ledStrip, buffer);

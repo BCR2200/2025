@@ -49,7 +49,7 @@ import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.ControlMode;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 import frc.robot.subsystems.PigeonSubsystem;
-import frc.robot.subsystems.ReaLEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 public class RobotContainer {
   public final CommandXboxController driverController = new CommandXboxController(
@@ -63,7 +63,7 @@ public class RobotContainer {
   public PigeonSubsystem gyro;
   public ClimberSubsystem climber;
   public ElevClArmSubsystem e;
-  public ReaLEDSubsystem led;
+  public LEDSubsystem led;
   public PowerDistribution pdp;
 
   // modes keybind
@@ -158,7 +158,7 @@ public class RobotContainer {
     pdp = new PowerDistribution(Constants.PDP_ID, ModuleType.kCTRE);
     e = new ElevClArmSubsystem();
     climber = new ClimberSubsystem();
-    led = new ReaLEDSubsystem();
+    led = new LEDSubsystem();
 
     backItUpTimer = new Timer();
     backItUpTimer.start();
