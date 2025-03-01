@@ -79,7 +79,6 @@ public class ClimberSubsystem extends SubsystemBase {
       // SmartDashboard.putBoolean("Climber At Position", this.atPosition());
       // climbMotor.putPIDF();
       climbMotor.putPV();
-      SmartDashboard.putNumber("speed", speed());
       SmartDashboard.putString("climbstate", climbState.toString());
     });
   }

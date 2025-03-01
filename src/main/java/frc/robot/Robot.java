@@ -114,6 +114,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    Elastic.selectTab("Auto");
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -136,6 +137,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     m_robotContainer.e.shoulderMotor.setIdleCoastMode();
+    Elastic.selectTab("Teleoperated");
   }
 
   @Override
