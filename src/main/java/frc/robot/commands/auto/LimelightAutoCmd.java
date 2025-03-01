@@ -115,6 +115,9 @@ public class LimelightAutoCmd extends Command {
           if(idToLookFor == 6){
             targetTx = 0.130;
           }
+          if(idToLookFor == 9){
+            targetTy = 0.6;
+          }
           break;
         case Left:
           primaryCam = "limelight-right";

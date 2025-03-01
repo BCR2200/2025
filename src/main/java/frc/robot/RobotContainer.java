@@ -30,6 +30,7 @@ import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.CenterAuto;
 import frc.robot.commands.auto.L3LAuto;
 import frc.robot.commands.auto.LeftAuto;
+import frc.robot.commands.auto.R3RAuto;
 import frc.robot.commands.auto.RightAuto;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
@@ -180,6 +181,7 @@ public class RobotContainer {
     autoChooser.addOption("RightAuto", new RightAuto(e, drivetrain, driveRC));
     autoChooser.addOption("CenterAuto", new CenterAuto(e, drivetrain, driveRC));
     autoChooser.addOption("L3LAuto", new L3LAuto(e, drivetrain, driveRC));
+    autoChooser.addOption("R3RAuto", new R3RAuto(e, drivetrain, driveRC));
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
