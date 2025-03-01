@@ -29,6 +29,7 @@ public class AlgaeAutoCmd extends Command {
   private boolean finished = false;
 
   private double positionError;
+  double waitTime = 1;
 
   double idToLookFor;
   boolean driveAtPosition;
@@ -75,7 +76,7 @@ public class AlgaeAutoCmd extends Command {
     if (e.atFinalPosition(ep) && pickupTimer.get() == 0 && driveAtPosition) {
       pickupTimer.restart();
     }
-    if (pickupTimer.get() > 1) {
+    if (pickupTimer.get() > waitTime) {
       e.requestState(RequestState.None);
     }
 
@@ -137,15 +138,8 @@ public class AlgaeAutoCmd extends Command {
     SmartDashboard.putNumber("Velocity X", brainXRC);
     SmartDashboard.putNumber("Velocity Y", brainYRC);
     SmartDashboard.putNumber("Rotation", thetaRadians);
-    if (pickupTimer.get() > 1 && pickupTimer.get() < 2) {
-      drive.setControl(swerve.withVelocityX(-1.5)
-          .withVelocityY(0)
-          .withRotationalRate(0));
-    } else if (pickupTimer.get() > 2) {
-      finished = true;
-      drive.setControl(swerve.withVelocityX(0)
-          .withVelocityY(0)
-          .withRotationalRate(0));
+    if (pickupTimer.get() > waitTime) {
+          finished = true;
     } else {
       drive.setControl(swerve.withVelocityX(brainXRC)
           .withVelocityY(brainYRC)

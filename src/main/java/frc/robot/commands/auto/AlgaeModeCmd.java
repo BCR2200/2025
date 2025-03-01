@@ -16,11 +16,11 @@ public class AlgaeModeCmd extends Command {
     @Override
     public void initialize() {
         finished = false;
+        e.requestMode(ControlMode.Algae);
     }
 
     @Override
     public void execute() {
-        e.requestMode(ControlMode.Algae);
         finished = (e.getEMode() == ControlMode.Algae);
     }
 

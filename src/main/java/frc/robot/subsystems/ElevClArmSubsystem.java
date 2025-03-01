@@ -100,7 +100,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17, 25.4);
   public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5, 24.7);
   public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(97, 32);
-  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(20, 38);
+  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(22, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(45, 28);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103, 17.6);
   public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(15, SAFE_CORAL_ARM);
