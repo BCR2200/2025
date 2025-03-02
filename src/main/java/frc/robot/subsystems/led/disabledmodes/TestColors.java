@@ -1,6 +1,5 @@
 package frc.robot.subsystems.led.disabledmodes;
 
-import edu.wpi.first.hal.simulation.RoboRioDataJNI;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -8,13 +7,13 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.led.LEDDrawer;
 import frc.robot.subsystems.led.Strip;
 
-public class Sink extends LEDDrawer {
+public class TestColors extends LEDDrawer {
 
   private final Color fg;
   private int stripIndex = 0;
 
-  public Sink(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer,
-              Color fg
+  public TestColors(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer,
+                    Color fg
   ) {
     super(susystem, ledStrip, buffer);
     this.fg = fg;
@@ -22,10 +21,10 @@ public class Sink extends LEDDrawer {
 
   @Override
   public void draw() {
-    Color bg = susystem.allianceColor;
+    Color bg = Color.kOrange;
     susystem.setColour(susystem.fullStrip, bg);
     for (Strip strip : susystem.strips) {
-      susystem.safeSetLED(strip.end - strip.direction * stripIndex, fg);
+      susystem.safeSetLED(strip.end + strip.direction * stripIndex, fg);
     }
     stripIndex = (stripIndex + 1) % susystem.strips[0].numLEDs; //modulo thingy, ask hugo if confused
   }

@@ -6,31 +6,33 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.led.LEDDrawer;
+import frc.robot.subsystems.led.Strip;
 
 public class Rise extends LEDDrawer {
 
-    private final Color fg;
+  private final Color fg;
+  private int stripIndex = 0;
 
-    public Rise(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer,
-        Color fg
-    ) {
-        super(susystem, ledStrip, buffer);
-        this.fg = fg;
+  public Rise(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer,
+              Color fg
+  ) {
+    super(susystem, ledStrip, buffer);
+    this.fg = fg;
+  }
+
+  @Override
+  public void draw() {
+    Color bg = susystem.allianceColor;
+    susystem.setColour(susystem.fullStrip, bg);
+    for (Strip strip : susystem.strips) {
+      susystem.safeSetLED(strip.start + strip.direction * stripIndex, fg);
     }
+    stripIndex = (stripIndex + 1) % susystem.strips[0].numLEDs; //modulo thingy, ask hugo if confused
+  }
 
-    @Override
-    public void draw() {
-        Color bg = susystem.allianceColor;
-        susystem.setColour(susystem.fullStrip, bg);
-      for (int i = 0; i < susystem.strips.length; i++) {
-        susystem.safeSetLED(susystem.strips[i].start + susystem.strips[i].direction * susystem.stripIndex, fg);
-      }
-      susystem.stripIndex = (susystem.stripIndex+1) % susystem.strips[0].numLEDs; //modulo thingy, ask hugo if confused
-    }
-
-	@Override
-	public int sleepInterval() {
-        return 30;
-	}
+  @Override
+  public int sleepInterval() {
+    return 30;
+  }
 
 }
