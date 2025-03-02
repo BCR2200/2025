@@ -72,7 +72,7 @@ public class LEDSubsystem implements Runnable {
 
     strips = new Strip[] {
         new Strip(0, 29), // L
-        new Strip(30, 60), // R
+        new Strip(30, 59), // R
     };
 
     int length = fullStrip.numLEDs;
