@@ -27,6 +27,7 @@ public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
   AddressableLEDBuffer buffer;
   Timer timer;
+  Timer algaeTimer;
 
   public Strip fullStrip;
   public Strip[] strips;
@@ -88,7 +89,9 @@ public class LEDSubsystem implements Runnable {
     ledStrip.setLength(length);
     ledStrip.start();
     timer = new Timer();
+    algaeTimer = new Timer();
     timer.restart();
+    algaeTimer.restart();
 
     disableChooser = new SendableChooser<>();
     disableChooser.setDefaultOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
@@ -206,6 +209,7 @@ public class LEDSubsystem implements Runnable {
     double current = arm.clawMotor.getCurrent();
     boolean coralInHopper = arm.isCoralInHopper();
     boolean coralInClaw = arm.isCoralInClaw();
+    double algaeTime = algaeTimer.get();
 
     // Change coral hopper coral (alliance or a unique color)
     Color coralColor = Color.kPurple;
@@ -219,15 +223,27 @@ public class LEDSubsystem implements Runnable {
     }
     if (mode == ControlMode.Algae && current < 20) {
       setColour(fullStrip, algaeColor);
+      if (algaeTime != 0) {
+        algaeTimer.reset();
+      }
     }
     if (mode == ControlMode.Climb) {
       setColour(fullStrip, climbColor);
     }
 
-    // Display if algae is in claw
-    Color colorAlgaeClaw = Color.kSeaGreen;
-    if (mode == ControlMode.Algae && current >= 20) {
-      setColour(fullStrip, colorAlgaeClaw);
+    // Display if algae is in claw for a short time
+    Color colorAlgaeClawWithTime = Color.kSeaGreen;
+    if (mode == ControlMode.Algae && current >= 20 && algaeTime < 15) {
+      setColour(fullStrip, colorAlgaeClawWithTime);
+      if (algaeTime == 0) {
+        algaeTimer.start();
+      }
+    }
+
+    // Display if algae is in claw and it's been there for over 15 secs (hurting the motors)
+    Color colorAlgaeClawWithoutTime = Color.kLimeGreen;
+    if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 15) {
+      setColour(fullStrip, colorAlgaeClawWithoutTime);
     }
 
     // Display if coral is in hopper
@@ -242,6 +258,7 @@ public class LEDSubsystem implements Runnable {
       setColour(fullStrip, colorCoralClaw);
     }
   }
+
   /* These were the individual functions before they were combined into enabledMode
   public void algaeClaw() {
   synchronized (this) {
