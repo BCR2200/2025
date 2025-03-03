@@ -93,7 +93,7 @@ public class LEDSubsystem implements Runnable {
       synchronized (this) {
         allianceCheck();
         if (DriverStation.isEnabled()) {
-          modes();
+          enabledMode();
         }
         if (DriverStation.isDisabled()) {
           disabledMode();
@@ -184,7 +184,7 @@ public class LEDSubsystem implements Runnable {
   }
 
   /* Displays the mode, as well as if there's a coral/algae in the claw/hopper */
-  public void modes() {
+  public void enabledMode() {
 
     // Gather data
     ControlMode mode = arm.getEMode();
@@ -192,9 +192,12 @@ public class LEDSubsystem implements Runnable {
     boolean coralInHopper = arm.isCoralInHopper();
     boolean coralInClaw = arm.isCoralInClaw();
 
+    // Change coral hopper coral (alliance or a unique color)
+    Color coralColor = Color.kPurple;
+    //Color coralColor = allianceColor
+    
     // Display mode
     Color algaeColor = Color.kGreen;
-    Color coralColor = Color.kCoral;
     Color climbColor = Color.kDarkOrange;
     if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
       setColour(fullStrip, coralColor);
@@ -207,10 +210,9 @@ public class LEDSubsystem implements Runnable {
     }
 
     // Display if algae is in claw
-    Color colorAlgaeClaw1 = Color.kSeaGreen;
-    Color colorAlgaeClaw2 = Color.kLimeGreen;
+    Color colorAlgaeClaw = Color.kSeaGreen;
     if (mode == ControlMode.Algae && current >= 20) {
-      twoColourProgressBar(fullStrip, 50, colorAlgaeClaw1, colorAlgaeClaw2);
+      setColour(fullStrip, colorAlgaeClaw);
     }
 
     // Display if coral is in hopper
@@ -221,11 +223,11 @@ public class LEDSubsystem implements Runnable {
 
     // Display if coral is in claw
     Color colorCoralClaw = Color.kDeepPink;
-    if (mode == ControlMode.Coral && coralInClaw) {
+    if (mode == ControlMode.Coral && coralInClaw && !coralInHopper) { //Coral not in hopper to make hopper colour longer
       setColour(fullStrip, colorCoralClaw);
     }
   }
-  /* This were the individual functions before they were combined into modesAndBeams
+  /* These were the individual functions before they were combined into enabledColors
   public void algaeClaw() {
   synchronized (this) {
   ControlMode mode = arm.getEMode();
