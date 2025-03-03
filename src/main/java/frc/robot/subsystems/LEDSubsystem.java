@@ -21,6 +21,7 @@ import frc.robot.subsystems.led.disabledmodes.Rise;
 import frc.robot.subsystems.led.disabledmodes.Sink;
 import frc.robot.subsystems.led.disabledmodes.TestColors;
 import frc.robot.subsystems.led.disabledmodes.Breathe;
+import frc.robot.subsystems.led.disabledmodes.Siren;
 
 public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
@@ -29,6 +30,8 @@ public class LEDSubsystem implements Runnable {
 
   public Strip fullStrip;
   public Strip[] strips;
+  public Strip[] halfTopStrips;
+  public Strip[] halfBotStrips;
 
   // ADD MANUAL CORAL INDICATOR
 
@@ -36,7 +39,7 @@ public class LEDSubsystem implements Runnable {
   ElevClArmSubsystem arm;
 
   public Color BetterRed = new Color(75, 0, 0);
-  Color BetterBlue = new Color(0, 0, 75);
+  public Color BetterBlue = new Color(0, 0, 75);
   Color BetterWhite = Color.kViolet;
   public Color allianceColor = BetterRed;
 
@@ -64,6 +67,16 @@ public class LEDSubsystem implements Runnable {
 
     fullStrip = new Strip(0, 59);
 
+    halfTopStrips = new Strip[] {
+      new Strip(0, 14), // Bottom L
+      new Strip(30, 44), // Bottom R
+    };
+
+    halfBotStrips = new Strip[] {
+      new Strip(15, 29), // Top L
+      new Strip(45, 59), // Top R
+    };
+
     strips = new Strip[] {
         new Strip(0, 29), // L
         new Strip(30, 59), // R
@@ -83,6 +96,7 @@ public class LEDSubsystem implements Runnable {
     disableChooser.addOption("Sink", new Sink(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("TestColors", new TestColors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
     disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer)); 
+    disableChooser.addOption("Siren", new Siren(this, ledStrip, buffer));
 
     SmartDashboard.putData(disableChooser);
     new Thread(this, "LED Thread").start();
