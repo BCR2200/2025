@@ -20,6 +20,7 @@ import frc.robot.subsystems.led.disabledmodes.Full;
 import frc.robot.subsystems.led.disabledmodes.Rise;
 import frc.robot.subsystems.led.disabledmodes.Sink;
 import frc.robot.subsystems.led.disabledmodes.TestColors;
+import frc.robot.subsystems.led.disabledmodes.Breathe;
 
 public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
@@ -34,12 +35,12 @@ public class LEDSubsystem implements Runnable {
   PowerDistribution pdp;
   ElevClArmSubsystem arm;
 
-  Color BetterRed = new Color(75, 0, 0);
+  public Color BetterRed = new Color(75, 0, 0);
   Color BetterBlue = new Color(0, 0, 75);
   Color BetterWhite = Color.kViolet;
   public Color allianceColor = BetterRed;
 
-  int sleepInterval = 20;
+  public int sleepInterval = 20;
 
   int[] cursorPositions = { 0, 1, 2 };
 
@@ -80,8 +81,8 @@ public class LEDSubsystem implements Runnable {
     disableChooser.setDefaultOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Full", new Full(this, ledStrip, buffer));
     disableChooser.addOption("Sink", new Sink(this, ledStrip, buffer, BetterWhite));
-    disableChooser.addOption("testcolors", new TestColors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
-
+    disableChooser.addOption("TestColors", new TestColors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
+    disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer)); 
 
     SmartDashboard.putData(disableChooser);
     new Thread(this, "LED Thread").start();
@@ -227,7 +228,7 @@ public class LEDSubsystem implements Runnable {
       setColour(fullStrip, colorCoralClaw);
     }
   }
-  /* These were the individual functions before they were combined into enabledColors
+  /* These were the individual functions before they were combined into enabledMode
   public void algaeClaw() {
   synchronized (this) {
   ControlMode mode = arm.getEMode();
