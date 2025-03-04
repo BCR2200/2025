@@ -55,9 +55,6 @@ public class OURLimelightHelpers {
       }
     }
 
-    SmartDashboard.putNumber("ambA", ambA);
-    SmartDashboard.putNumber("ambB", ambB);
-
     // If the *difference* in ambiguity is greater than X, we switch to lower amb
     // cam
     if (Math.abs(ambA - ambB) > 0.2) {
@@ -78,7 +75,7 @@ public class OURLimelightHelpers {
     if(ret[0] != null){
     distanceToTarget = Math.sqrt(Math.pow(-ret[0][2], 2) + Math.pow(ret[0][0], 2)); 
     }
-    SmartDashboard.putNumber("euclidian dist", distanceToTarget);
+    // SmartDashboard.putNumber("euclidian dist", distanceToTarget);
     if (distanceToTarget > maximumDistance && distanceToTarget != 0) { // distance to lock on, returns 0 if no tag so don't do that!
 
       return null; // TODO don't block????

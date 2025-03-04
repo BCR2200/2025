@@ -151,6 +151,10 @@ public class PIDMotor {
         SmartDashboard.putNumber(name + " Velocity", getVelocity());
     }
 
+    public void putP() {
+        SmartDashboard.putNumber(name + " Position", getPosition());
+    }
+
     /**
      * Sets the PIDF values for this motor. Call `updatePIDF` to send the values to
      * the motor

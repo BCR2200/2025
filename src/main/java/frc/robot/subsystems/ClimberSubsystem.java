@@ -76,10 +76,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void printDashboard() {
     TimingUtils.logDuration("CliberSubsystem.printDashboard", () -> {
-      // SmartDashboard.putBoolean("Climber At Position", this.atPosition());
-      // climbMotor.putPIDF();
-      climbMotor.putPV();
-      SmartDashboard.putString("climbstate", climbState.toString());
+      climbMotor.putP();
     });
   }
 }

@@ -838,7 +838,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       SmartDashboard.putString("Control Mode:", getEMode().toString());
       SmartDashboard.putString("Requested Mode:", requestMode.toString());
       SmartDashboard.putString("Claw State:", clawstate.toString());
-      SmartDashboard.putBoolean("Want to Shoot:", shootLust);
+      // SmartDashboard.putBoolean("Want to Shoot:", shootLust);
 
       SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHopper());
       SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
@@ -847,10 +847,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("Arm current:", shoulderMotor.getCurrent());
       SmartDashboard.putNumber("Claw current:", clawMotor.getCurrent());
 
-      SmartDashboard.putNumber("Elevator voltage applied:",
-          rightElevatorMotor.motor.getMotorVoltage().getValue().magnitude());
-      SmartDashboard.putNumber("Arm voltage applied:", shoulderMotor.motor.getMotorVoltage().getValue().magnitude());
-      SmartDashboard.putNumber("Claw voltage applied:", clawMotor.motor.getMotorVoltage().getValue().magnitude());
+      // SmartDashboard.putNumber("Elevator voltage applied:",
+      //     rightElevatorMotor.motor.getMotorVoltage().getValue().magnitude());
+      // SmartDashboard.putNumber("Arm voltage applied:", shoulderMotor.motor.getMotorVoltage().getValue().magnitude());
+      // SmartDashboard.putNumber("Claw voltage applied:", clawMotor.motor.getMotorVoltage().getValue().magnitude());
 
       // SmartDashboard.putNumber("Claw Start Pos:", clawStartPosition);
       // SmartDashboard.putNumber("Claw Target Pos:", clawTargetPosition);
@@ -862,8 +862,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
       // clawMotor.putPIDF();
 
       // leftElevatorMotor.putPV();
-      rightElevatorMotor.putPV();
-      shoulderMotor.putPV();
+      rightElevatorMotor.putP();
+      shoulderMotor.putP();
       // clawMotor.putPV();
     });
 
