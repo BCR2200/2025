@@ -22,6 +22,7 @@ import frc.robot.subsystems.led.disabledmodes.Sink;
 import frc.robot.subsystems.led.disabledmodes.TestColors;
 import frc.robot.subsystems.led.disabledmodes.Breathe;
 import frc.robot.subsystems.led.disabledmodes.Siren;
+import frc.robot.subsystems.led.disabledmodes.Bounce;
 
 public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
@@ -100,6 +101,7 @@ public class LEDSubsystem implements Runnable {
     disableChooser.addOption("TestColors", new TestColors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
     disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer)); 
     disableChooser.addOption("Siren", new Siren(this, ledStrip, buffer));
+    disableChooser.addOption("Bounce", new Bounce(this, ledStrip, buffer, BetterWhite)); // Like rise and sink, but goes back down after hitting the top and vice versa
 
     SmartDashboard.putData(disableChooser);
     new Thread(this, "LED Thread").start();
