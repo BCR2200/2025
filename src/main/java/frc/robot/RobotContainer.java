@@ -93,8 +93,8 @@ public class RobotContainer {
   DPadButton climb;
   DPadButton unclimb;
 
-  double dpadShiftX;
-  double dpadShiftY;
+  public double dpadShiftX;
+  public double dpadShiftY;
 
   // shoot keybind
   AnalogTrigger rightTrigger;
@@ -105,7 +105,7 @@ public class RobotContainer {
   Keybind rightBumper;
   Keybind leftBumper;
 
-  SnapButton snap = SnapButton.None;
+  public SnapButton snap = SnapButton.None;
 
   double speedFactor = 1.0;
 
@@ -152,6 +152,7 @@ public class RobotContainer {
   final SendableChooser<AutoCommand> autoChooser;
 
   public Timer backItUpTimer;
+  public double positionError = Double.MAX_VALUE;
 
   public RobotContainer() {
     gyro = new PigeonSubsystem();
@@ -444,6 +445,8 @@ public class RobotContainer {
               double vectorX = targetTx - tx;
               double vectorY = targetTy - ty;
               double vectorYaw = targetYaw - yaw;
+
+              positionError = Math.sqrt((vectorX * vectorX) + (vectorY * vectorY));
 
               double pt = 2; // translation p value
               double pr = 0.05; // rotation p

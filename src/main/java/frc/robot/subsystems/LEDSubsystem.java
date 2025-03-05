@@ -13,6 +13,7 @@ import frc.robot.Constants;
 import frc.robot.ExtraMath;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.input.SnapButton;
 import frc.robot.subsystems.ElevClArmSubsystem.ControlMode;
 import frc.robot.subsystems.led.LEDDrawer;
 import frc.robot.subsystems.led.Strip;
@@ -34,6 +35,11 @@ public class LEDSubsystem implements Runnable {
   public Strip[] strips;
   public Strip[] halfTopStrips;
   public Strip[] halfBotStrips;
+
+  public Strip leftTopStrip;
+  public Strip leftBotStrip;
+  public Strip rightTopStrip;
+  public Strip rightBotStrip;
 
   // ADD MANUAL CORAL INDICATOR
 
@@ -68,6 +74,11 @@ public class LEDSubsystem implements Runnable {
      */
 
     fullStrip = new Strip(0, 59);
+
+    leftTopStrip = new Strip(15, 29); // Top L
+    leftBotStrip = new Strip(0, 14); // Bottom L
+    rightTopStrip = new Strip(45, 59); // Top R
+    rightBotStrip = new Strip(30, 44); // Bottom R
 
     halfTopStrips = new Strip[] {
       new Strip(0, 14), // Bottom L
@@ -220,44 +231,88 @@ public class LEDSubsystem implements Runnable {
     // Display mode
     Color algaeColor = Color.kGreen;
     Color climbColor = Color.kDarkOrange;
-    if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
-      setColour(fullStrip, coralColor);
-    }
-    if (mode == ControlMode.Algae && current < 20) {
-      setColour(fullStrip, algaeColor);
-      if (algaeTime != 0) {
-        algaeTimer.reset();
+    if(robot.dpadShiftX == 0 && robot.dpadShiftY == 0){
+      if(robot.snap == SnapButton.None){
+        if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
+          setColour(fullStrip, coralColor);
+        }
+        if (mode == ControlMode.Algae && current < 20) {
+          setColour(fullStrip, algaeColor);
+          if (algaeTime != 0) {
+            algaeTimer.reset();
+          }
+        }
+        if (mode == ControlMode.Climb) {
+          setColour(fullStrip, climbColor);
+        }
+
+        // Display if algae is in claw for a short time
+        Color colorAlgaeClawWithTime = Color.kSeaGreen;
+        if (mode == ControlMode.Algae && current >= 20 && algaeTime < 10) {
+          setColour(fullStrip, colorAlgaeClawWithTime);
+          if (algaeTime == 0) {
+            algaeTimer.start();
+          }
+        }
+
+        // Display if algae is in claw and it's been there for over 15 secs (hurting the motors)
+        Color colorAlgaeClawWithoutTime = Color.kLimeGreen;
+        if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 10) {
+          setColour(fullStrip, colorAlgaeClawWithoutTime);
+        }
+
+        // Display if coral is in hopper
+        Color colorCoralHopper = Color.kDeepPink;
+        if (mode == ControlMode.Coral && coralInHopper) {
+          setColour(fullStrip, colorCoralHopper);
+        }
+
+        // Display if coral is in claw
+        Color colorCoralClaw = Color.kPurple;
+        if (mode == ControlMode.Coral && coralInClaw && !coralInHopper) { //Coral not in hopper to make hopper colour longer
+          setColour(fullStrip, colorCoralClaw);
+        }
+      } else {
+        setColour(fullStrip, Color.kBlack); // reset is needed
+        if(robot.snap == SnapButton.Left){
+          if (Math.abs(robot.positionError) < 0.045) {
+            setColour(leftBotStrip, Color.kGreen);
+          } else {
+            setColour(leftBotStrip, Color.kYellow); // make blink
+          }
+        } else if(robot.snap == SnapButton.Right){
+          if (Math.abs(robot.positionError) < 0.045) {
+            setColour(rightBotStrip, Color.kGreen);
+          } else {
+            setColour(rightBotStrip, Color.kYellow);
+          }
+        } else if(robot.snap == SnapButton.Center){
+          if (Math.abs(robot.positionError) < 0.045) {
+            setColour(leftBotStrip, Color.kGreen);
+            setColour(rightBotStrip, Color.kGreen);
+          } else {
+            setColour(leftBotStrip, Color.kYellow);
+            setColour(rightBotStrip, Color.kYellow);
+          }
+        }
       }
-    }
-    if (mode == ControlMode.Climb) {
-      setColour(fullStrip, climbColor);
-    }
-
-    // Display if algae is in claw for a short time
-    Color colorAlgaeClawWithTime = Color.kSeaGreen;
-    if (mode == ControlMode.Algae && current >= 20 && algaeTime < 10) {
-      setColour(fullStrip, colorAlgaeClawWithTime);
-      if (algaeTime == 0) {
-        algaeTimer.start();
+    } else {
+      setColour(fullStrip, Color.kBlack); // reset is needed
+      if(robot.dpadShiftX > 0){
+        setColour(leftTopStrip, BetterRed); // shifting right
+        setColour(rightTopStrip, Color.kGreen); 
+      } else if (robot.dpadShiftX < 0){
+        setColour(leftTopStrip, Color.kGreen); // shifting left
+        setColour(rightTopStrip, BetterRed); 
+      } 
+      
+      if (robot.dpadShiftY < 0){
+        setColour(leftBotStrip, Color.kGreen); 
+        setColour(rightBotStrip, Color.kGreen); 
+      } else if (robot.dpadShiftY > 0){
+        setColour(leftBotStrip, BetterRed); 
+        setColour(rightBotStrip, BetterRed); 
       }
-    }
-
-    // Display if algae is in claw and it's been there for over 15 secs (hurting the motors)
-    Color colorAlgaeClawWithoutTime = Color.kLimeGreen;
-    if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 10) {
-      setColour(fullStrip, colorAlgaeClawWithoutTime);
-    }
-
-    // Display if coral is in hopper
-    Color colorCoralHopper = Color.kDeepPink;
-    if (mode == ControlMode.Coral && coralInHopper) {
-      setColour(fullStrip, colorCoralHopper);
-    }
-
-    // Display if coral is in claw
-    Color colorCoralClaw = Color.kPurple;
-    if (mode == ControlMode.Coral && coralInClaw && !coralInHopper) { //Coral not in hopper to make hopper colour longer
-      setColour(fullStrip, colorCoralClaw);
     }
   }
 
