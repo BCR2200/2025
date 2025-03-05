@@ -30,7 +30,7 @@ public class Bounce extends LEDDrawer {
     
     if (goingUp) {
       stripIndex++;
-      if (stripIndex >= susystem.strips[0].numLEDs) {
+      if (stripIndex >= susystem.strips[0].numLEDs-1) {
         goingUp = false;
       }
     } else {
