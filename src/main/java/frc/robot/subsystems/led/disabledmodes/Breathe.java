@@ -18,9 +18,9 @@ public class Breathe extends LEDDrawer {
   @Override
   public void draw() {
     if (susystem.allianceColor.equals(susystem.BetterRed)) {
-      susystem.setColour(susystem.fullStrip, new Color(stripIndex, 0, 0));
+      susystem.setColour(susystem.fullStrip, new Color(stripIndex/100.0, 0, 0));
     } else {
-      susystem.setColour(susystem.fullStrip, new Color(0, 0, stripIndex));
+      susystem.setColour(susystem.fullStrip, new Color(0, 0, stripIndex/100.0));
     }
     if (stripIndex >= 75) {
       breatheDirection = false;

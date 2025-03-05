@@ -37,6 +37,6 @@ public class Siren extends LEDDrawer {
 
   @Override
   public int sleepInterval() {
-    return 30;
+    return 100;
   }
 }

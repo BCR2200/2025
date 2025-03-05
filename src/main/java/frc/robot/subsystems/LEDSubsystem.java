@@ -71,12 +71,12 @@ public class LEDSubsystem implements Runnable {
 
     halfTopStrips = new Strip[] {
       new Strip(0, 14), // Bottom L
-      new Strip(30, 44), // Bottom R
+      new Strip(45, 59), // Bottom R
     };
 
     halfBotStrips = new Strip[] {
       new Strip(15, 29), // Top L
-      new Strip(45, 59), // Top R
+      new Strip(30, 44), // Top R
     };
 
     strips = new Strip[] {
