@@ -40,6 +40,8 @@ public class LEDSubsystem implements Runnable {
   public Strip leftBotStrip;
   public Strip rightTopStrip;
   public Strip rightBotStrip;
+  public Strip rightStrip;
+  public Strip leftStrip;
 
   // ADD MANUAL CORAL INDICATOR
 
@@ -57,6 +59,7 @@ public class LEDSubsystem implements Runnable {
 
   boolean modeInit = true;
   SendableChooser<LEDDrawer> disableChooser;
+  boolean turnSignalOn = false;
 
   RobotContainer robot;
 
@@ -79,6 +82,9 @@ public class LEDSubsystem implements Runnable {
     leftBotStrip = new Strip(0, 14); // Bottom L
     rightTopStrip = new Strip(45, 59); // Top R
     rightBotStrip = new Strip(30, 44); // Bottom R
+
+    leftStrip = new Strip(0, 29);
+    rightStrip = new Strip(30, 59);
 
     halfTopStrips = new Strip[] {
       new Strip(0, 14), // Bottom L
@@ -232,6 +238,7 @@ public class LEDSubsystem implements Runnable {
     Color algaeColor = Color.kGreen;
     Color climbColor = Color.kDarkOrange;
     if(robot.dpadShiftX == 0 && robot.dpadShiftY == 0){
+      sleepInterval = 20; // do we need to reset?
       if(robot.snap == SnapButton.None){
         if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
           setColour(fullStrip, coralColor);
@@ -248,7 +255,7 @@ public class LEDSubsystem implements Runnable {
 
         // Display if algae is in claw for a short time
         Color colorAlgaeClawWithTime = Color.kSeaGreen;
-        if (mode == ControlMode.Algae && current >= 20 && algaeTime < 10) {
+        if (mode == ControlMode.Algae && current >= 20 && algaeTime < 3) {
           setColour(fullStrip, colorAlgaeClawWithTime);
           if (algaeTime == 0) {
             algaeTimer.start();
@@ -257,7 +264,7 @@ public class LEDSubsystem implements Runnable {
 
         // Display if algae is in claw and it's been there for over 15 secs (hurting the motors)
         Color colorAlgaeClawWithoutTime = Color.kLimeGreen;
-        if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 10) {
+        if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 3) {
           setColour(fullStrip, colorAlgaeClawWithoutTime);
         }
 
@@ -274,25 +281,42 @@ public class LEDSubsystem implements Runnable {
         }
       } else {
         setColour(fullStrip, Color.kBlack); // reset is needed
+        sleepInterval = 100;
         if(robot.snap == SnapButton.Left){
           if (Math.abs(robot.positionError) < 0.045) {
-            setColour(leftBotStrip, Color.kGreen);
+            setColour(leftStrip, Color.kGreen);
           } else {
-            setColour(leftBotStrip, Color.kYellow); // make blink
+            if(turnSignalOn){
+             setColour(leftStrip, Color.kYellow); // make blink
+            } else {
+              setColour(leftStrip, Color.kBlack); // make blink
+            }
+            turnSignalOn = !turnSignalOn;
           }
         } else if(robot.snap == SnapButton.Right){
           if (Math.abs(robot.positionError) < 0.045) {
-            setColour(rightBotStrip, Color.kGreen);
+            setColour(rightStrip, Color.kGreen);
           } else {
-            setColour(rightBotStrip, Color.kYellow);
+            if(turnSignalOn){
+              setColour(rightStrip, Color.kYellow); 
+             } else {
+               setColour(rightStrip, Color.kBlack); // blink
+             }
+             turnSignalOn = !turnSignalOn;
           }
         } else if(robot.snap == SnapButton.Center){
           if (Math.abs(robot.positionError) < 0.045) {
-            setColour(leftBotStrip, Color.kGreen);
-            setColour(rightBotStrip, Color.kGreen);
+            setColour(leftStrip, Color.kGreen);
+            setColour(rightStrip, Color.kGreen);
           } else {
-            setColour(leftBotStrip, Color.kYellow);
-            setColour(rightBotStrip, Color.kYellow);
+            if(turnSignalOn){
+              setColour(leftStrip, Color.kYellow); 
+              setColour(rightStrip, Color.kYellow); 
+             } else {
+               setColour(leftStrip, Color.kBlack); // blink
+               setColour(rightStrip, Color.kBlack); // prob not needed
+             }
+             turnSignalOn = !turnSignalOn;
           }
         }
       }
