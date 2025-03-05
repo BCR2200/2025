@@ -510,7 +510,10 @@ public class RobotContainer {
     double angle = drivetrain.getState().Pose.getRotation().getDegrees();
     if (isOnRed) {
       angle = (angle + 180) % 360;
+    } else{
+      angle = (angle + 360) % 360;
     }
+    // SmartDashboard.putNumber("angle", angle);
     if (330 <= angle || angle < 30) {
       return ReefSide.FC;
     } else if (30 <= angle && angle < 90) {
