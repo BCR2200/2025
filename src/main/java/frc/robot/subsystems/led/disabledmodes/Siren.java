@@ -7,6 +7,11 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.led.LEDDrawer;
 
 public class Siren extends LEDDrawer {
+  private Color color1 = susystem.BetterRed;
+  private Color color2 = susystem.BetterBlue;
+  private Color colorA;
+  private Color colorB;
+  private boolean sirenState = true;
 
   public Siren(LEDSubsystem subsystem, AddressableLED ledStrip, AddressableLEDBuffer buffer) {
     super(subsystem, ledStrip, buffer);
@@ -14,13 +19,6 @@ public class Siren extends LEDDrawer {
 
   @Override
   public void draw() {
-    susystem.sleepInterval = 100;
-    Color color1 = susystem.BetterRed;
-    Color color2 = susystem.BetterBlue;
-    Color colorA;
-    Color colorB;
-    boolean sirenState = true;
-
     if (sirenState) {
       colorA = color2;
       colorB = color1;

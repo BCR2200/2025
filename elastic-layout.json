@@ -206,7 +206,7 @@
             "title": "LED Mode",
             "x": 1024.0,
             "y": 0.0,
-            "width": 128.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -254,20 +254,6 @@
               "topic": "/SmartDashboard/Arm current:",
               "period": 0.06,
               "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "climbstate",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/climbstate",
-              "period": 0.06,
-              "data_type": "string",
               "show_submit_button": false
             }
           },
@@ -366,6 +352,20 @@
               "topic": "/SmartDashboard/Auto Step",
               "period": 0.06,
               "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Climber Pos",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/climber Position",
+              "period": 0.06,
+              "data_type": "double",
               "show_submit_button": false
             }
           }

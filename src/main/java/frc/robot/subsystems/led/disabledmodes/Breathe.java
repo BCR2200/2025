@@ -17,8 +17,6 @@ public class Breathe extends LEDDrawer {
 
   @Override
   public void draw() {
-    susystem.sleepInterval = 15;
-    susystem.setColour(susystem.fullStrip, Color.kBlack);
     if (susystem.allianceColor.equals(susystem.BetterRed)) {
       susystem.setColour(susystem.fullStrip, new Color(stripIndex, 0, 0));
     } else {

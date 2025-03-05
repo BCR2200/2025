@@ -11,6 +11,8 @@ public class Bounce extends LEDDrawer {
 
   private final Color fg;
   private int stripIndex = 0;
+  private boolean goingUp = true;
+  private Color bg = susystem.allianceColor;
 
   public Bounce(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer,
       Color fg) {
@@ -19,10 +21,7 @@ public class Bounce extends LEDDrawer {
   }
 
   @Override
-  public void draw() {
-    Color bg = susystem.allianceColor;
-    boolean goingUp = true;
-    
+  public void draw() {    
     susystem.setColour(susystem.fullStrip, bg);
     
     for (Strip strip : susystem.strips) {
@@ -31,7 +30,7 @@ public class Bounce extends LEDDrawer {
     
     if (goingUp) {
       stripIndex++;
-      if (stripIndex >= 59) {
+      if (stripIndex >= susystem.strips[0].numLEDs) {
         goingUp = false;
       }
     } else {
