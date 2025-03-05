@@ -214,7 +214,7 @@ public class LEDSubsystem implements Runnable {
     double algaeTime = algaeTimer.get();
 
     // Change coral hopper coral (alliance or a unique color)
-    Color coralColor = Color.kPurple;
+    Color coralColor = Color.kMediumVioletRed;
     //Color coralColor = allianceColor
     
     // Display mode
@@ -235,7 +235,7 @@ public class LEDSubsystem implements Runnable {
 
     // Display if algae is in claw for a short time
     Color colorAlgaeClawWithTime = Color.kSeaGreen;
-    if (mode == ControlMode.Algae && current >= 20 && algaeTime < 15) {
+    if (mode == ControlMode.Algae && current >= 20 && algaeTime < 10) {
       setColour(fullStrip, colorAlgaeClawWithTime);
       if (algaeTime == 0) {
         algaeTimer.start();
@@ -244,18 +244,18 @@ public class LEDSubsystem implements Runnable {
 
     // Display if algae is in claw and it's been there for over 15 secs (hurting the motors)
     Color colorAlgaeClawWithoutTime = Color.kLimeGreen;
-    if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 15) {
+    if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 10) {
       setColour(fullStrip, colorAlgaeClawWithoutTime);
     }
 
     // Display if coral is in hopper
-    Color colorCoralHopper = Color.kMediumVioletRed;
+    Color colorCoralHopper = Color.kDeepPink;
     if (mode == ControlMode.Coral && coralInHopper) {
       setColour(fullStrip, colorCoralHopper);
     }
 
     // Display if coral is in claw
-    Color colorCoralClaw = Color.kDeepPink;
+    Color colorCoralClaw = Color.kPurple;
     if (mode == ControlMode.Coral && coralInClaw && !coralInHopper) { //Coral not in hopper to make hopper colour longer
       setColour(fullStrip, colorCoralClaw);
     }
