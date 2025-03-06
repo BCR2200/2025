@@ -20,7 +20,7 @@ import frc.robot.subsystems.led.Strip;
 import frc.robot.subsystems.led.disabledmodes.Full;
 import frc.robot.subsystems.led.disabledmodes.Rise;
 import frc.robot.subsystems.led.disabledmodes.Sink;
-import frc.robot.subsystems.led.disabledmodes.TestColors;
+// import frc.robot.subsystems.led.disabledmodes.TestColors;
 import frc.robot.subsystems.led.disabledmodes.Tetris;
 import frc.robot.subsystems.led.disabledmodes.Breathe;
 import frc.robot.subsystems.led.disabledmodes.Crackle;
@@ -29,6 +29,7 @@ import frc.robot.subsystems.led.disabledmodes.Sparkle;
 import frc.robot.subsystems.led.disabledmodes.Sparkle2;
 import frc.robot.subsystems.led.disabledmodes.Binary;
 import frc.robot.subsystems.led.disabledmodes.Bounce;
+import frc.robot.subsystems.led.disabledmodes.Fill;
 
 public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
@@ -64,6 +65,7 @@ public class LEDSubsystem implements Runnable {
 
   boolean modeInit = true;
   SendableChooser<LEDDrawer> disableChooser;
+  // SendableChooser<LEDDrawer> testChooser;
   boolean turnSignalOn = false;
 
   RobotContainer robot;
@@ -121,6 +123,7 @@ public class LEDSubsystem implements Runnable {
     disableChooser.addOption("Tetris", new Tetris(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Sparkle2", new Sparkle2(this, ledStrip, buffer));
     disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer)); 
+    disableChooser.addOption("Fill", new Fill(this, ledStrip, buffer));
     disableChooser.addOption("Binary", new Binary(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Siren", new Siren(this, ledStrip, buffer));
     disableChooser.addOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
@@ -129,6 +132,14 @@ public class LEDSubsystem implements Runnable {
     disableChooser.addOption("Crackle", new Crackle(this, ledStrip, buffer));
     disableChooser.addOption("Sparkle", new Sparkle(this, ledStrip, buffer));
     // disableChooser.addOption("TestColors", new TestColors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
+
+    // testChooser = new SendableChooser<>();
+    // testChooser.setDefaultOption("Red", new TestColors(null, ledStrip, buffer, BetterRed, BetterWhite));
+    // testChooser.addOption("Blue", new TestColors(null, ledStrip, buffer, BetterBlue, BetterWhite));
+    // testChooser.addOption("Yellow", new TestColors(null, ledStrip, buffer, Color.kDarkOrange, BetterWhite));
+    // testChooser.addOption("Green", new TestColors(null, ledStrip, buffer, Color.kGreen, BetterWhite));
+    // testChooser.addOption("Get RGB", );
+
 
     SmartDashboard.putData(disableChooser);
     new Thread(this, "LED Thread").start();
@@ -265,7 +276,7 @@ public class LEDSubsystem implements Runnable {
 
         // Display if algae is in claw for a short time
         Color colorAlgaeClawWithTime = Color.kSeaGreen;
-        if (mode == ControlMode.Algae && current >= 20 && algaeTime < 3) {
+        if (mode == ControlMode.Algae && current >= 20 && algaeTime < 15) {
           setColour(fullStrip, colorAlgaeClawWithTime);
           if (algaeTime == 0) {
             algaeTimer.start();
@@ -274,7 +285,7 @@ public class LEDSubsystem implements Runnable {
 
         // Display if algae is in claw and it's been there for over 15 secs (hurting the motors)
         Color colorAlgaeClawWithoutTime = Color.kLimeGreen;
-        if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 3) {
+        if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 15) {
           setColour(fullStrip, colorAlgaeClawWithoutTime);
         }
 

@@ -7,43 +7,51 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.led.LEDDrawer;
 import frc.robot.subsystems.led.Strip;
 
-public class TestColors extends LEDDrawer {
+public class Fill extends LEDDrawer {
 
-  private final Color fg;
-  private final Color bg;
   private int stripIndex = 0;
   private boolean goingUp = true;
+  Color bg = susystem.allianceColor;
+  Color fg = new Color(50,50,35); 
+  Color temp;
+  private int goingDirection;
 
-  public TestColors(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer, Color fg, Color bg) {
+
+  public Fill(LEDSubsystem susystem, AddressableLED ledStrip, AddressableLEDBuffer buffer) {
     super(susystem, ledStrip, buffer);
-    this.fg = fg;
-    this.bg = bg;
   }
 
   @Override
-  public void draw() {
-    susystem.setColour(susystem.fullStrip, bg);
-    
-    for (Strip strip : susystem.strips) {
-      susystem.safeSetLED(strip.start + strip.direction * stripIndex, fg);
-    }
-    
+  public void draw() {   
+
     if (goingUp) {
       stripIndex++;
+      susystem.setColour(susystem.fullStrip, bg);
       if (stripIndex >= susystem.strips[0].numLEDs-1) {
         goingUp = false;
+        goingDirection = 1;
       }
     } else {
       stripIndex--;
+
       if (stripIndex <= 0) {
         goingUp = true;
+        goingDirection = -1;
+        temp = fg;
+        fg = bg;
+        bg = temp;
       }
+    }
+
+    for (Strip strip : susystem.strips) {
+      susystem.safeSetLED(strip.start + strip.direction * stripIndex, fg);
+      susystem.safeSetLED(strip.start + strip.direction * stripIndex - goingDirection, fg);
     }
   }
 
   @Override
   public int sleepInterval() {
-    return 30;
+    return 40;
   }
 
 }
