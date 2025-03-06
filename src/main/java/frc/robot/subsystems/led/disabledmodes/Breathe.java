@@ -36,6 +36,6 @@ public class Breathe extends LEDDrawer {
 
   @Override
   public int sleepInterval() {
-    return 30;
+    return 20;
   }
 }
