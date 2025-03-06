@@ -27,11 +27,15 @@ public class Tetris extends LEDDrawer {
 
     for (Strip strip : susystem.strips) {
       susystem.safeSetLED(strip.end - strip.direction * stripIndex, fg);
+      for(int i = 0; i < placed; ++i) {
+        susystem.safeSetLED(strip.start + strip.direction + 1, fg);
+      }
     }
 
     if(stripIndex < (susystem.strips[0].numLEDs - 1 - placed)){
       stripIndex++; 
     }
+    
     if(stripIndex == susystem.strips[0].numLEDs - placed){
       stripIndex = 0;
       placed++; // next one
