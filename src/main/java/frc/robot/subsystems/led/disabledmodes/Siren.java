@@ -26,10 +26,10 @@ public class Siren extends LEDDrawer {
       colorA = color1;
       colorB = color2;
     }
-    for (var strip : susystem.halfTopStrips) {
+    for (var strip : susystem.topRBotLStrips) {
       susystem.setColour(strip, colorA);
     }
-    for (var strip : susystem.halfBotStrips) {
+    for (var strip : susystem.topLBotRStrips) {
       susystem.setColour(strip, colorB);
     }
     sirenState = !sirenState;
