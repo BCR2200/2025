@@ -27,6 +27,7 @@ import frc.robot.subsystems.led.disabledmodes.Crackle;
 import frc.robot.subsystems.led.disabledmodes.Siren;
 import frc.robot.subsystems.led.disabledmodes.Sparkle;
 import frc.robot.subsystems.led.disabledmodes.Sparkle2;
+import frc.robot.subsystems.led.disabledmodes.Binary;
 import frc.robot.subsystems.led.disabledmodes.Bounce;
 
 public class LEDSubsystem implements Runnable {
@@ -116,17 +117,18 @@ public class LEDSubsystem implements Runnable {
     algaeTimer.restart();
 
     disableChooser = new SendableChooser<>();
-    disableChooser.setDefaultOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
+    disableChooser.setDefaultOption("Bounce", new Bounce(this, ledStrip, buffer, BetterWhite)); // Like rise and sink, but goes back down after hitting the top and vice versa
+    disableChooser.addOption("Tetris", new Tetris(this, ledStrip, buffer, BetterWhite));
+    disableChooser.addOption("Sparkle2", new Sparkle2(this, ledStrip, buffer));
+    disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer)); 
+    disableChooser.addOption("Binary", new Binary(this, ledStrip, buffer, BetterWhite));
+    disableChooser.addOption("Siren", new Siren(this, ledStrip, buffer));
+    disableChooser.addOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Full", new Full(this, ledStrip, buffer));
     disableChooser.addOption("Sink", new Sink(this, ledStrip, buffer, BetterWhite));
-    disableChooser.addOption("Tetris", new Tetris(this, ledStrip, buffer, BetterWhite));
-    disableChooser.addOption("TestColors", new TestColors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
-    disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer)); 
-    disableChooser.addOption("Siren", new Siren(this, ledStrip, buffer));
-    disableChooser.addOption("Bounce", new Bounce(this, ledStrip, buffer, BetterWhite)); // Like rise and sink, but goes back down after hitting the top and vice versa
     disableChooser.addOption("Crackle", new Crackle(this, ledStrip, buffer));
     disableChooser.addOption("Sparkle", new Sparkle(this, ledStrip, buffer));
-    disableChooser.addOption("Sparkle2", new Sparkle2(this, ledStrip, buffer));
+    // disableChooser.addOption("TestColors", new TestColors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
 
     SmartDashboard.putData(disableChooser);
     new Thread(this, "LED Thread").start();
