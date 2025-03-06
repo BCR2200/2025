@@ -17,11 +17,11 @@ public class Crackle extends LEDDrawer {
   @Override
   public void draw() {
     susystem.setColour(susystem.fullStrip, bg);
-    susystem.safeSetLED(susystem.fullStrip.start + (int) (Math.random() * 30), fg);
-    susystem.safeSetLED(susystem.fullStrip.start + (30 + (int) (Math.random() * 30)), fg);
+    susystem.safeSetLED(susystem.leftStrip.start + susystem.leftStrip.direction * (int) (Math.random() * 30), fg);
+    susystem.safeSetLED(susystem.rightStrip.start + susystem.rightStrip.direction * (int) (Math.random() * 30), fg);
   }
   @Override
   public int sleepInterval() {
-    return 30;
+    return 60;
   }
 }
