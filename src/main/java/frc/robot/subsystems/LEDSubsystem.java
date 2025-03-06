@@ -21,8 +21,12 @@ import frc.robot.subsystems.led.disabledmodes.Full;
 import frc.robot.subsystems.led.disabledmodes.Rise;
 import frc.robot.subsystems.led.disabledmodes.Sink;
 import frc.robot.subsystems.led.disabledmodes.TestColors;
+import frc.robot.subsystems.led.disabledmodes.Tetris;
 import frc.robot.subsystems.led.disabledmodes.Breathe;
+import frc.robot.subsystems.led.disabledmodes.Crackle;
 import frc.robot.subsystems.led.disabledmodes.Siren;
+import frc.robot.subsystems.led.disabledmodes.Sparkle;
+import frc.robot.subsystems.led.disabledmodes.Sparkle2;
 import frc.robot.subsystems.led.disabledmodes.Bounce;
 
 public class LEDSubsystem implements Runnable {
@@ -33,8 +37,8 @@ public class LEDSubsystem implements Runnable {
 
   public Strip fullStrip;
   public Strip[] strips;
-  public Strip[] halfTopStrips;
-  public Strip[] halfBotStrips;
+  public Strip[] topRBotLStrips;
+  public Strip[] topLBotRStrips;
 
   public Strip leftTopStrip;
   public Strip leftBotStrip;
@@ -50,7 +54,7 @@ public class LEDSubsystem implements Runnable {
 
   public Color BetterRed = new Color(75, 0, 0);
   public Color BetterBlue = new Color(0, 0, 75);
-  Color BetterWhite = Color.kViolet;
+  public Color BetterWhite = Color.kViolet;
   public Color allianceColor = BetterRed;
 
   public int sleepInterval = 20;
@@ -86,14 +90,14 @@ public class LEDSubsystem implements Runnable {
     leftStrip = new Strip(0, 29);
     rightStrip = new Strip(30, 59);
 
-    halfTopStrips = new Strip[] {
+    topRBotLStrips = new Strip[] {
       new Strip(0, 14), // Bottom L
-      new Strip(45, 59), // Bottom R
+      new Strip(45, 59), // Top R
     };
 
-    halfBotStrips = new Strip[] {
+    topLBotRStrips = new Strip[] {
       new Strip(15, 29), // Top L
-      new Strip(30, 44), // Top R
+      new Strip(30, 44), // Bottom R
     };
 
     strips = new Strip[] {
@@ -115,10 +119,14 @@ public class LEDSubsystem implements Runnable {
     disableChooser.setDefaultOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Full", new Full(this, ledStrip, buffer));
     disableChooser.addOption("Sink", new Sink(this, ledStrip, buffer, BetterWhite));
+    disableChooser.addOption("Tetris", new Tetris(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("TestColors", new TestColors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
     disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer)); 
     disableChooser.addOption("Siren", new Siren(this, ledStrip, buffer));
     disableChooser.addOption("Bounce", new Bounce(this, ledStrip, buffer, BetterWhite)); // Like rise and sink, but goes back down after hitting the top and vice versa
+    disableChooser.addOption("Crackle", new Crackle(this, ledStrip, buffer));
+    disableChooser.addOption("Sparkle", new Sparkle(this, ledStrip, buffer));
+    disableChooser.addOption("Sparkle2", new Sparkle2(this, ledStrip, buffer));
 
     SmartDashboard.putData(disableChooser);
     new Thread(this, "LED Thread").start();
