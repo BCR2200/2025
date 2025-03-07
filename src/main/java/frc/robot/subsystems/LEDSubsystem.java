@@ -251,6 +251,7 @@ public class LEDSubsystem implements Runnable {
     boolean coralInClaw = arm.isCoralInClaw();
     double algaeTime = algaeTimer.get();
 
+
     // Change coral hopper coral (alliance or a unique color)
     Color coralColor = Color.kMediumVioletRed;
     //Color coralColor = allianceColor
@@ -299,6 +300,9 @@ public class LEDSubsystem implements Runnable {
         Color colorCoralClaw = Color.kPurple;
         if (mode == ControlMode.Coral && coralInClaw && !coralInHopper) { //Coral not in hopper to make hopper colour longer
           setColour(fullStrip, colorCoralClaw);
+        }
+        if(arm.manualCoral){
+          setColour(fullStrip, Color.kBrown); // bc I'm pooping myself
         }
       } else {
         setColour(fullStrip, Color.kBlack); // reset is needed
