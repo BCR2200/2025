@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3066598360655735,
-        "y": 0.6984118852459017
+        "x": 1.5584016393442621,
+        "y": 0.7823258196721316
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5054303278688517,
-        "y": 0.9501536885245911
+        "x": 2.7571721311475406,
+        "y": 1.034067622950821
       },
       "isLocked": false,
       "linkedName": "R3R.2.Feeder"
@@ -48,7 +48,7 @@
   "folder": "R3R",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 52.02839623894957
+    "rotation": 52.028396238949576
   },
   "useDefaultConstraints": true
 }
