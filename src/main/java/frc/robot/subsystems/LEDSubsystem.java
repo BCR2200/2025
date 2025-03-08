@@ -298,12 +298,12 @@ public class LEDSubsystem implements Runnable {
 
         // Display if coral is in claw
         Color colorCoralClaw = Color.kPurple;
-        if (mode == ControlMode.Coral && coralInClaw && !coralInHopper) { //Coral not in hopper to make hopper colour longer
+        if(arm.manualCoral){
+          setColour(fullStrip, Color.kChocolate); // bc I'm pooping myself
+        } else if (mode == ControlMode.Coral && coralInClaw && !coralInHopper) { //Coral not in hopper to make hopper colour longer
           setColour(fullStrip, colorCoralClaw);
         }
-        if(arm.manualCoral){
-          setColour(fullStrip, Color.kBrown); // bc I'm pooping myself
-        }
+        
       } else {
         setColour(fullStrip, Color.kBlack); // reset is needed
         sleepInterval = 100;
