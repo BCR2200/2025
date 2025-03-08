@@ -124,7 +124,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     public ElevArmPosition position() {
       return switch (this) {
         case Hopper -> HOPPER_POSITION;
-        case Intake, UnjamStrat1, UnjamStrat2 -> INTAKE_POSITION;
+        case Intake, UnjamStrat1 -> INTAKE_POSITION;
         case SafeCoral -> SAFE_CORAL_POSITION;
         case CorgaeTransition -> CORGAE_POSITION;
         case SafeAlgae -> SAFE_ALGAE_POSITION;
@@ -138,7 +138,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case PickBottom -> PICKBOTTOM_POSITION;
         case PickTop -> PICKTOP_POSITION;
         case LvlOneEMove -> LVL1_EMOVE_POSITION;
-        case LvlTwoEMove -> LVL2_EMOVE_POSITION;
+        case LvlTwoEMove, UnjamStrat2 -> LVL2_EMOVE_POSITION;
         case LvlThreeEMove -> LVL3_EMOVE_POSITION;
         case LvlFourEMove -> LVL4_EMOVE_POSITION;
         case PickBottomEMove -> PICKBOTTOM_EMOVE_POSITION;
@@ -262,7 +262,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 shoulderMotor.setCurrentLimit(softShoulderCurrentLimit);
                 break;
               case UnjamStrat2:
-                state = ElevArmState.UnjamStrat2;
+                manualCoral = true;
+                state = ElevArmState.SafeCoral;
                 break;
               default:
                 break;
@@ -318,9 +319,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 }
                 break;
               case UnjamStrat2:
-                if (manualCoral) {
-                  state = ElevArmState.UnjamStrat2;
-                }
+                // if (manualCoral) {
+                  state = conditionalTransition(state, ElevArmState.UnjamStrat2);
+                // }
                 break;
               case CoralLevel1:
               case CoralLevel2:
@@ -626,9 +627,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case UnjamStrat2:
             switch (requestState) {
               case UnjamStrat2:
+                manualCoral = true;
                 break;
               default:
-                state = ElevArmState.Hopper;
+                state = ElevArmState.LvlTwoEMove;
+                manualCoral = false;
                 positionControl = true;
                 break;
               // if stuck in unjam position check out
@@ -688,12 +691,12 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case LvlTwoEMove:
           case SafeClimb:
           case UnlockClimb:
+          case UnjamStrat2:
             clawstate = ClawState.Stop________HammerTime;
             break;
           case Intake:
           case UnjamStrat1:
-          case UnjamStrat2:
-            clawstate = ClawState.Eat;
+          clawstate = ClawState.Eat;
             break;
           case SafeAlgae:
           case PickBottom:
