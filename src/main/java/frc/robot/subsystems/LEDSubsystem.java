@@ -309,37 +309,34 @@ public class LEDSubsystem implements Runnable {
         sleepInterval = 100;
         if(robot.snap == SnapButton.Left){
           if (Math.abs(robot.positionError) < 0.045) {
-            setColour(leftStrip, Color.kGreen);
+            setColour(fullStrip, Color.kGreen);
           } else {
             if(turnSignalOn){
              setColour(leftStrip, Color.kYellow); // make blink
             } else {
-              setColour(leftStrip, Color.kBlack); // make blink
+              setColour(fullStrip, Color.kBlack); // make blink
             }
             turnSignalOn = !turnSignalOn;
           }
         } else if(robot.snap == SnapButton.Right){
           if (Math.abs(robot.positionError) < 0.045) {
-            setColour(rightStrip, Color.kGreen);
+            setColour(fullStrip, Color.kGreen);
           } else {
             if(turnSignalOn){
               setColour(rightStrip, Color.kYellow); 
              } else {
-               setColour(rightStrip, Color.kBlack); // blink
+               setColour(fullStrip, Color.kBlack); // blink
              }
              turnSignalOn = !turnSignalOn;
           }
         } else if(robot.snap == SnapButton.Center){
           if (Math.abs(robot.positionError) < 0.045) {
-            setColour(leftStrip, Color.kGreen);
-            setColour(rightStrip, Color.kGreen);
+            setColour(fullStrip, Color.kGreen);
           } else {
             if(turnSignalOn){
-              setColour(leftStrip, Color.kYellow); 
-              setColour(rightStrip, Color.kYellow); 
+              setColour(fullStrip, Color.kYellow); 
              } else {
-               setColour(leftStrip, Color.kBlack); // blink
-               setColour(rightStrip, Color.kBlack); // prob not needed
+               setColour(fullStrip, Color.kBlack); // blink
              }
              turnSignalOn = !turnSignalOn;
           }
