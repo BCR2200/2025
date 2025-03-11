@@ -119,6 +119,8 @@ public class RobotContainer {
   static Rotation2d ReefBLAngle = Rotation2d.fromDegrees(-120);
   static Rotation2d ReefBRAngle = Rotation2d.fromDegrees(120);
   static Rotation2d ReefBAngle = Rotation2d.fromDegrees(180);
+  static Rotation2d ProcessorAngle = Rotation2d.fromDegrees(-90);
+  
   Rotation2d direction;
   // kSpeedAt12Volts desired top speed
   private final double MaxSpeed;
@@ -270,16 +272,17 @@ public class RobotContainer {
 
     // for b and x allow just button or combo a
     snapB.trigger().and(snapX.trigger().negate().and(snapY.trigger().negate()))
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefFR));
+        .whileTrue(new InstantCommand(() -> snap = SnapButton.Processor));
     snapX.trigger().and(snapB.trigger().negate().and(snapY.trigger().negate()))
         .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefFL));
 
-    // combo buttons!
-    snapB.trigger().and(snapY.trigger().and(snapX.trigger().negate().and(snapA.trigger().negate())))
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefBR));
-    snapX.trigger().and(snapY.trigger().and(snapB.trigger().negate().and(snapA.trigger().negate())))
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefBL));
+    // // combo buttons!
+    // snapB.trigger().and(snapY.trigger().and(snapX.trigger().negate().and(snapA.trigger().negate())))
+    //     .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefBR));
+    // snapX.trigger().and(snapY.trigger().and(snapB.trigger().negate().and(snapA.trigger().negate())))
+    //     .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefBL));
 
+    // When nothing pressed, don't snap!
     snapA.trigger().negate()
         .and(snapB.trigger().negate().and(snapX.trigger().negate().and(snapY.trigger().negate()
             .and(feederLeftTrigger.trigger().negate()
@@ -481,6 +484,7 @@ public class RobotContainer {
                 case ReefFL -> ReefFLAngle;
                 case ReefFR -> ReefFRAngle;
                 case ReefF -> ReefFAngle;
+                case Processor -> ProcessorAngle;
                 default -> ReefFAngle;
               };
 
