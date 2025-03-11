@@ -202,7 +202,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   final int softShoulderCurrentLimit = 10;
 
   final int normalClawCurrentLimit = 30;
-  final int algaeClawCurrentLimit = 30;
+  final int algaeClawCurrentLimit = 35;
 
   public ElevClArmSubsystem() {
     leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2.5, 0, 0.1, 0.25, 0.12, 0.01,
