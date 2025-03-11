@@ -12,7 +12,8 @@ public class Fill extends LEDDrawer {
   private int stripIndex = 0;
   private boolean goingUp = true;
   Color bg = susystem.allianceColor;
-  Color fg = new Color(50,50,35); 
+  Color fg = new Color(50,50,35);
+  Color default_fg = new Color(50,50,35); 
   Color temp;
   private int goingDirection;
 
@@ -40,6 +41,9 @@ public class Fill extends LEDDrawer {
         temp = fg;
         fg = bg;
         bg = temp;
+        if (fg.equals(default_fg)){
+          bg = susystem.allianceColor;
+        }
       }
     }
 

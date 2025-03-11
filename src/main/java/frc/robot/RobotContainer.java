@@ -263,9 +263,9 @@ public class RobotContainer {
         .whileTrue(new InstantCommand(() -> snap = SnapButton.RightFeeder));
 
     // snap to reef angles
-    snapA.trigger().and(
-        snapB.trigger().negate().and(snapX.trigger().negate().and(snapY.trigger().negate())))
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefF));
+    // snapA.trigger().and(
+    //     snapB.trigger().negate().and(snapX.trigger().negate().and(snapY.trigger().negate())))
+    //     .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefF));
     snapY.trigger().and(
         snapB.trigger().negate().and(snapX.trigger().negate().and(snapA.trigger().negate())))
         .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefB));
@@ -273,8 +273,8 @@ public class RobotContainer {
     // for b and x allow just button or combo a
     snapB.trigger().and(snapX.trigger().negate().and(snapY.trigger().negate()))
         .whileTrue(new InstantCommand(() -> snap = SnapButton.Processor));
-    snapX.trigger().and(snapB.trigger().negate().and(snapY.trigger().negate()))
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefFL));
+    // snapX.trigger().and(snapB.trigger().negate().and(snapY.trigger().negate()))
+    //     .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefFL));
 
     // // combo buttons!
     // snapB.trigger().and(snapY.trigger().and(snapX.trigger().negate().and(snapA.trigger().negate())))
