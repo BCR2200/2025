@@ -30,6 +30,12 @@ import frc.robot.subsystems.led.disabledmodes.Sparkle2;
 import frc.robot.subsystems.led.disabledmodes.Binary;
 import frc.robot.subsystems.led.disabledmodes.Bounce;
 import frc.robot.subsystems.led.disabledmodes.Fill;
+import frc.robot.subsystems.led.disabledmodes.RainbowWave;
+import frc.robot.subsystems.led.disabledmodes.Fire;
+import frc.robot.subsystems.led.disabledmodes.KnightRider;
+import frc.robot.subsystems.led.disabledmodes.Matrix;
+import frc.robot.subsystems.led.disabledmodes.Plasma;
+import frc.robot.subsystems.led.disabledmodes.RainbowChase;
 
 public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
@@ -126,6 +132,12 @@ public class LEDSubsystem implements Runnable {
     disableChooser.addOption("Fill", new Fill(this, ledStrip, buffer));
     disableChooser.addOption("Binary", new Binary(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Siren", new Siren(this, ledStrip, buffer));
+    disableChooser.addOption("LGTB", new RainbowWave(this, ledStrip, buffer));
+    disableChooser.addOption("Fire", new Fire(this, ledStrip, buffer));
+    disableChooser.addOption("KITT", new KnightRider(this, ledStrip, buffer));
+    disableChooser.addOption("Matrix", new Matrix(this, ledStrip, buffer));
+    disableChooser.addOption("Plasma", new Plasma(this, ledStrip, buffer));
+    disableChooser.addOption("RainbowChase", new RainbowChase(this, ledStrip, buffer));
     disableChooser.addOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Full", new Full(this, ledStrip, buffer));
     disableChooser.addOption("Sink", new Sink(this, ledStrip, buffer, BetterWhite));
