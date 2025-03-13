@@ -93,6 +93,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Coast);
+    m_autonomousCommand = null; // Reset autonomous command when disabled
   }
 
   @Override
@@ -101,6 +102,16 @@ public class Robot extends TimedRobot {
       if (climbToCoast.get() > 6 && climbToCoast.get() < 7) {
         m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
       }
+
+      // Get autonomous command while disabled if not already set
+      if (m_autonomousCommand == null) {
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        // Reset pose based on the selected autonomous command
+        if (m_autonomousCommand instanceof AutoCommand) {
+          AutoCommand autoCmd = (AutoCommand) m_autonomousCommand;
+          m_robotContainer.drivetrain.resetPose(autoCmd.getProperFlippedStartingPose());
+        }
+      }
     // });
   }
 
@@ -108,13 +119,10 @@ public class Robot extends TimedRobot {
   public void disabledExit() {
     m_robotContainer.climber.climbMotor.setIdleBrakeMode();
     m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Brake);
-
   }
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }

@@ -30,7 +30,6 @@ public class L3LAuto extends AutoCommand {
     path4 = AutoBuildingBlocks.loadPathOrThrow("L3L.4");
     path5 = AutoBuildingBlocks.loadPathOrThrow("L3L.5");
     addCommands(
-        AutoBuildingBlocks.resetOdom(drivetrain, path1),
         AutoBuildingBlocks.autoStep("PATH 1"),
         AutoBuildingBlocks.followPathCommand(path1),
         AutoBuildingBlocks.autoStep("SCORE L4 LEFT BL"),

@@ -792,7 +792,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   public boolean atPosition() {
-    return atPosition(0.25);
+    return atPosition(1);
   }
 
   public boolean atPosition(double epsilon) {

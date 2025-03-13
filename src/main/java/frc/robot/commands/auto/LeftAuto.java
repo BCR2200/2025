@@ -29,7 +29,6 @@ public class LeftAuto extends AutoCommand {
     path4 = AutoBuildingBlocks.loadPathOrThrow("Left.4");
     path5 = AutoBuildingBlocks.loadPathOrThrow("Left.5");
     addCommands(
-        AutoBuildingBlocks.resetOdom(drivetrain, path1),
         AutoBuildingBlocks.autoStep("PATH 1"),
         AutoBuildingBlocks.followPathCommand(path1),
         AutoBuildingBlocks.autoStep("SCORE L4 LEFT BL"),

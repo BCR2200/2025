@@ -32,16 +32,15 @@ public class R3RAuto extends AutoCommand {
     path5 = AutoBuildingBlocks.loadPathOrThrow("R3R.5");
     path6 = AutoBuildingBlocks.loadPathOrThrow("R3R.6");
     addCommands(
-        AutoBuildingBlocks.resetOdom(drivetrain, path1),
         AutoBuildingBlocks.autoStep("PATH 1"),
         AutoBuildingBlocks.followPathCommand(path1),
-        AutoBuildingBlocks.autoStep("SCORE L4 Right BR"),
+        AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BR"),
         new LimelightAutoCmd(ReefSide.BR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
         AutoBuildingBlocks.autoStep("PATH 2"),
         AutoBuildingBlocks.followPathCommand(path2),
         AutoBuildingBlocks.autoStep("PATH 3"),
         AutoBuildingBlocks.followPathCommand(path3),
-        AutoBuildingBlocks.autoStep("SCORE L4 LEFT FL"),
+        AutoBuildingBlocks.autoStep("SCORE L4 RIGHT FR"),
         new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
         AutoBuildingBlocks.autoStep("PATH 4"),
         Commands.parallel(
@@ -53,7 +52,8 @@ public class R3RAuto extends AutoCommand {
           AutoBuildingBlocks.autoStep("GUN IT"),
           AutoBuildingBlocks.followPathCommand(path5),
           AutoBuildingBlocks.autoStep("IS HE GOATED???"),
-          AutoBuildingBlocks.followPathCommand(path6)
+          AutoBuildingBlocks.followPathCommand(path6),
+          AutoBuildingBlocks.autoStep("DONE")
     );
   }
 

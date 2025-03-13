@@ -42,7 +42,7 @@ public class Fill extends LEDDrawer {
         fg = bg;
         bg = temp;
         if (fg.equals(default_fg)){
-          bg = susystem.allianceColor;
+          bg = susystem.allianceColor; // works lol
         }
       }
     }

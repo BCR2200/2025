@@ -21,7 +21,6 @@ public class CenterAuto extends AutoCommand {
   public CenterAuto(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
     path1 = AutoBuildingBlocks.loadPathOrThrow("Center.1");
     addCommands(
-        AutoBuildingBlocks.resetOdom(drivetrain, path1),
         AutoBuildingBlocks.autoStep("PATH 1"),
         AutoBuildingBlocks.followPathCommand(path1),
         AutoBuildingBlocks.autoStep("SCORE L4 CENTER BC"),
