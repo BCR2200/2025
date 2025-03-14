@@ -451,6 +451,12 @@ public class RobotContainer {
 
               positionError = Math.sqrt((vectorX * vectorX) + (vectorY * vectorY));
 
+              // Reset odometry when we successfully align with the reef
+              // var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(primaryCam);
+              // if (llMeasurement != null) {
+              //   drivetrain.resetPose(llMeasurement.pose);
+              // }
+
               double pt = 2; // translation p value
               double pr = 0.05; // rotation p
 

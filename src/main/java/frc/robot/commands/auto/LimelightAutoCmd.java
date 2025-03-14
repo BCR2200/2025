@@ -166,6 +166,12 @@ public class LimelightAutoCmd extends Command {
 
         if (Math.abs(positionError) < 0.045) {
           driveAtPosition = true;
+
+          // Reset odometry when we successfully align with the reef
+          // var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(primaryCam);
+          // if (llMeasurement != null) {
+          //   drive.resetPose(llMeasurement.pose);
+          // }
         }
 
       } else {

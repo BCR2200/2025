@@ -36,6 +36,9 @@ import frc.robot.subsystems.led.disabledmodes.KnightRider;
 import frc.robot.subsystems.led.disabledmodes.Matrix;
 import frc.robot.subsystems.led.disabledmodes.Plasma;
 import frc.robot.subsystems.led.disabledmodes.RainbowChase;
+import frc.robot.subsystems.led.disabledmodes.Tron;
+import frc.robot.subsystems.led.disabledmodes.Checkerboard;
+import frc.robot.subsystems.led.disabledmodes.Chaos;
 
 public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
@@ -138,6 +141,9 @@ public class LEDSubsystem implements Runnable {
     disableChooser.addOption("Matrix", new Matrix(this, ledStrip, buffer));
     disableChooser.addOption("Plasma", new Plasma(this, ledStrip, buffer));
     disableChooser.addOption("RainbowChase", new RainbowChase(this, ledStrip, buffer));
+    disableChooser.addOption("Tron", new Tron(this, ledStrip, buffer));
+    disableChooser.addOption("Checkerboard", new Checkerboard(this, ledStrip, buffer));
+    disableChooser.addOption("CHAOS", new Chaos(this, ledStrip, buffer));
     disableChooser.addOption("Rise", new Rise(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Full", new Full(this, ledStrip, buffer));
     disableChooser.addOption("Sink", new Sink(this, ledStrip, buffer, BetterWhite));

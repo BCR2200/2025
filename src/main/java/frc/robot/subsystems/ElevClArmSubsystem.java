@@ -490,7 +490,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             }
             switch (requestState) {
               case CoralLevel1:
-                state = conditionalTransition(state, ElevArmState.LvlOne, 1);
+                state = ElevArmState.LvlOne; // ignore elev bc it's fine and faster
                 break;
               case CoralLevel2:
                 state = ElevArmState.LvlTwoEMove;

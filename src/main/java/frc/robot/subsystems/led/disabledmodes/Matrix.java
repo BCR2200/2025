@@ -9,7 +9,7 @@ import frc.robot.subsystems.led.Strip;
 
 public class Matrix extends LEDDrawer {
     private static final int NUM_DROPS = 5;
-    private static final double DROP_SPEED = 0.1;
+    private static final double DROP_SPEED = 0.05;
     private static final double FADE_SPEED = 0.05;
     private static final double BRIGHTNESS = 0.4;
     
@@ -24,8 +24,8 @@ public class Matrix extends LEDDrawer {
         }
         
         void reset() {
-            position = Math.random() * 2 - 1; // Start above the strip
-            speed = DROP_SPEED + Math.random() * 0.05;
+            position = 1.0 + Math.random() * 0.5;
+            speed = DROP_SPEED + Math.random() * 0.02;
             brightness = 0;
             active = true;
         }
@@ -33,17 +33,16 @@ public class Matrix extends LEDDrawer {
         void update() {
             if (!active) return;
             
-            position += speed;
-            if (position > 1.0) {
+            position -= speed;
+            if (position < -0.5) {
                 active = false;
                 return;
             }
             
-            // Fade in/out based on position
-            if (position < 0) {
-                brightness = Math.max(0, 1 + position);
-            } else if (position > 0.8) {
-                brightness = Math.max(0, 1 - (position - 0.8) * 5);
+            if (position > 1.0) {
+                brightness = Math.max(0, 1 - (position - 1.0) * 2);
+            } else if (position < 0.2) {
+                brightness = Math.max(0, position * 5);
             } else {
                 brightness = 1;
             }
