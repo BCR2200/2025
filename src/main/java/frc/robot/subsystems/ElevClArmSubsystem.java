@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PIDMotor;
 import frc.robot.timing.TimingUtils;
-
+// slow down arm for algae processor/stow
 public class ElevClArmSubsystem extends SubsystemBase {
   private final DataLog log = DataLogManager.getLog();
   private final DoubleLogEntry clawTargetLog = new DoubleLogEntry(log, "/ElevClArmSubsystem/ClawTarget");
