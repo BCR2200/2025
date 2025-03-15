@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.*;
@@ -34,7 +35,7 @@ public class Robot extends TimedRobot {
   public static final boolean isCompBot = true;
 
   public Robot() {
-    PathfindingCommand.warmupCommand().schedule();
+    FollowPathCommand.warmupCommand().schedule();
 
     m_robotContainer = new RobotContainer();
     DataLogManager.start();
