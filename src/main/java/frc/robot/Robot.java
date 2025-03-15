@@ -32,11 +32,9 @@ public class Robot extends TimedRobot {
 
   public static Alliance alliance = Alliance.Blue; // Default
   // Controls all configs for comp/practice bot
-  public static final boolean isCompBot = true;
+  public static final boolean isCompBot = false;
 
   public Robot() {
-    FollowPathCommand.warmupCommand().schedule();
-
     m_robotContainer = new RobotContainer();
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog());
@@ -57,6 +55,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    FollowPathCommand.warmupCommand().schedule();
     m_robotContainer.autoChooser.onChange(this::updateFieldPaths);
     updateAlliance();
   }

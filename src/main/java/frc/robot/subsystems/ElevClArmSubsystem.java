@@ -103,7 +103,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(21, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(45, 28);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103, 17.6);
-  public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(15, SAFE_CORAL_ARM);
+  public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(97, SAFE_CORAL_ARM);
@@ -177,6 +177,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public boolean positionControl;
   public double clawStartPosition;
+  public double armStartPosition;
   public double clawTargetPosition;
 
   public enum ClawState {
@@ -184,7 +185,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     public double speed() {
       return switch (this) {
-        case Eat -> 0.3;
+        case Eat -> 0.6;
         case EatAlgae -> 0.7;
         case Poop -> 1.0;
         case Stop________HammerTime -> 0.0;
@@ -209,8 +210,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
         0.2, 100, 200, 0);
     rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2.5, 0, 0.1, 0.25, 0.12,
         0.01, 0.2, 100, 200, 0);
-    shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 250, 0);
-    clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 3, 0, 0.1, 0.25, 0.12, 0.01, 60, 200, 0);
+    shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 350, 0);
+    clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 500, 0);
     clawMotor.setInverted(InvertedValue.Clockwise_Positive);
 
     leftElevatorMotor.follow(rightElevatorMotor, true);
@@ -309,14 +310,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
             }
             break;
           case SafeCoral:
-            if ( (!coralEnteredClaw.get() || !coralIsSkibidi.get()) && !manualCoral) {
+            if ( (!coralEnteredClaw.get() && !coralIsSkibidi.get()) && !manualCoral) {
               state = conditionalTransition(state, ElevArmState.Hopper);
               break;
             }
             // might add move further with claw wheels to seed
-            if(coralIsSkibidi.get() && !positionControl){
-              clawStartPosition = clawMotor.getPosition();
-              positionControl = true;
+            if(coralIsSkibidi.get() && !positionControl && atFinalPosition(0.5)){
+              // clawStartPosition = clawMotor.getPosition();
+              // positionControl = true;
             }
             switch (requestState) {
               case UnjamStrat1:
@@ -720,9 +721,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
             throw new IllegalArgumentException("Unexpected value: " + this);
         }
       });
-
+      
       go(state.position());
       ControlMode eMode = getEMode();
+
+      if(coralIsSkibidi.get() && eMode == ControlMode.Coral && !positionControl && clawstate != ClawState.Poop){
+        clawStartPosition = clawMotor.getPosition();
+        armStartPosition = shoulderMotor.getPosition();
+        positionControl = true;
+      }
+
       if (shootLust && eMode == ControlMode.Coral && state != ElevArmState.SafeCoral
           && state != ElevArmState.Intake && state != ElevArmState.Hopper
           || shootLust && eMode == ControlMode.Coral && manualCoral) {
@@ -745,11 +753,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
         clawstate = ClawState.Drool;
       }
 
+
       if (!coralEnteredClaw.get() && !coralIsSkibidi.get()) {
         positionControl = false;
       }
 
-      clawTargetPosition = (shoulderMotor.getPosition() * -(24.0 / 73.4)) + clawStartPosition;
+      clawTargetPosition = ( (shoulderMotor.getPosition() - armStartPosition) * -(24.0 / 73.4)) + clawStartPosition;
+
+      // if(requestState == ElevArmState.LvlOne){
+      //   clawTargetPosition -= 5;
+      // }
       
       if (!positionControl) {
         clawMotor.setPercentOutput(clawstate.speed());
@@ -767,12 +780,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
       // coralInClawLog.append(coralEnteredClaw.get());
     });
   }
-
+  double lvl1SlowAccel = 200;
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
     TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
+      if(state == ElevArmState.LvlOne){
+        shoulderMotor.setTarget(goal.armPos, lvl1SlowAccel);
+      } else{
+        shoulderMotor.setTarget(goal.armPos);
+      }
       rightElevatorMotor.setTarget(goal.elevatorPos);
-      shoulderMotor.setTarget(goal.armPos);
     });
   }
 

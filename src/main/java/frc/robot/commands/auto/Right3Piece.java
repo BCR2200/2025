@@ -16,25 +16,23 @@ import frc.robot.input.SnapButton;
 import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 
-public class R3RAuto extends AutoCommand {
+public class Right3Piece extends AutoCommand {
   private final PathPlannerPath path1;
   private final PathPlannerPath path2;
   private final PathPlannerPath path3;
   private final PathPlannerPath path4;
   private final PathPlannerPath path5;
-  private final PathPlannerPath path6;
 
-  public R3RAuto(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
-    path1 = AutoBuildingBlocks.loadPathOrThrow("R3R.1");
-    path2 = AutoBuildingBlocks.loadPathOrThrow("R3R.2");
-    path3 = AutoBuildingBlocks.loadPathOrThrow("R3R.3");
-    path4 = AutoBuildingBlocks.loadPathOrThrow("R3R.4");
-    path5 = AutoBuildingBlocks.loadPathOrThrow("R3R.5");
-    path6 = AutoBuildingBlocks.loadPathOrThrow("R3R.6");
+  public Right3Piece(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
+    path1 = AutoBuildingBlocks.loadPathOrThrow("Right.1");
+    path2 = AutoBuildingBlocks.loadPathOrThrow("Right.2");
+    path3 = AutoBuildingBlocks.loadPathOrThrow("Right.3");
+    path4 = AutoBuildingBlocks.loadPathOrThrow("Right.4");
+    path5 = AutoBuildingBlocks.loadPathOrThrow("Right.5");
     addCommands(
         AutoBuildingBlocks.autoStep("PATH 1"),
         Commands.deadline(
-          new LimelightDeadline(ReefSide.BR, SnapButton.Right, 1.0),
+          new LimelightDeadline(ReefSide.BR, SnapButton.Right, 2.25),
           AutoBuildingBlocks.followPathCommand(path1)
         ),
         AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BR"),
@@ -43,29 +41,27 @@ public class R3RAuto extends AutoCommand {
         AutoBuildingBlocks.followPathCommand(path2),
         AutoBuildingBlocks.autoStep("PATH 3"),
         Commands.deadline(
-          new LimelightDeadline(ReefSide.FR, SnapButton.Right, 1.0),
+          new LimelightDeadline(ReefSide.FR, SnapButton.Right, 2.25),
           AutoBuildingBlocks.followPathCommand(path3)
         ),
         AutoBuildingBlocks.autoStep("SCORE L4 RIGHT FR"),
         new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
         AutoBuildingBlocks.autoStep("PATH 4"),
-        Commands.parallel(
-          AutoBuildingBlocks.followPathCommand(path4),
-          new AlgaeModeCmd(e)
+        AutoBuildingBlocks.followPathCommand(path4),
+        AutoBuildingBlocks.autoStep("PATH 5"),
+        Commands.deadline(
+          new LimelightDeadline(ReefSide.FR, SnapButton.Left, 2.25),
+          AutoBuildingBlocks.followPathCommand(path5)
           ),
-          AutoBuildingBlocks.autoStep("GRAB ALGAE FR"),
-          new AlgaeAutoCmd(ReefSide.FR, e, drivetrain, RequestState.AlgaeBottom, swerve, 2),
-          AutoBuildingBlocks.autoStep("GUN IT"),
-          AutoBuildingBlocks.followPathCommand(path5),
-          AutoBuildingBlocks.autoStep("IS HE GOATED???"),
-          AutoBuildingBlocks.followPathCommand(path6),
-          AutoBuildingBlocks.autoStep("DONE")
+        AutoBuildingBlocks.autoStep("RAHHHHHH"),
+        new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2),
+        AutoBuildingBlocks.autoStep("DONE")
     );
   }
 
   @Override
   List<Pose2d> getAllRawPathPoses() {
-    return Stream.of(path1.getPathPoses(), path2.getPathPoses(), path3.getPathPoses(), path4.getPathPoses(), path5.getPathPoses(), path6.getPathPoses())
+    return Stream.of(path1.getPathPoses(), path2.getPathPoses(), path3.getPathPoses(), path4.getPathPoses(), path5.getPathPoses())
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
   }

@@ -160,8 +160,8 @@ public class LimelightAutoCmd extends Command {
         double pt = 2.5; // translation p value
         double pr = 0.1; // rotation p
 
-        brainXRC = ExtraMath.clampedDeadzone(vectorY * -pt, 0.4, .03);
-        brainYRC = ExtraMath.clampedDeadzone(vectorX * -pt, 0.4, .03);
+        brainXRC = ExtraMath.clampedDeadzone(vectorY * -pt, 0.6, .03);
+        brainYRC = ExtraMath.clampedDeadzone(vectorX * -pt, 0.6, .03);
         brainRot = ExtraMath.clampedDeadzone(vectorYaw * -pr, 1, .1);
 
         if (Math.abs(positionError) < 0.045) {

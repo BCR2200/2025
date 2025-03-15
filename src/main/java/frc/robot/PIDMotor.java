@@ -253,6 +253,18 @@ public class PIDMotor {
     }
 
     /**
+     * Sets the motor's target with a max acceleration
+     */
+    public void setTarget(double target, double acceleration) {
+        this.target = target;
+        
+        final DynamicMotionMagicVoltage m_request = new DynamicMotionMagicVoltage(target, maxV, acceleration, 0);
+
+        // set target position to target rotations
+        motor.setControl(m_request);
+    }
+
+    /**
      * Sets the motor to a given speed as a fraction of the maximum output,
      * overriding the PID controller.
      * 
