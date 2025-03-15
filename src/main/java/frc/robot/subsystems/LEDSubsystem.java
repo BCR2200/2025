@@ -266,7 +266,7 @@ public class LEDSubsystem implements Runnable {
     ControlMode mode = arm.getEMode();
     double current = arm.clawMotor.getCurrent();
     boolean coralInHopper = arm.isCoralInHopper();
-    boolean coralInClaw = arm.isCoralInClaw();
+    boolean coralInClaw = arm.isCoralEnteredClaw();
     double algaeTime = algaeTimer.get();
 
 

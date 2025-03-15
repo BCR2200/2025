@@ -168,7 +168,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public PIDMotor clawMotor;
 
   public DigitalInput hopperBeamBreak;
-  public CANdi clawBeamBreak;
+  public CANdi clawBeamBreaks;
 
   private ClawState clawstate = ClawState.Stop________HammerTime;
   public ElevArmState state = ElevArmState.Hopper;
@@ -223,9 +223,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     hopperBeamBreak = new DigitalInput(Constants.HOPPER_ID);
 
-    clawBeamBreak = new CANdi(Constants.CLAW_BREAK_ID, "*");
+    clawBeamBreaks = new CANdi(Constants.CLAW_BREAK_ID, "*");
     CANdiConfiguration configs = new CANdiConfiguration();
-    clawBeamBreak.getConfigurator().apply(configs);
+    clawBeamBreaks.getConfigurator().apply(configs);
 
     intakeTimer = new Timer();
   }
@@ -235,10 +235,12 @@ public class ElevClArmSubsystem extends SubsystemBase {
     TimingUtils.logDuration("ElevClArmSubsystem.periodic", () -> {
 
       AtomicBoolean coralInHopper = new AtomicBoolean(false);
-      AtomicBoolean coralInClaw = new AtomicBoolean(false);
+      AtomicBoolean coralIsSkibidi = new AtomicBoolean(false);
+      AtomicBoolean coralEnteredClaw = new AtomicBoolean(false);
       TimingUtils.logDuration("ElevClArmSubsystem.update_coral_dio", () -> {
         // if arm back, claws forward tracker
-        coralInClaw.set(isCoralInClaw());
+        coralIsSkibidi.set(isCoralSkibidi());
+        coralEnteredClaw.set(isCoralEnteredClaw());
         coralInHopper.set(isCoralInHopper());
       });
 
@@ -273,16 +275,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
               intakeTimer.restart();
               break;
             }
-            if (coralInClaw.get() || manualCoral) {
+            if (coralEnteredClaw.get() || manualCoral) {
               state = ElevArmState.SafeCoral;
               break;
             }
             break;
           case Intake:
-            if (coralInClaw.get() || manualCoral) {
+            if (coralEnteredClaw.get() || manualCoral) {
               state = ElevArmState.SafeCoral;
-              clawStartPosition = clawMotor.getPosition();
-              positionControl = true;
+              // clawStartPosition = clawMotor.getPosition();
+              // positionControl = true; no position control here anymore, use arm movement to seed coral (make skibidi)
               break;
             }
             if (intakeTimer.get() > 2.5) {
@@ -307,9 +309,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
             }
             break;
           case SafeCoral:
-            if (!coralInClaw.get() && !manualCoral) {
+            if ( (!coralEnteredClaw.get() || !coralIsSkibidi.get()) && !manualCoral) {
               state = conditionalTransition(state, ElevArmState.Hopper);
               break;
+            }
+            // might add move further with claw wheels to seed
+            if(coralIsSkibidi.get() && !positionControl){
+              clawStartPosition = clawMotor.getPosition();
+              positionControl = true;
             }
             switch (requestState) {
               case UnjamStrat1:
@@ -481,7 +488,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case LvlOneEMove:
             switch (requestMode) {
               case Algae:
-                if (!coralInClaw.get()) {
+                if (!coralEnteredClaw.get() && !coralIsSkibidi.get()) {
                   state = ElevArmState.SafeAlgaeEMove;
                 }
                 break;
@@ -509,7 +516,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case LvlTwoEMove:
             switch (requestMode) {
               case Algae:
-                if (!coralInClaw.get()) {
+                if (!coralEnteredClaw.get() && !coralIsSkibidi.get()) {
                   state = ElevArmState.SafeAlgaeEMove;
                 }
                 break;
@@ -534,7 +541,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case LvlThreeEMove:
             switch (requestMode) {
               case Algae:
-                if (!coralInClaw.get()) {
+                if (!coralEnteredClaw.get() && !coralIsSkibidi.get()) {
                   state = ElevArmState.SafeAlgaeEMove;
                 }
                 break;
@@ -559,7 +566,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case LvlFourEMove:
             switch (requestMode) {
               case Algae:
-                if (!coralInClaw.get()) {
+                if (!coralEnteredClaw.get() && !coralIsSkibidi.get()) {
                   state = ElevArmState.SafeAlgaeEMove;
                 }
                 break;
@@ -738,7 +745,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         clawstate = ClawState.Drool;
       }
 
-      if (!coralInClaw.get()) {
+      if (!coralEnteredClaw.get() && !coralIsSkibidi.get()) {
         positionControl = false;
       }
 
@@ -756,7 +763,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
       positionControlLog.append(positionControl);
       clawTargetLog.append(clawTargetPosition);
       coralInHopperLog.append(coralInHopper.get());
-      coralInClawLog.append(coralInClaw.get());
+      coralInClawLog.append(coralIsSkibidi.get());
+      // coralInClawLog.append(coralEnteredClaw.get());
     });
   }
 
@@ -786,9 +794,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
     return from;
   }
 
-  public boolean isCoralInClaw() {
+  public boolean isCoralEnteredClaw() {
+    // connected to pin 2
+    return clawBeamBreaks.getS2Closed().getValue(); // s2 is the bottom sensor (new added to candi)
+  }
+
+  public boolean isCoralSkibidi() {
     // connected to pin 1
-    return clawBeamBreak.getS1Closed().getValue();
+    return clawBeamBreaks.getS1Closed().getValue();
   }
 
   public boolean atPosition() {
@@ -844,7 +857,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
       // SmartDashboard.putBoolean("Want to Shoot:", shootLust);
 
       SmartDashboard.putBoolean("Coral in Hopper:", isCoralInHopper());
-      SmartDashboard.putBoolean("Coral in Claw:", isCoralInClaw());
+      SmartDashboard.putBoolean("Coral in Claw:", isCoralEnteredClaw());
+      SmartDashboard.putBoolean("Coral Ready to Go:", isCoralSkibidi());
 
       SmartDashboard.putNumber("Elevator current:", rightElevatorMotor.getCurrent());
       SmartDashboard.putNumber("Arm current:", shoulderMotor.getCurrent());
