@@ -88,6 +88,33 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public static double SAFE_CORAL_ARM = 20.5;
   public static double SAFE_ALGAE_ARM = 31.6;
 
+  // public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
+  // public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 1.0);
+  // public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
+  // public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(0, 23);
+  // public final static ElevArmPosition SAFE_ALGAE_EMOVE_POSITION = new ElevArmPosition(0, 28);
+  // public final static ElevArmPosition CORGAE_POSITION = SAFE_CORAL_POSITION;
+  // public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
+  // public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(6.5, 45.7);
+
+  // public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(15, 45);
+  // public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
+  // public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17, 25.4);
+  // public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_CORAL_ARM);
+  // public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5, 24.7);
+  // public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_CORAL_ARM);
+  // public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(97, 32);
+  // public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(97, SAFE_CORAL_ARM);
+  
+  // public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(21, 38);
+  // public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(8, 38);
+  // public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(45, 28);
+  // public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, 38);
+  // public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103, 17.6);
+  // public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(103, SAFE_ALGAE_ARM);
+  // public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
+  static double elevatorRatio = 0.964; // implied
+
   public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 1.0);
   public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
@@ -95,21 +122,23 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition SAFE_ALGAE_EMOVE_POSITION = new ElevArmPosition(0, 28);
   public final static ElevArmPosition CORGAE_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
-  public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(6.5, 45.7);
-  public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(15, 45);
-  public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17, 25.4);
-  public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5, 24.7);
-  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(97, 32);
-  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(21, 38);
-  public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(45, 28);
-  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103, 17.6);
+  public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(6.5 * elevatorRatio, 45.7);
+  
+  public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(15 * elevatorRatio, 45);
   public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
-  public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17, SAFE_CORAL_ARM);
-  public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5, SAFE_CORAL_ARM);
-  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(97, SAFE_CORAL_ARM);
-  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(8, 38);
-  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5, 38);
-  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(103, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17 * elevatorRatio, 25.4);
+  public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17 * elevatorRatio, SAFE_CORAL_ARM);
+  public final static ElevArmPosition LVL3_POSITION = new ElevArmPosition(41.5 * elevatorRatio, 24.7);
+  public final static ElevArmPosition LVL3_EMOVE_POSITION = new ElevArmPosition(41.5 * elevatorRatio, SAFE_CORAL_ARM);
+  public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(97 * elevatorRatio, 32);
+  public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(97 * elevatorRatio, SAFE_CORAL_ARM);
+
+  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(21 * elevatorRatio, 38);
+  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(8 * elevatorRatio, 38);
+  public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(45 * elevatorRatio, 28);
+  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5 * elevatorRatio, 38);
+  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103 * elevatorRatio, 17.6);
+  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(103 * elevatorRatio, SAFE_ALGAE_ARM);
 
   public enum ElevArmState {
     Hopper, Intake, SafeCoral,

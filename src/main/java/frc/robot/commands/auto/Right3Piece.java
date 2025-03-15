@@ -30,32 +30,33 @@ public class Right3Piece extends AutoCommand {
     path4 = AutoBuildingBlocks.loadPathOrThrow("Right.4");
     path5 = AutoBuildingBlocks.loadPathOrThrow("Right.5");
     addCommands(
-        AutoBuildingBlocks.autoStep("PATH 1"),
+        // is auto step the problem??
+        // AutoBuildingBlocks.autoStep("PATH 1"),
         Commands.deadline(
           new LimelightDeadline(ReefSide.BR, SnapButton.Right, 2.25),
           AutoBuildingBlocks.followPathCommand(path1)
         ),
-        AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BR"),
+        // AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BR"),
         new LimelightAutoCmd(ReefSide.BR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
-        AutoBuildingBlocks.autoStep("PATH 2"),
+        // AutoBuildingBlocks.autoStep("PATH 2"),
         AutoBuildingBlocks.followPathCommand(path2),
-        AutoBuildingBlocks.autoStep("PATH 3"),
+        // AutoBuildingBlocks.autoStep("PATH 3"),
         Commands.deadline(
           new LimelightDeadline(ReefSide.FR, SnapButton.Right, 2.25),
           AutoBuildingBlocks.followPathCommand(path3)
         ),
-        AutoBuildingBlocks.autoStep("SCORE L4 RIGHT FR"),
+        // AutoBuildingBlocks.autoStep("SCORE L4 RIGHT FR"),
         new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
-        AutoBuildingBlocks.autoStep("PATH 4"),
+        // AutoBuildingBlocks.autoStep("PATH 4"),
         AutoBuildingBlocks.followPathCommand(path4),
-        AutoBuildingBlocks.autoStep("PATH 5"),
+        // AutoBuildingBlocks.autoStep("PATH 5"),
         Commands.deadline(
           new LimelightDeadline(ReefSide.FR, SnapButton.Left, 2.25),
           AutoBuildingBlocks.followPathCommand(path5)
           ),
-        AutoBuildingBlocks.autoStep("RAHHHHHH"),
-        new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2),
-        AutoBuildingBlocks.autoStep("DONE")
+        // AutoBuildingBlocks.autoStep("RAHHHHHH"),
+        new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)//,
+        // AutoBuildingBlocks.autoStep("DONE")
     );
   }
 
