@@ -9,30 +9,32 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.ReefSide;
 import frc.robot.drive.CommandSwerveDrivetrain;
+import frc.robot.input.SnapButton;
 import frc.robot.subsystems.ElevClArmSubsystem;
+import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 
 public class Testing extends AutoCommand {
   private final PathPlannerPath path1;
-  private final PathPlannerPath path2;
 
   public Testing(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
     path1 = AutoBuildingBlocks.loadPathOrThrow("testing.1");
-    path2 = AutoBuildingBlocks.loadPathOrThrow("testing.2");
     addCommands(
         // Commands.waitSeconds(0.01),
         AutoBuildingBlocks.autoStep("PATH 1"),
-        AutoBuildingBlocks.followPathCommand(path1),
-        AutoBuildingBlocks.autoStep("PATH 2"),
-        AutoBuildingBlocks.followPathCommand(path2),
+        new PathAndElevateWithinDist(path1, ReefSide.FC, SnapButton.Right, 1.5, RequestState.CoralLevel4, e),
+        AutoBuildingBlocks.autoStep("SHOOT"),
+        new LimelightAutoCmd(ReefSide.FC, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
         AutoBuildingBlocks.autoStep("DONE")
     );
   }
 
   @Override
   List<Pose2d> getAllRawPathPoses() {
-    return Stream.of(path1.getPathPoses(), path2.getPathPoses())
+    return Stream.of(path1.getPathPoses())
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
   }
