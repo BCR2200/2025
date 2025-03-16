@@ -10,7 +10,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -22,7 +21,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
@@ -36,6 +34,7 @@ import frc.robot.commands.auto.LeftAuto;
 import frc.robot.commands.auto.R3RAuto;
 import frc.robot.commands.auto.Right3Piece;
 import frc.robot.commands.auto.RightAuto;
+import frc.robot.commands.auto.Testing;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
 import frc.robot.drive.TunerConstantsComp;
@@ -161,7 +160,7 @@ public class RobotContainer {
   public double positionError = Double.MAX_VALUE;
 
   public RobotContainer() {
-    gyro = new PigeonSubsystem();
+    // gyro = new PigeonSubsystem();
     pdp = new PowerDistribution(Constants.PDP_ID, ModuleType.kCTRE);
     e = new ElevClArmSubsystem();
     climber = new ClimberSubsystem();
@@ -185,6 +184,7 @@ public class RobotContainer {
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("None", null);
     autoChooser.addOption("LeftAuto", new LeftAuto(e, drivetrain, driveRC));
+    autoChooser.addOption("Testing", new Testing(e, drivetrain, driveRC));
     autoChooser.addOption("RightAuto", new RightAuto(e, drivetrain, driveRC));
     autoChooser.addOption("CenterAuto", new CenterAuto(e, drivetrain, driveRC));
     autoChooser.addOption("L3LAuto", new L3LAuto(e, drivetrain, driveRC));
@@ -551,10 +551,6 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     Command autoCommand = autoChooser.getSelected();
-    if(autoCommand != null){
-        return (Commands.waitSeconds(0.01).andThen(autoCommand));
-    } else {
-      return Commands.waitSeconds(0.01); // maybe works?
-    }
+    return autoCommand;
   }
 }

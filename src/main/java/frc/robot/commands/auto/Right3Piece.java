@@ -33,7 +33,7 @@ public class Right3Piece extends AutoCommand {
         // is auto step the problem??
         // AutoBuildingBlocks.autoStep("PATH 1"),
         Commands.deadline(
-          new LimelightDeadline(ReefSide.BR, SnapButton.Right, 2.25),
+          new LimelightDeadline(ReefSide.BR, SnapButton.Right, 1.5),
           AutoBuildingBlocks.followPathCommand(path1)
         ),
         // AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BR"),
@@ -42,7 +42,7 @@ public class Right3Piece extends AutoCommand {
         AutoBuildingBlocks.followPathCommand(path2),
         // AutoBuildingBlocks.autoStep("PATH 3"),
         Commands.deadline(
-          new LimelightDeadline(ReefSide.FR, SnapButton.Right, 2.25),
+          new LimelightDeadline(ReefSide.FR, SnapButton.Right, 1.5),
           AutoBuildingBlocks.followPathCommand(path3)
         ),
         // AutoBuildingBlocks.autoStep("SCORE L4 RIGHT FR"),
@@ -51,7 +51,7 @@ public class Right3Piece extends AutoCommand {
         AutoBuildingBlocks.followPathCommand(path4),
         // AutoBuildingBlocks.autoStep("PATH 5"),
         Commands.deadline(
-          new LimelightDeadline(ReefSide.FR, SnapButton.Left, 2.25),
+          new LimelightDeadline(ReefSide.FR, SnapButton.Left, 1.5),
           AutoBuildingBlocks.followPathCommand(path5)
           ),
         // AutoBuildingBlocks.autoStep("RAHHHHHH"),

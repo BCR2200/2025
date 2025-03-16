@@ -7,14 +7,15 @@ package frc.robot;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.commands.auto.AutoCommand;
 
 public class Robot extends TimedRobot {
@@ -55,7 +56,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    FollowPathCommand.warmupCommand().schedule();
+    FollowPathCommand.warmupCommand().ignoringDisable(true).schedule();
     m_robotContainer.autoChooser.onChange(this::updateFieldPaths);
     updateAlliance();
   }
@@ -67,6 +68,8 @@ public class Robot extends TimedRobot {
       m_field.getObject("path").setPoses();
     }
   }
+
+  public final String[] limelights = {"limelight-left", "limelight-right"};
 
   @Override
   public void robotPeriodic() {
@@ -87,6 +90,19 @@ public class Robot extends TimedRobot {
           updateFieldPaths(m_robotContainer.autoChooser.getSelected());
         }
       }
+
+      var botState = m_robotContainer.drivetrain.getState();
+      double omegarps = Units.radiansToRotations(botState.Speeds.omegaRadiansPerSecond);
+
+      for (int i = 0; i < limelights.length; ++i) {
+
+        LimelightHelpers.SetRobotOrientation(limelights[i], botState.Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[i]);
+        if (poseEstimate != null && poseEstimate.tagCount > 0 && Math.abs(omegarps) < 1.0) {
+          m_robotContainer.drivetrain.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds);
+        }
+      }
+
     // });
   }
 
@@ -104,14 +120,13 @@ public class Robot extends TimedRobot {
       }
 
       // Get autonomous command while disabled if not already set
-      if (m_autonomousCommand == null) {
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-        // Reset pose based on the selected autonomous command
-        if (m_autonomousCommand instanceof AutoCommand) {
-          AutoCommand autoCmd = (AutoCommand) m_autonomousCommand;
-          m_robotContainer.drivetrain.resetPose(autoCmd.getProperFlippedStartingPose());
-        }
+      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+      // Reset pose based on the selected autonomous command
+      if (m_autonomousCommand instanceof AutoCommand) {
+        AutoCommand autoCmd = (AutoCommand) m_autonomousCommand;
+        m_robotContainer.drivetrain.resetPose(autoCmd.getProperFlippedStartingPose());
       }
+      
     // });
   }
 
@@ -130,6 +145,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
+
+
   }
 
   @Override
@@ -139,11 +156,13 @@ public class Robot extends TimedRobot {
     }
 
     m_robotContainer.e.shoulderMotor.setIdleBrakeMode();
+    m_robotContainer.e.rightElevatorMotor.setIdleBrakeMode();
   }
 
   @Override
   public void teleopInit() {
     m_robotContainer.e.shoulderMotor.setIdleCoastMode();
+    m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
   }
 
   @Override
