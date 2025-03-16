@@ -117,6 +117,8 @@ public class Robot extends TimedRobot {
     // TimingUtils.logDuration("disabledPeriodic", () -> {
       if (climbToCoast.get() > 6 && climbToCoast.get() < 7) {
         m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
+        m_robotContainer.e.shoulderMotor.setIdleCoastMode();
+        m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
       }
 
       // Get autonomous command while disabled if not already set
