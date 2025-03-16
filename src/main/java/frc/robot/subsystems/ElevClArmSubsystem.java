@@ -239,10 +239,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
   final int algaeClawCurrentLimit = 35;
 
   public ElevClArmSubsystem() {
-    leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2.5, 0, 0.1, 0.25, 0.12, 0.01,
-        0.2, 100, 200, 0);
-    rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2.5, 0, 0.1, 0.25, 0.12,
-        0.01, 0.2, 100, 200, 0);
+    leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2.5, 0, 0.1, 0.25, 0.1, 
+        0.01, 0.2, 100, 300, 0);
+    rightElevatorMotor = PIDMotor.makeMotor(Constants.RIGHT_ELEVATOR_ID, "right elevator", 2.5, 0, 0.1, 0.25, 0.1,
+        0.01, 0.2, 100, 300, 0);
     shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 350, 0);
     clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 500, 0);
     clawMotor.setInverted(InvertedValue.Clockwise_Positive);

@@ -27,8 +27,8 @@ public class Robot extends TimedRobot {
   final Field2d m_field2 = new Field2d();
   final Field2d m_field3 = new Field2d();
 
-  double lastDashboardUpdate= 0;
-  
+  double lastDashboardUpdate = 0;
+
   Timer climbToCoast;
 
   public static Alliance alliance = Alliance.Blue; // Default
@@ -61,57 +61,58 @@ public class Robot extends TimedRobot {
     updateAlliance();
   }
 
-  public void updateFieldPaths(AutoCommand auto){
-    if (auto != null){
+  public void updateFieldPaths(AutoCommand auto) {
+    if (auto != null) {
       m_field.getObject("path").setPoses(auto.getAllProperFlippedPathPoses());
     } else {
       m_field.getObject("path").setPoses();
     }
   }
 
-  public final String[] limelights = {"limelight-left", "limelight-right"};
+  public final String[] limelights = { "limelight-left", "limelight-right" };
 
   @Override
   public void robotPeriodic() {
     // TimingUtils.logDuration("robotPeriodic", () -> {
-      CommandScheduler.getInstance().run();
-      if(Timer.getFPGATimestamp()> lastDashboardUpdate +0.200){
-        SmartDashboard.putData("Field", m_field);
-        m_robotContainer.e.printDashboard();
-        m_robotContainer.climber.printDashboard();
-        lastDashboardUpdate = Timer.getFPGATimestamp();
-        var driveState = m_robotContainer.drivetrain.getState();
-        m_field.setRobotPose(driveState.Pose);
-        SmartDashboard.putBoolean("RobotThinksItIsOnRed", alliance == Alliance.Red);
-        SmartDashboard.putNumber("idlooking", m_robotContainer.idToLookFor);
+    CommandScheduler.getInstance().run();
+    if (Timer.getFPGATimestamp() > lastDashboardUpdate + 0.200) {
+      SmartDashboard.putData("Field", m_field);
+      m_robotContainer.e.printDashboard();
+      m_robotContainer.climber.printDashboard();
+      lastDashboardUpdate = Timer.getFPGATimestamp();
+      var driveState = m_robotContainer.drivetrain.getState();
+      m_field.setRobotPose(driveState.Pose);
+      SmartDashboard.putBoolean("RobotThinksItIsOnRed", alliance == Alliance.Red);
+      SmartDashboard.putNumber("idlooking", m_robotContainer.idToLookFor);
 
-        if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
-          updateAlliance();
-          updateFieldPaths(m_robotContainer.autoChooser.getSelected());
-        }
+      if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
+        updateAlliance();
+        updateFieldPaths(m_robotContainer.autoChooser.getSelected());
       }
+    }
+    
+    var botState = m_robotContainer.drivetrain.getState();
+    double omegarps = Units.radiansToRotations(botState.Speeds.omegaRadiansPerSecond);
 
-      var botState = m_robotContainer.drivetrain.getState();
-      double omegarps = Units.radiansToRotations(botState.Speeds.omegaRadiansPerSecond);
-
+    if (DriverStation.isEnabled()) {
       for (int i = 0; i < limelights.length; ++i) {
-
         LimelightHelpers.SetRobotOrientation(limelights[i], botState.Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
         PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[i]);
         if (poseEstimate != null && poseEstimate.tagCount > 0 && Math.abs(omegarps) < 1.0) {
           m_robotContainer.drivetrain.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds);
         }
       }
-
+    }
+    
     // });
   }
-
+  
   @Override
   public void disabledInit() {
     m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Coast);
     m_autonomousCommand = null; // Reset autonomous command when disabled
   }
-
+  
   @Override
   public void disabledPeriodic() {
     // TimingUtils.logDuration("disabledPeriodic", () -> {
@@ -119,16 +120,17 @@ public class Robot extends TimedRobot {
         m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
         m_robotContainer.e.shoulderMotor.setIdleCoastMode();
         m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
-      }
-
-      // Get autonomous command while disabled if not already set
-      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-      // Reset pose based on the selected autonomous command
-      if (m_autonomousCommand instanceof AutoCommand) {
+    }
+    
+    // Get autonomous command while disabled if not already set
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    if (m_autonomousCommand instanceof AutoCommand) {
+      if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
         AutoCommand autoCmd = (AutoCommand) m_autonomousCommand;
         m_robotContainer.drivetrain.resetPose(autoCmd.getProperFlippedStartingPose());
       }
-      
+    }
+
     // });
   }
 
@@ -140,6 +142,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    // Reset pose based on the selected autonomous command
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
@@ -147,7 +150,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-
 
   }
 

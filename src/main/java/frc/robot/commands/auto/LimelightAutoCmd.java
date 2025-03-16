@@ -126,6 +126,9 @@ public class LimelightAutoCmd extends Command {
           if(idToLookFor == 6 || idToLookFor == 19){
             targetTx = -0.22;
           }
+          if(idToLookFor == 9 || idToLookFor == 22){
+            targetTx = -0.22;
+          }
           break;
         default:
           primaryCam = "limelight-left";
