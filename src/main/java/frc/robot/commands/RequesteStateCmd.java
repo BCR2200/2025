@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RequesteStateCmd extends Command {
   private final ElevClArmSubsystem e;
   private final RequestState state;
+  private boolean finished;
 
   public RequesteStateCmd(ElevClArmSubsystem e, RequestState state) {
     this.e = e;
@@ -16,11 +17,19 @@ public class RequesteStateCmd extends Command {
 
   @Override
   public void initialize() {
-    e.requestState = state; 
+    e.requestState = state;
+    finished = false;
   }
 
   @Override
-  public void execute() {}
+  public void execute() {
+    finished = true;
+  }
+  
+  @Override
+  public boolean isFinished() {
+    return finished;
+  }
 
   @Override
   public void end(boolean interrupted) {
