@@ -135,7 +135,7 @@ public class RobotContainer {
       // .withDeadband(0.0).withRotationalDeadband(0.0) // deadband added later
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
 
-  private final SwerveRequest.RobotCentric driveRC = new SwerveRequest.RobotCentric()
+  final SwerveRequest.RobotCentric driveRC = new SwerveRequest.RobotCentric()
       // .withDeadband(0.0).withRotationalDeadband(0.0) // deadband added later
       .withDriveRequestType(DriveRequestType.Velocity); // Use Closed loop control for drive
                                                                // motors

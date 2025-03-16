@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.commands.auto.AutoCommand;
+import frc.robot.commands.auto.WarmupAutoCmd;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -56,7 +57,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    FollowPathCommand.warmupCommand().ignoringDisable(true).schedule();
+    new WarmupAutoCmd(m_robotContainer.drivetrain, m_robotContainer.driveRC).ignoringDisable(true).schedule();
     m_robotContainer.autoChooser.onChange(this::updateFieldPaths);
     updateAlliance();
   }
