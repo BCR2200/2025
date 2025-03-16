@@ -13,6 +13,7 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,6 +24,9 @@ import frc.robot.timing.TimingUtils;
 public class ElevClArmSubsystem extends SubsystemBase {
   private final DataLog log = DataLogManager.getLog();
   private final DoubleLogEntry clawTargetLog = new DoubleLogEntry(log, "/ElevClArmSubsystem/ClawTarget");
+  private final DoubleLogEntry clawStartLog = new DoubleLogEntry(log, "/ElevClArmSubsystem/ClawStart");
+  private final DoubleLogEntry elevatorPositionLog = new DoubleLogEntry(log, "/ElevClArmSubsystem/Elevatorpos");
+  private final DoubleLogEntry armPositionLog = new DoubleLogEntry(log, "/ElevClArmSubsystem/ArmPos");
   private final BooleanLogEntry positionControlLog = new BooleanLogEntry(log, "/ElevClArmSubsystem/PositionControl");
   private final BooleanLogEntry coralInHopperLog = new BooleanLogEntry(log, "/ElevClArmSubsystem/CoralInHopper");
   private final BooleanLogEntry coralInClawLog = new BooleanLogEntry(log, "/ElevClArmSubsystem/CoralInClaw");
@@ -204,7 +208,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public boolean shootLust = false;
   public boolean suck = false;
 
-  public boolean positionControl;
+  public boolean positionControl = false;
   public double clawStartPosition;
   public double armStartPosition;
   public double clawTargetPosition;
@@ -343,11 +347,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               state = conditionalTransition(state, ElevArmState.Hopper);
               break;
             }
-            // might add move further with claw wheels to seed
-            if(coralIsSkibidi.get() && !positionControl && atFinalPosition(0.5)){
-              // clawStartPosition = clawMotor.getPosition();
-              // positionControl = true;
-            }
+            
             switch (requestState) {
               case UnjamStrat1:
                 if (manualCoral) {
@@ -657,7 +657,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               default:
                 state = ElevArmState.Hopper;
                 shoulderMotor.setCurrentLimit(normalShoulderCurrentLimit);
-                positionControl = true;
+                turnOnPosCtrl();
                 break;
             }
             break;
@@ -669,7 +669,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               default:
                 state = ElevArmState.LvlTwoEMove;
                 manualCoral = false;
-                positionControl = true;
+                turnOnPosCtrl();
                 break;
               // if stuck in unjam position check out
             }
@@ -755,9 +755,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       ControlMode eMode = getEMode();
 
       if(coralIsSkibidi.get() && eMode == ControlMode.Coral && !positionControl && clawstate != ClawState.Poop){
-        clawStartPosition = clawMotor.getPosition();
-        armStartPosition = shoulderMotor.getPosition();
-        positionControl = true;
+        turnOnPosCtrl();
       }
 
       if (shootLust && eMode == ControlMode.Coral && state != ElevArmState.SafeCoral
@@ -804,11 +802,23 @@ public class ElevClArmSubsystem extends SubsystemBase {
       clawStateLog.append(clawstate.toString());
       positionControlLog.append(positionControl);
       clawTargetLog.append(clawTargetPosition);
+      clawStartLog.append(clawStartPosition);
+      elevatorPositionLog.append(rightElevatorMotor.getPosition());
+      armPositionLog.append(shoulderMotor.getPosition());
       coralInHopperLog.append(coralInHopper.get());
       coralInClawLog.append(coralIsSkibidi.get());
       // coralInClawLog.append(coralEnteredClaw.get());
     });
   }
+
+  private void turnOnPosCtrl() {
+    if (DriverStation.isEnabled()) {
+      clawStartPosition = clawMotor.getPosition();
+      armStartPosition = shoulderMotor.getPosition();
+      positionControl = true;
+    }
+  }
+
   double lvl1SlowAccel = 200;
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
