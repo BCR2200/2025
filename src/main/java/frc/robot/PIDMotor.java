@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.*;
@@ -249,7 +250,10 @@ public class PIDMotor {
         final MotionMagicVoltage m_request = new MotionMagicVoltage(target);
 
         // set target position to target rotations
-        motor.setControl(m_request);
+        StatusCode code = motor.setControl(m_request);
+        if (!code.isOK()) {
+            System.err.printf("error setting target (%s): %s", name, code.getDescription());
+        }
     }
 
     /**
@@ -262,6 +266,10 @@ public class PIDMotor {
 
         // set target position to target rotations
         motor.setControl(m_request);
+        StatusCode code = motor.setControl(m_request);
+        if (!code.isOK()) {
+            System.err.printf("error setting target (%s): %s", name, code.getDescription());
+        }
     }
 
     /**
