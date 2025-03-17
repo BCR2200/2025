@@ -6,8 +6,6 @@ package frc.robot;
 
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.pathplanner.lib.commands.FollowPathCommand;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -36,6 +34,9 @@ public class Robot extends TimedRobot {
   // Controls all configs for comp/practice bot
   public static final boolean isCompBot = false;
 
+  private Command warmupCommandNotAtStartPose = null;
+  private Command warmupCommandAtStartPose = null;
+
   public Robot() {
     m_robotContainer = new RobotContainer();
     DataLogManager.start();
@@ -53,7 +54,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    new WarmupAutoCmd(m_robotContainer.drivetrain, m_robotContainer.driveRC).ignoringDisable(true).schedule();
+    warmupCommandNotAtStartPose = new WarmupAutoCmd(m_robotContainer.drivetrain, m_robotContainer.driveRC, true)
+        .ignoringDisable(true);
+    warmupCommandNotAtStartPose.schedule();
+    SmartDashboard.putBoolean("warmupNotAtStartPose finished", false);
+    SmartDashboard.putBoolean("warmupAtStartPose finished", false);
     m_robotContainer.autoChooser.onChange(this::updateFieldPaths);
     updateAlliance();
   }
@@ -97,6 +102,22 @@ public class Robot extends TimedRobot {
         PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[i]);
         if (poseEstimate != null && poseEstimate.tagCount > 0 && Math.abs(omegarps) < 1.0) {
           m_robotContainer.drivetrain.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds);
+        }
+      }
+    }
+
+    // Run warmup commands.
+    // Once the "not at the start pose" command is done, start the "at start pose" warmup command
+    if (warmupCommandNotAtStartPose != null) {
+      if (warmupCommandNotAtStartPose.isFinished()) {
+        if (warmupCommandAtStartPose == null) {
+          SmartDashboard.putBoolean("warmupNotAtStartPose finished", true);
+          warmupCommandAtStartPose = new WarmupAutoCmd(m_robotContainer.drivetrain, m_robotContainer.driveRC, true)
+              .ignoringDisable(true);
+          warmupCommandAtStartPose.schedule();
+        } else if (warmupCommandAtStartPose.isFinished()) {
+          SmartDashboard.putBoolean("warmupAtStartPose finished", true);
+          warmupCommandNotAtStartPose = null; // Prevent entering this block again; we have updated dashboard.
         }
       }
     }
