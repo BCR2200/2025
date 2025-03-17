@@ -1,11 +1,15 @@
 package frc.robot;
 
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.*;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PIDMotor {
@@ -31,6 +35,10 @@ public class PIDMotor {
     // This can be used as both position and velocity target
     double target = 0.0;
 
+    private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
+    private final MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0);
+    private final DynamicMotionMagicVoltage dynamicMotionMagicVoltage = new DynamicMotionMagicVoltage(0, 0, 0, 0);
+
     final TalonFXConfiguration talonFXConfigs;
     public final TalonFX motor;
 
@@ -47,6 +55,10 @@ public class PIDMotor {
         this.maxV = maxV;
         this.maxA = maxA;
         this.maxJerk = maxJerk;
+
+        dutyCycleOut.withEnableFOC(true);
+        motionMagicVoltage.withEnableFOC(true);
+        dynamicMotionMagicVoltage.withEnableFOC(true);
 
         motor = new TalonFX(deviceID, "*");
         talonFXConfigs = new TalonFXConfiguration();
@@ -122,11 +134,17 @@ public class PIDMotor {
     }
 
     public void setIdleCoastMode() {
-        motor.setNeutralMode(NeutralModeValue.Coast);
+        StatusCode code = motor.setNeutralMode(NeutralModeValue.Coast);
+        if (!code.isOK()) {
+            System.err.printf("Error setting coast mode (%s): %s\n", name, code.getDescription());
+        }
     }
 
     public void setIdleBrakeMode() {
-        motor.setNeutralMode(NeutralModeValue.Brake);
+        StatusCode code = motor.setNeutralMode(NeutralModeValue.Brake);
+        if (!code.isOK()) {
+            System.err.printf("Error setting brake mode (%s): %s\n", name, code.getDescription());
+        }
     }
 
     /**
@@ -218,7 +236,10 @@ public class PIDMotor {
         motionMagicConfigs.MotionMagicAcceleration = maxA; // Target acceleration of 160 rps/s (0.5 seconds)
         motionMagicConfigs.MotionMagicJerk = maxJerk; // Target jerk of 1600 rps/s/s (0.1 seconds)
 
-        motor.getConfigurator().apply(talonFXConfigs);
+        StatusCode code = motor.getConfigurator().apply(talonFXConfigs);
+        if (!code.isOK()) {
+            System.err.printf("Error updating PIDF (%s): %s\n", name, code.getDescription());
+        }
     }
 
     /**
@@ -226,11 +247,17 @@ public class PIDMotor {
      * DOES NOT WORK RN
      */
     public void resetEncoder() {
-        motor.setPosition(0);
+        StatusCode status = motor.setPosition(0);
+        if (!status.isOK()) {
+            System.err.printf("Error resetting position (%s): %s\n", name, status.getDescription());
+        }
     }
 
     public void follow(PIDMotor other, boolean inverted) {
-        motor.setControl(new Follower(other.motor.getDeviceID(), inverted));
+        StatusCode code = motor.setControl(new Follower(other.motor.getDeviceID(), inverted));
+        if (!code.isOK()) {
+            System.err.printf("Error following (%s): %s\n", name, code.getDescription());
+        }
     }
 
     /**
@@ -245,14 +272,14 @@ public class PIDMotor {
      * Sets the motor's target to a given unit value.
      */
     public void setTarget(double target) {
+        catchUninit();
         this.target = target;
         
-        final MotionMagicVoltage m_request = new MotionMagicVoltage(target);
+        motionMagicVoltage.withPosition(target);
 
-        // set target position to target rotations
-        StatusCode code = motor.setControl(m_request);
+        StatusCode code = motor.setControl(motionMagicVoltage);
         if (!code.isOK()) {
-            System.err.printf("error setting target (%s): %s", name, code.getDescription());
+            System.err.printf("error setting target (%s): %s\n", name, code.getDescription());
         }
     }
 
@@ -260,15 +287,17 @@ public class PIDMotor {
      * Sets the motor's target with a max acceleration
      */
     public void setTarget(double target, double acceleration) {
+        catchUninit();
         this.target = target;
-        
-        final DynamicMotionMagicVoltage m_request = new DynamicMotionMagicVoltage(target, maxV, acceleration, 0);
 
-        // set target position to target rotations
-        motor.setControl(m_request);
-        StatusCode code = motor.setControl(m_request);
+        dynamicMotionMagicVoltage.withPosition(target);
+        dynamicMotionMagicVoltage.withVelocity(maxV);
+        dynamicMotionMagicVoltage.withAcceleration(acceleration);
+
+        motor.setControl(dynamicMotionMagicVoltage);
+        StatusCode code = motor.setControl(dynamicMotionMagicVoltage);
         if (!code.isOK()) {
-            System.err.printf("error setting target (%s): %s", name, code.getDescription());
+            System.err.printf("error setting target with acceleration (%s): %s\n", name, code.getDescription());
         }
     }
 
@@ -281,18 +310,22 @@ public class PIDMotor {
      */
     public void setPercentOutput(double speed) {
         catchUninit();
-        motor.set(speed);
+        StatusCode code = motor.setControl(dutyCycleOut.withOutput(speed));
+        if (!code.isOK()) {
+            System.err.printf("Error setting percent output (%s): %s\n", name, code.getDescription());
+        }
     }
 
     /**
      * Sets this motor to have inverse rotation.
-     * 
-     * @param state Whether or not to make this motor inverted.
      */
     public void setInverted(InvertedValue value) {
         // motor.setInverted(state);
         talonFXConfigs.MotorOutput = new MotorOutputConfigs().withInverted(value);
-        motor.getConfigurator().apply(talonFXConfigs);
+        StatusCode code = motor.getConfigurator().apply(talonFXConfigs);
+        if (!code.isOK()) {
+            System.err.printf("Error setInverted (%s): %s\n", name, code.getDescription());
+        }
     }
 
     /**
@@ -301,7 +334,12 @@ public class PIDMotor {
      * @return Position in number of rotations.
      */
     public double getPosition() {
-        return motor.getPosition().getValueAsDouble(); 
+        StatusSignal<Angle> status = motor.getPosition();
+        StatusCode code = status.getStatus();
+        if (!code.isOK()) {
+            System.err.printf("Error getting position (%s): %s\n", name, code.getDescription());
+        }
+        return status.getValueAsDouble();
     }
 
     /**
@@ -324,7 +362,12 @@ public class PIDMotor {
      * @return Velocity in rotations per second.
      */
     public double getVelocity() {
-        return motor.getVelocity().getValueAsDouble();
+        StatusSignal<AngularVelocity> status = motor.getVelocity();
+        StatusCode code = status.getStatus();
+        if (!code.isOK()) {
+            System.err.printf("Error getting velocity (%s): %s\n", name, code.getDescription());
+        }
+        return status.getValueAsDouble();
     }
 
     public boolean atVelocity(double threshold) {
@@ -344,10 +387,18 @@ public class PIDMotor {
         limitConfigs.StatorCurrentLimitEnable = true;
         talonFXConfigs.CurrentLimits = limitConfigs;
 
-        motor.getConfigurator().apply(talonFXConfigs);
+        StatusCode code = motor.getConfigurator().apply(talonFXConfigs);
+        if (!code.isOK()) {
+            System.err.printf("Error setting current limit (%s): %s\n", name, code.getDescription());
+        }
     }
 
     public double getCurrent() {
+        StatusSignal<Current> status = motor.getStatorCurrent();
+        StatusCode code = status.getStatus();
+        if (!code.isOK()) {
+            System.err.printf("Error getting current (%s): %s\n", name, code.getDescription());
+        }
         return motor.getStatorCurrent().getValueAsDouble();
     }
 
