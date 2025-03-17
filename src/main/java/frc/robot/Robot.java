@@ -34,6 +34,7 @@ public class Robot extends TimedRobot {
   // Controls all configs for comp/practice bot
   public static final boolean isCompBot = false;
 
+  private Timer warmupCommandTimer = new Timer();
   private Command warmupCommandNotAtStartPose = null;
   private Command warmupCommandAtStartPose = null;
 
@@ -57,6 +58,8 @@ public class Robot extends TimedRobot {
     warmupCommandNotAtStartPose = new WarmupAutoCmd(m_robotContainer.drivetrain, m_robotContainer.driveRC, true)
         .ignoringDisable(true);
     warmupCommandNotAtStartPose.schedule();
+    warmupCommandTimer.reset();
+    warmupCommandTimer.start();
     SmartDashboard.putBoolean("warmupNotAtStartPose finished", false);
     SmartDashboard.putBoolean("warmupAtStartPose finished", false);
     m_robotContainer.autoChooser.onChange(this::updateFieldPaths);
@@ -109,13 +112,14 @@ public class Robot extends TimedRobot {
     // Run warmup commands.
     // Once the "not at the start pose" command is done, start the "at start pose" warmup command
     if (warmupCommandNotAtStartPose != null) {
-      if (warmupCommandNotAtStartPose.isFinished()) {
+      if (warmupCommandTimer.hasElapsed(10)) {
         if (warmupCommandAtStartPose == null) {
           SmartDashboard.putBoolean("warmupNotAtStartPose finished", true);
           warmupCommandAtStartPose = new WarmupAutoCmd(m_robotContainer.drivetrain, m_robotContainer.driveRC, true)
               .ignoringDisable(true);
           warmupCommandAtStartPose.schedule();
-        } else if (warmupCommandAtStartPose.isFinished()) {
+          warmupCommandTimer.reset();
+        } else if (warmupCommandTimer.hasElapsed(10)) {
           SmartDashboard.putBoolean("warmupAtStartPose finished", true);
           warmupCommandNotAtStartPose = null; // Prevent entering this block again; we have updated dashboard.
         }
