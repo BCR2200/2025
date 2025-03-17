@@ -160,6 +160,18 @@ public class RobotContainer {
   public double positionError = Double.MAX_VALUE;
 
   public RobotContainer() {
+    // Initialize the drivetrain first, so it runs periodic first
+    if (Robot.isCompBot) {
+      drivetrain = TunerConstantsComp.createDrivetrain();
+      MaxSpeed = TunerConstantsComp.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor;
+    } else {
+      drivetrain = TunerConstantsPrac.createDrivetrain();
+      MaxSpeed = TunerConstantsPrac.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor;
+    }
+    MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor;
+    logger = new Telemetry(MaxSpeed);
+    AutoBuildingBlocks.drivetrain = drivetrain;
+
     // gyro = new PigeonSubsystem();
     pdp = new PowerDistribution(Constants.PDP_ID, ModuleType.kCTRE);
     e = new ElevClArmSubsystem();
@@ -168,18 +180,6 @@ public class RobotContainer {
 
     backItUpTimer = new Timer();
     backItUpTimer.start();
-
-    if (Robot.isCompBot) {
-      drivetrain = TunerConstantsComp.createDrivetrain();
-      MaxSpeed = TunerConstantsComp.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor;
-      MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor;
-    } else {
-      drivetrain = TunerConstantsPrac.createDrivetrain();
-      MaxSpeed = TunerConstantsPrac.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor;
-      MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor;
-    }
-    logger = new Telemetry(MaxSpeed);
-    AutoBuildingBlocks.drivetrain = drivetrain;
 
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("None", null);
