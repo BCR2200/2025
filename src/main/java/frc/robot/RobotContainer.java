@@ -194,6 +194,17 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
     configureBindings();
+    updateDrivetrainRobotPerspective();
+  }
+
+  public void updateDrivetrainRobotPerspective() {
+    Rotation2d forward;
+    if (Robot.alliance == Alliance.Red) {
+      forward = new Rotation2d(Math.PI);
+    } else {
+      forward = new Rotation2d(0);
+    }
+    drivetrain.setOperatorPerspectiveForward(forward);
   }
 
   double idToLookFor;
@@ -358,11 +369,7 @@ public class RobotContainer {
         .onTrue(new InstantCommand(() -> snap = SnapButton.None));
 
     driverController.start().and(driverController.back().negate()).onTrue(new InstantCommand(() -> {
-      if (Robot.alliance == Alliance.Red) {
-        drivetrain.setOperatorPerspectiveForward(new Rotation2d(Math.PI));
-      } else {
-        drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
-      }
+      updateDrivetrainRobotPerspective();
       var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
       if (llMeasurement != null){
         drivetrain.resetPose(llMeasurement.pose);
@@ -550,7 +557,6 @@ public class RobotContainer {
 }
 
   public Command getAutonomousCommand() {
-    Command autoCommand = autoChooser.getSelected();
-    return autoCommand;
+    return autoChooser.getSelected();
   }
 }

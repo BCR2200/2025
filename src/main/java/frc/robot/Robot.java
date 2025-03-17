@@ -42,11 +42,7 @@ public class Robot extends TimedRobot {
     DriverStation.startDataLog(DataLogManager.getLog());
 
     updateAlliance();
-    if (alliance == Alliance.Red) {
-      m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(Math.PI));
-    } else {
-      m_robotContainer.drivetrain.setOperatorPerspectiveForward(new Rotation2d(0));
-    }
+    m_robotContainer.updateDrivetrainRobotPerspective();
 
     climbToCoast = new Timer();
   }
