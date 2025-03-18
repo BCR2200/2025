@@ -819,13 +819,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
   }
 
-  double lvl1SlowAccel = 200;
+  double lvl1SlowAccel = 250;
+  double algaeArmAccel = 250;
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
     TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
       if(state == ElevArmState.LvlOne){
         shoulderMotor.setTarget(goal.armPos, lvl1SlowAccel);
-      } else{
+      } else if (getEMode() == ControlMode.Algae){
+        shoulderMotor.setTarget(goal.armPos, algaeArmAccel);
+      }else{
         shoulderMotor.setTarget(goal.armPos);
       }
       rightElevatorMotor.setTarget(goal.elevatorPos);

@@ -9,7 +9,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.ReefSide;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.input.SnapButton;
@@ -33,6 +35,7 @@ public class Right3Piece extends AutoCommand {
     path6 = AutoBuildingBlocks.loadPathOrThrow("Right.6");
     addCommands(
         // is auto step the problem??
+        new WaitCommand(0.1),
         AutoBuildingBlocks.autoStep("PATH 1"),
         new PathAndElevateWithinDist(path1, ReefSide.BR, SnapButton.Left, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BR"),
