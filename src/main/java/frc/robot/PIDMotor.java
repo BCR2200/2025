@@ -43,7 +43,7 @@ public class PIDMotor {
     public final TalonFX motor;
 
     private PIDMotor(int deviceID, String name, double p, double i, double d, double s, double v, double a, double g, double maxV,
-            double maxA, double maxJerk) {
+            double maxA, double maxJerk, boolean enableFOC) {
         this.name = name;
         this.p = p;
         this.i = i;
@@ -57,7 +57,7 @@ public class PIDMotor {
         this.maxJerk = maxJerk;
 
         dutyCycleOut.withEnableFOC(true);
-        motionMagicVoltage.withEnableFOC(true);
+        motionMagicVoltage.withEnableFOC(enableFOC);
         dynamicMotionMagicVoltage.withEnableFOC(true);
 
         motor = new TalonFX(deviceID, "*");
@@ -88,8 +88,13 @@ public class PIDMotor {
     }
 
     public static PIDMotor makeMotor(int deviceID, String name, double p, double i, double d, double s, double v,
-            double a, double g, double maxV, double maxA, double maxJerk) {
-        PIDMotor motor = new PIDMotor(deviceID, name, p, i, d, s, v, a, g, maxV, maxA, maxJerk);
+                                     double a, double g, double maxV, double maxA, double maxJerk) {
+        return makeMotor(deviceID, name, p, i, d, s, v, a, 0, maxV, maxA, maxJerk, false);
+    }
+
+    public static PIDMotor makeMotor(int deviceID, String name, double p, double i, double d, double s, double v,
+            double a, double g, double maxV, double maxA, double maxJerk, boolean enableFOC) {
+        PIDMotor motor = new PIDMotor(deviceID, name, p, i, d, s, v, a, g, maxV, maxA, maxJerk, enableFOC);
         motor.init();
         System.out.println("Finished initializing " + name);
         return motor;
