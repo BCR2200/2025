@@ -279,13 +279,21 @@ public class PIDMotor {
     public void setTarget(double target) {
         catchUninit();
         this.target = target;
-        
+
         motionMagicVoltage.withPosition(target);
 
         StatusCode code = motor.setControl(motionMagicVoltage);
         if (!code.isOK()) {
             System.err.printf("error setting target (%s): %s\n", name, code.getDescription());
         }
+    }
+
+    /**
+     * Sets the motor's target to a given unit value.
+     */
+    public void setTarget(double target, boolean enableFOC) {
+        motionMagicVoltage.withEnableFOC(enableFOC);
+        setTarget(target);
     }
 
     /**
@@ -307,9 +315,17 @@ public class PIDMotor {
     }
 
     /**
+     * Sets the motor's target with a max acceleration
+     */
+    public void setTarget(double target, double acceleration, boolean enableFOC) {
+        dynamicMotionMagicVoltage.withEnableFOC(enableFOC);
+        setTarget(target, acceleration);
+    }
+
+    /**
      * Sets the motor to a given speed as a fraction of the maximum output,
      * overriding the PID controller.
-     * 
+     *
      * @param speed A fraction from -1 to 1 specifying the power to set this motor
      *              to.
      */
@@ -319,6 +335,18 @@ public class PIDMotor {
         if (!code.isOK()) {
             System.err.printf("Error setting percent output (%s): %s\n", name, code.getDescription());
         }
+    }
+
+    /**
+     * Sets the motor to a given speed as a fraction of the maximum output,
+     * overriding the PID controller.
+     * 
+     * @param speed A fraction from -1 to 1 specifying the power to set this motor
+     *              to.
+     */
+    public void setPercentOutput(double speed, boolean enableFOC) {
+        dutyCycleOut.withEnableFOC(enableFOC);
+        setPercentOutput(speed);
     }
 
     /**
