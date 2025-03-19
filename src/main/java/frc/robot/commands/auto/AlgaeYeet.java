@@ -24,6 +24,8 @@ public class AlgaeYeet extends Command {
   Timer shootTimer;
   Timer abandonTimer;
 
+  // doesn't shoot, end driving away
+
   private boolean finished = false;
   
     public AlgaeYeet(ElevClArmSubsystem e, RequestState state) {
@@ -44,10 +46,7 @@ public class AlgaeYeet extends Command {
   
     @Override
     public void initialize() {
-      shootTimer.stop();
       shootTimer.reset();
-      abandonTimer.stop();
-      abandonTimer.reset();
       finished = false;
 
       e.requestState(state);
