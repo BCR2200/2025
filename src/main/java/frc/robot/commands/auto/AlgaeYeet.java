@@ -22,7 +22,6 @@ public class AlgaeYeet extends Command {
   public final RequestState state;
   private final double ep;
   Timer shootTimer;
-  Timer abandonTimer;
 
   // doesn't shoot, end driving away
 
@@ -39,7 +38,6 @@ public class AlgaeYeet extends Command {
       shootTimer = new Timer();
 
 
-      abandonTimer = new Timer();
   
       addRequirements(e); // TODO should this be required? We do command the drivetrain...
     }

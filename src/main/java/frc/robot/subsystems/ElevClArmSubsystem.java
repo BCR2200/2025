@@ -69,7 +69,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case None -> ElevArmState.SafeCoral;
         case AlgaeBottom -> ElevArmState.PickBottom;
         case AlgaeTop -> ElevArmState.PickTop;
-        case Barge -> ElevArmState.Barge;
+        case Barge -> ElevArmState.BargeWindup;
         case CoralLevel1 -> ElevArmState.LvlOne;
         case CoralLevel2 -> ElevArmState.LvlTwo;
         case CoralLevel3 -> ElevArmState.LvlThree;
