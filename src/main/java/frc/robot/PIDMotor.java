@@ -313,6 +313,20 @@ public class PIDMotor {
             System.err.printf("error setting target with acceleration (%s): %s\n", name, code.getDescription());
         }
     }
+    public void setTarget(double target,  double velocity, double acceleration) {
+        catchUninit();
+        this.target = target;
+
+        dynamicMotionMagicVoltage.withPosition(target);
+        dynamicMotionMagicVoltage.withVelocity(velocity);
+        dynamicMotionMagicVoltage.withAcceleration(acceleration);
+
+        motor.setControl(dynamicMotionMagicVoltage);
+        StatusCode code = motor.setControl(dynamicMotionMagicVoltage);
+        if (!code.isOK()) {
+            System.err.printf("error setting target with acceleration (%s): %s\n", name, code.getDescription());
+        }
+    }
 
     /**
      * Sets the motor's target with a max acceleration

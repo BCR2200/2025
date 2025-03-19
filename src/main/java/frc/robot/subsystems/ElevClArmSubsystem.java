@@ -141,8 +141,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(8 * elevatorRatio, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(45 * elevatorRatio, 28);
   public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5 * elevatorRatio, 38);
-  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103 * elevatorRatio, 17.6);
+  public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103 * elevatorRatio, 20);
   public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(103 * elevatorRatio, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition BARGE_WINDUP_POSITION = new ElevArmPosition(103 * elevatorRatio, 38);
+  private final static double bargeShootingTimeWaitForThisLong = 0.08;
 
   public enum ElevArmState {
     Hopper, Intake, SafeCoral,
@@ -151,7 +153,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     LvlOneEMove, LvlTwoEMove, LvlThreeEMove, LvlFourEMove,
     CorgaeTransition,
     SafeAlgae, PickBottom, PickTop, SafeAlgaeEMove,
-    PickBottomEMove, PickTopEMove, Barge, BargeEMove, Processor,
+    PickBottomEMove, PickTopEMove, Barge, BargeWindup, BargeEMove, Processor,
     SafeClimb, UnlockClimb;
 
     public ElevArmPosition position() {
@@ -177,6 +179,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case PickBottomEMove -> PICKBOTTOM_EMOVE_POSITION;
         case PickTopEMove -> PICKTOP_EMOVE_POSITION;
         case Barge -> BARGE_POSITION;
+        case BargeWindup -> BARGE_WINDUP_POSITION;
         case BargeEMove -> BARGE_EMOVE_POSITION;
         case Processor -> PROCESSOR_POSITION;
       };
@@ -187,7 +190,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case SafeCoral, Hopper, Intake, LvlOne, LvlTwo, LvlThree, LvlFour, LvlOneEMove, LvlTwoEMove, LvlThreeEMove,
             LvlFourEMove, UnjamStrat1, UnjamStrat2 ->
           ControlMode.Coral;
-        case Processor, Barge, SafeAlgae, PickTop, PickBottom, PickTopEMove, PickBottomEMove, BargeEMove,
+        case Processor, Barge, BargeWindup, SafeAlgae, PickTop, PickBottom, PickTopEMove, PickBottomEMove, BargeEMove,
             CorgaeTransition, SafeAlgaeEMove ->
           ControlMode.Algae;
         case SafeClimb, UnlockClimb -> ControlMode.Climb;
@@ -230,6 +233,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   }
 
   Timer intakeTimer;
+  Timer bargeTimer;
   public boolean manualCoral = false;
 
   final int normalShoulderCurrentLimit = 30;
@@ -262,6 +266,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     clawBeamBreaks.getConfigurator().apply(configs);
 
     intakeTimer = new Timer();
+    bargeTimer = new Timer();
   }
 
   @Override
@@ -446,6 +451,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case Barge:
             switch (requestState) {
               case Barge:
+                if(!shootLust){
+                  bargeTimer.stop();
+                  bargeTimer.reset();
+                  state = ElevArmState.BargeWindup;
+                }
                 break;
               default:
                 state = ElevArmState.BargeEMove;
@@ -677,7 +687,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case BargeEMove:
             switch (requestState) {
               case Barge:
-                state = conditionalTransition(state, ElevArmState.Barge, 30);
+                bargeTimer.stop();
+                bargeTimer.reset();
+                state = ElevArmState.BargeWindup;
                 break;
               case AlgaeBottom:
                 state = ElevArmState.PickBottomEMove;
@@ -687,6 +699,19 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 break;
               default:
                 state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 10);
+                break;
+            }
+            break;
+          case BargeWindup:
+            switch (requestState) {
+              case Barge:
+                if(shootLust){
+                  state = ElevArmState.Barge;
+                  bargeTimer.restart();
+                }
+                break;
+              default:
+                state = ElevArmState.BargeEMove;
                 break;
             }
             break;
@@ -743,6 +768,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case BargeEMove:
           case Processor:
           case Barge:
+          case BargeWindup:
           case SafeAlgaeEMove:
             clawstate = ClawState.EatAlgae;
             break;
@@ -772,9 +798,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
         positionControl = false;
         clawstate = ClawState.Drool;
       }
-      if (shootLust && eMode == ControlMode.Algae && state != ElevArmState.SafeAlgae) {
+
+      if (shootLust && eMode == ControlMode.Algae && (state == ElevArmState.Barge || state == ElevArmState.BargeWindup || state == ElevArmState.BargeEMove)) {
+        //timed vomit
+        if(bargeTimer.get() > bargeShootingTimeWaitForThisLong){
+          clawstate = ClawState.Vomit;
+        }
+      } else if (shootLust && eMode == ControlMode.Algae && state != ElevArmState.SafeAlgae) {
         clawstate = ClawState.Vomit;
       }
+
       if (shootLust && eMode == ControlMode.Coral && state == ElevArmState.LvlOne) {
         positionControl = false;
         clawstate = ClawState.Drool;
@@ -821,12 +854,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   double lvl1SlowAccel = 250;
   double algaeArmAccel = 250;
+  double algaeYeetVel = 70;
+  double algaeYeetAccel = 400;
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
     TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
       if(state == ElevArmState.LvlOne){
         shoulderMotor.setTarget(goal.armPos, lvl1SlowAccel);
-      } else if (getEMode() == ControlMode.Algae){
+      } else if(state == ElevArmState.Barge){
+        shoulderMotor.setTarget(goal.armPos, algaeYeetVel, algaeYeetAccel);
+      }else if (getEMode() == ControlMode.Algae){
         shoulderMotor.setTarget(goal.armPos, algaeArmAccel);
       }else{
         shoulderMotor.setTarget(goal.armPos);

@@ -4,11 +4,9 @@
   "holonomicMode": true,
   "pathFolders": [
     "Center",
-    "L3L",
     "Left",
-    "R3R",
     "Right",
-    "Testing"
+    "Warmup Paths"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,

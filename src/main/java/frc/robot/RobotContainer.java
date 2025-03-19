@@ -29,11 +29,8 @@ import frc.robot.commands.auto.AutoBuildingBlocks;
 import frc.robot.commands.SuckCmd;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.CenterAuto;
-import frc.robot.commands.auto.L3LAuto;
-import frc.robot.commands.auto.LeftAuto;
-import frc.robot.commands.auto.R3RAuto;
+import frc.robot.commands.auto.Left3Piece;
 import frc.robot.commands.auto.Right3Piece;
-import frc.robot.commands.auto.RightAuto;
 import frc.robot.commands.auto.Testing;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
@@ -183,13 +180,10 @@ public class RobotContainer {
 
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("None", null);
-    autoChooser.addOption("LeftAuto", new LeftAuto(e, drivetrain, driveRC));
-    autoChooser.addOption("Testing", new Testing(e, drivetrain, driveRC));
-    autoChooser.addOption("RightAuto", new RightAuto(e, drivetrain, driveRC));
+    // autoChooser.addOption("Testing", new Testing(e, drivetrain, driveRC));
     autoChooser.addOption("CenterAuto", new CenterAuto(e, drivetrain, driveRC));
-    autoChooser.addOption("L3LAuto", new L3LAuto(e, drivetrain, driveRC));
-    autoChooser.addOption("R3RAuto", new R3RAuto(e, drivetrain, driveRC));
-    autoChooser.addOption("RAHHHH", new Right3Piece(e, drivetrain, driveRC));
+    autoChooser.addOption("Left3PieceAuto", new Left3Piece(e, drivetrain, driveRC));
+    autoChooser.addOption("Right3PieceAuto", new Right3Piece(e, drivetrain, driveRC));
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -511,7 +505,7 @@ public class RobotContainer {
                   .withTargetDirection(direction);
             } else {
               // If we just released the center alignment in algae mode... drive back 0.4 seconds TODO
-              if(backItUpTimer.get() < 0.4 && e.getEMode() == ControlMode.Algae){
+              if(backItUpTimer.get() < 0.3 && e.getEMode() == ControlMode.Algae){
                 return driveRC.withVelocityX(-1.5) // ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
                     .withVelocityY(horizontal)
                     .withRotationalRate(rotate);

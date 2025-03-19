@@ -302,7 +302,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     @Override
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-        TimingUtils.logDuration("commandSserveDriveTrain.addVisionMeasurement1", () -> {
+        TimingUtils.logDuration("commandSwerveDriveTrain.addVisionMeasurement1", () -> {
             super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
         });
     }
