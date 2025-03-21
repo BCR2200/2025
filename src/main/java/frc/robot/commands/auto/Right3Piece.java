@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.ReefSide;
+import frc.robot.commands.RequesteStateCmd;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.input.SnapButton;
 import frc.robot.subsystems.ElevClArmSubsystem;
@@ -37,7 +38,9 @@ public class Right3Piece extends AutoCommand {
         // is auto step the problem??
         new WaitCommand(0.1),
         AutoBuildingBlocks.autoStep("PATH 1"),
-        new PathAndElevateWithinDist(path1, ReefSide.BR, SnapButton.Left, 1.5, RequestState.CoralLevel4, e),
+        new AutoRequesteStateCmd(e, RequestState.CoralLevel4),
+        AutoBuildingBlocks.followPathCommand(path1),
+        // new PathAndElevateWithinDist(path1, ReefSide.BR, SnapButton.Left, 4, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BR"),
         new LimelightAutoCmd(ReefSide.BR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2),
         AutoBuildingBlocks.autoStep("PATH 2"),
@@ -54,6 +57,8 @@ public class Right3Piece extends AutoCommand {
         new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2),
         AutoBuildingBlocks.autoStep("PATH 6"),
         AutoBuildingBlocks.followPathCommand(path6),
+        AutoBuildingBlocks.autoStep("IS HE GOATED??"),
+        // AutoBuildingBlocks.followPathCommand(path7),
         AutoBuildingBlocks.autoStep("DONE")
     );
   }

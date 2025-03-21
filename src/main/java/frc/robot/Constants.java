@@ -11,6 +11,8 @@ public class Constants {
     public static final int CLAW_ID = 24;
     public static final int CLIMBER_ID = 25;
     
+    public static final int SPOON_ID = 27;
+
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int CODRIVER_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;

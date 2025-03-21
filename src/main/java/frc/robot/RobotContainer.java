@@ -443,7 +443,7 @@ public class RobotContainer {
               botPose = camRet[0];
             }
 
-            if (botPose != null) {
+            if (botPose != null && botPose.length >= 5) {
               tx = botPose[0]; // meters
               ty = -botPose[2]; // meters - secretly grabbing tz - away is
                                 // more negative
@@ -506,9 +506,9 @@ public class RobotContainer {
             } else {
               // If we just released the center alignment in algae mode... drive back 0.4 seconds TODO
               if(backItUpTimer.get() < 0.3 && e.getEMode() == ControlMode.Algae){
-                return driveRC.withVelocityX(-1.5) // ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
-                    .withVelocityY(horizontal)
-                    .withRotationalRate(rotate);
+                return driveRC.withVelocityX(-1.5); // ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
+                    // .withVelocityY(horizontal)
+                    // .withRotationalRate(rotate);
               } else{
                 return driveFC.withVelocityX(vertical)
                     .withVelocityY(horizontal)

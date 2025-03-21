@@ -150,7 +150,7 @@ public class LimelightAutoCmd extends Command {
       double brainYRC;
       double brainXRC;
       double brainRot;
-      if (botPose != null) {
+      if (botPose != null && botPose.length >= 5) {
         tx = botPose[0]; // meters
         ty = -botPose[2]; // meters - secretly grabbing tz - away is
                           // more negative

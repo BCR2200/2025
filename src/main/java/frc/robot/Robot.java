@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -185,6 +186,9 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.drivetrain.setControl(m_robotContainer.driveRC.withVelocityX(0)
+    .withVelocityY(0)
+    .withRotationalRate(0));
 
     m_robotContainer.e.shoulderMotor.setIdleBrakeMode();
     m_robotContainer.e.rightElevatorMotor.setIdleBrakeMode();

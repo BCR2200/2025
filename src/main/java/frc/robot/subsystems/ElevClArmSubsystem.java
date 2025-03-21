@@ -117,7 +117,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   // public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103, 17.6);
   // public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(103, SAFE_ALGAE_ARM);
   // public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
-  static double elevatorRatio = 0.964; // implied
+
+  static double elevatorRatio = 0.69625; // implied
 
   public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 1.0);
@@ -126,7 +127,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition SAFE_ALGAE_EMOVE_POSITION = new ElevArmPosition(0, 28);
   public final static ElevArmPosition CORGAE_POSITION = SAFE_CORAL_POSITION;
   public final static ElevArmPosition SAFE_CLIMB_POSITION = SAFE_CORAL_POSITION;
-  public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(6.5 * elevatorRatio, 45.7);
+  public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(6.5 * elevatorRatio, 47);
   
   public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(15 * elevatorRatio, 45);
   public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
@@ -202,6 +203,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public PIDMotor rightElevatorMotor;
   public PIDMotor shoulderMotor;
   public PIDMotor clawMotor;
+  public PIDMotor funnelBase;
 
   public DigitalInput hopperBeamBreak;
   public CANdi clawBeamBreaks;
@@ -234,6 +236,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   Timer intakeTimer;
   Timer bargeTimer;
+  Timer burnoutTimer;
   public boolean manualCoral = false;
 
   final int normalShoulderCurrentLimit = 30;
@@ -250,8 +253,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
     shoulderMotor = PIDMotor.makeMotor(Constants.SHOULDER_ID, "shoulder", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 350, 0);
     clawMotor = PIDMotor.makeMotor(Constants.CLAW_ID, "claw", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 500, 0);
     clawMotor.setInverted(InvertedValue.Clockwise_Positive);
-
+    
     leftElevatorMotor.follow(rightElevatorMotor, true);
+
+    funnelBase = PIDMotor.makeMotor(Constants.SPOON_ID, "funnelBase", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 500, 0);
+    
+    funnelBase.setCurrentLimit(100);
+    funnelBase.setIdleBrakeMode();
 
     leftElevatorMotor.setCurrentLimit(40);
     rightElevatorMotor.setCurrentLimit(40);
@@ -267,6 +275,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     intakeTimer = new Timer();
     bargeTimer = new Timer();
+    burnoutTimer = new Timer();
   }
 
   @Override
@@ -309,7 +318,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
               default:
                 break;
             }
-            if (coralInHopper.get()) {
+            // if (coralInHopper.get() && ((funnelBase.getCurrent() > 20 && Math.abs(funnelBase.getVelocity()) <= 1) || Math.abs(funnelBase.getVelocity()) <= 1)) {
+            if(burnoutTimer.get() > 0.05){
               state = ElevArmState.Intake;
               intakeTimer.restart();
               break;
@@ -621,10 +631,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 state = ElevArmState.LvlThreeEMove;
                 break;
               case CoralLevel4:
-                state = conditionalTransition(state, ElevArmState.LvlFour, 30);
+                state = conditionalTransition(state, ElevArmState.LvlFour, 30*elevatorRatio);
                 break;
               default:
-                state = ElevArmState.LvlOneEMove;
+                state = conditionalTransition(state, ElevArmState.LvlOneEMove, 10);
                 break;
             }
             break;
@@ -637,10 +647,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 state = ElevArmState.BargeEMove;
                 break;
               case AlgaeBottom:
-                state = conditionalTransition(state, ElevArmState.PickBottom, 30);
+                state = conditionalTransition(state, ElevArmState.PickBottom, 30*elevatorRatio);
                 break;
               default:
-                state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 30);
+                state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 30*elevatorRatio);
                 break;
             }
             break;
@@ -698,7 +708,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 state = ElevArmState.PickTopEMove;
                 break;
               default:
-                state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 10);
+                state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 10*elevatorRatio);
                 break;
             }
             break;
@@ -820,6 +830,31 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
       clawTargetPosition = ( (shoulderMotor.getPosition() - armStartPosition) * -(24.0 / 73.4)) + clawStartPosition;
 
+      // funnelBase stuff
+      if(getEMode() == ControlMode.Algae || getEMode() == ControlMode.Climb){
+        funnelBase.setPercentOutput(0);
+      } else{
+      if(!coralInHopper.get()){
+        // funnelBase.setPercentOutput(-0.1);
+        funnelBase.setPercentOutput(0.2, true);
+      } 
+      if (coralInHopper.get() && funnelBase.getCurrent() > 20){
+        if(burnoutTimer.get() == 0){
+          burnoutTimer.start();
+        }
+      }
+      if (state == ElevArmState.Intake && atPosition(3)){
+        funnelBase.setPercentOutput(-0.4);
+        burnoutTimer.stop();
+        burnoutTimer.reset();
+      }
+      if(burnoutTimer.get() > 1){
+        funnelBase.setPercentOutput(0);
+        burnoutTimer.stop();
+        burnoutTimer.reset();
+      }
+    }
+
       // if(requestState == ElevArmState.LvlOne){
       //   clawTargetPosition -= 5;
       // }
@@ -863,9 +898,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
         shoulderMotor.setTarget(goal.armPos, lvl1SlowAccel);
       } else if(state == ElevArmState.Barge){
         shoulderMotor.setTarget(goal.armPos, algaeYeetVel, algaeYeetAccel);
-      }else if (getEMode() == ControlMode.Algae){
+      } else if(state == ElevArmState.SafeAlgae){
+        shoulderMotor.setTarget(goal.armPos, 50, algaeArmAccel);
+      } else if (getEMode() == ControlMode.Algae){
         shoulderMotor.setTarget(goal.armPos, algaeArmAccel);
-      }else{
+      } else{
         shoulderMotor.setTarget(goal.armPos);
       }
       rightElevatorMotor.setTarget(goal.elevatorPos);
