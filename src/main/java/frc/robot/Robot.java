@@ -189,9 +189,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.drivetrain.setControl(m_robotContainer.driveRC.withVelocityX(0)
-    .withVelocityY(0)
-    .withRotationalRate(0));
 
     m_robotContainer.e.shoulderMotor.setIdleBrakeMode();
     m_robotContainer.e.rightElevatorMotor.setIdleBrakeMode();
@@ -201,6 +198,10 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     m_robotContainer.e.shoulderMotor.setIdleCoastMode();
     m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
+
+    m_robotContainer.drivetrain.setControl(m_robotContainer.driveRC.withVelocityX(0)
+    .withVelocityY(0)
+    .withRotationalRate(0));
   }
 
   @Override

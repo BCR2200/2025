@@ -29,7 +29,7 @@ public class AlgaeAutoCmd extends Command {
   private boolean finished = false;
 
   private double positionError;
-  double waitTime = 1;
+  double waitTime = .5;
 
   double idToLookFor;
   boolean driveAtPosition;

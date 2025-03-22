@@ -139,7 +139,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition LVL4_POSITION = new ElevArmPosition(97 * elevatorRatio, 32);
   public final static ElevArmPosition LVL4_EMOVE_POSITION = new ElevArmPosition(97 * elevatorRatio, SAFE_CORAL_ARM);
 
-  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(21 * elevatorRatio, 38);
+  // public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(21 * elevatorRatio, 38);
+  public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(23 * elevatorRatio, 38);
   public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(8 * elevatorRatio, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(45 * elevatorRatio, 28);
   public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5 * elevatorRatio, 38);
