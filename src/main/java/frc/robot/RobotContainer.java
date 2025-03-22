@@ -154,7 +154,7 @@ public class RobotContainer {
   final SendableChooser<AutoCommand> autoChooser;
 
   public Timer backItUpTimer;
-  public Timer jerkTimer;
+  // public Timer jerkTimer;
   public double positionError = Double.MAX_VALUE;
 
   public RobotContainer() {
@@ -177,7 +177,7 @@ public class RobotContainer {
     led = new LEDSubsystem(this);
 
     backItUpTimer = new Timer();
-    jerkTimer = new Timer();
+    // jerkTimer = new Timer();
     backItUpTimer.start();
 
     autoChooser = new SendableChooser<>();
@@ -375,8 +375,8 @@ public class RobotContainer {
         }));
 
         // best solution ever trust
-        driverController.x()
-            .onTrue(new InstantCommand(() -> jerkTimer.start()));
+        // driverController.x()
+        //     .onTrue(new InstantCommand(() -> jerkTimer.start()));
 
         // driverController.start().onTrue(drivetrain.runOnce(() ->
         // drivetrain.seedFieldCentric()));
@@ -389,14 +389,14 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> {
-          if(jerkTimer.get() != 0 && jerkTimer.get() < 0.1){
-            return driveFC.withVelocityX(0)
-            .withVelocityY(0)
-            .withRotationalRate(0);
-          } else if (jerkTimer.get() > 0.1){
-            jerkTimer.stop();
-            jerkTimer.reset();
-          }
+          // if(jerkTimer.get() != 0 && jerkTimer.get() < 0.1){
+          //   return driveFC.withVelocityX(0)
+          //   .withVelocityY(0)
+          //   .withRotationalRate(0);
+          // } else if (jerkTimer.get() > 0.1){
+          //   jerkTimer.stop();
+          //   jerkTimer.reset();
+          // }
           if (climber.climbMotor.getPosition() < -140) {
             // point wheels to 0 when climbed for easier manipulation post match
             return point.withModuleDirection(Rotation2d.fromDegrees(0));
