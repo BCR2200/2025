@@ -209,7 +209,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public PIDMotor rightElevatorMotor;
   public PIDMotor shoulderMotor;
   public PIDMotor clawMotor;
-  public PIDMotor funnelBase;
 
   public DigitalInput hopperBeamBreak;
   public CANdi clawBeamBreaks;
@@ -242,7 +241,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   Timer intakeTimer;
   Timer bargeTimer;
-  Timer burnoutTimer;
   public boolean manualCoral = false;
 
   final int normalShoulderCurrentLimit = 30;
@@ -262,11 +260,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
     
     leftElevatorMotor.follow(rightElevatorMotor, true);
 
-    funnelBase = PIDMotor.makeMotor(Constants.SPOON_ID, "funnelBase", 2, 0, 0.1, 0.25, 0.12, 0.01, 100, 500, 0);
-    
-    funnelBase.setCurrentLimit(100);
-    funnelBase.setIdleBrakeMode();
-
     leftElevatorMotor.setCurrentLimit(60);
     rightElevatorMotor.setCurrentLimit(60);
     shoulderMotor.setCurrentLimit(normalShoulderCurrentLimit);
@@ -281,7 +274,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     intakeTimer = new Timer();
     bargeTimer = new Timer();
-    burnoutTimer = new Timer();
   }
 
   @Override
@@ -324,8 +316,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               default:
                 break;
             }
-            // if (coralInHopper.get() && ((funnelBase.getCurrent() > 20 && Math.abs(funnelBase.getVelocity()) <= 1) || Math.abs(funnelBase.getVelocity()) <= 1)) {
-            if(burnoutTimer.get() > 0.05){
+            if (coralInHopper.get()) {
               state = ElevArmState.Intake;
               intakeTimer.restart();
               break;
@@ -861,31 +852,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
       }
 
       clawTargetPosition = ( (shoulderMotor.getPosition() - armStartPosition) * -(24.0 / 73.4)) + clawStartPosition;
-
-      // funnelBase stuff
-      if(getEMode() == ControlMode.Algae || getEMode() == ControlMode.Climb){
-        funnelBase.setPercentOutput(0);
-      } else{
-      if(!coralInHopper.get()){
-        // funnelBase.setPercentOutput(-0.1);
-        funnelBase.setPercentOutput(0.2, true);
-      } 
-      if (coralInHopper.get() && funnelBase.getCurrent() > 20){
-        if(burnoutTimer.get() == 0){
-          burnoutTimer.start();
-        }
-      }
-      if (state == ElevArmState.Intake && atPosition(3)){
-        funnelBase.setPercentOutput(-0.4);
-        burnoutTimer.stop();
-        burnoutTimer.reset();
-      }
-      if(burnoutTimer.get() > 1){
-        funnelBase.setPercentOutput(0);
-        burnoutTimer.stop();
-        burnoutTimer.reset();
-      }
-    }
 
       // if(requestState == ElevArmState.LvlOne){
       //   clawTargetPosition -= 5;
