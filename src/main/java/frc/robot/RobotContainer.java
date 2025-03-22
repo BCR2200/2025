@@ -154,6 +154,7 @@ public class RobotContainer {
   final SendableChooser<AutoCommand> autoChooser;
 
   public Timer backItUpTimer;
+  public Timer jerkTimer;
   public double positionError = Double.MAX_VALUE;
 
   public RobotContainer() {
@@ -176,6 +177,7 @@ public class RobotContainer {
     led = new LEDSubsystem(this);
 
     backItUpTimer = new Timer();
+    jerkTimer = new Timer();
     backItUpTimer.start();
 
     autoChooser = new SendableChooser<>();
@@ -328,8 +330,11 @@ public class RobotContainer {
     bButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
         .whileTrue(new RequesteStateCmd(e, RequestState.AlgaeTop));
     // barge
-    yButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
+    yButton.trigger().and(leftTrigger.trigger().negate().and(() -> e.getEMode() == ControlMode.Algae))
         .whileTrue(new RequesteStateCmd(e, RequestState.Barge));
+    // bargeplace
+    yButton.trigger().and(leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Algae))
+        .whileTrue(new RequesteStateCmd(e, RequestState.BargePlace));
     // processor
     xButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
         .whileTrue(new RequesteStateCmd(e, RequestState.Processor));
@@ -356,30 +361,42 @@ public class RobotContainer {
     driverController.leftBumper().and(driverController.rightBumper())
         .whileTrue(new InstantCommand(() -> snap = SnapButton.Center))
         .onFalse(new InstantCommand(() -> {
-          // do something to drive backwards for 0.4 seconds TODO doo doo
           backItUpTimer.restart();
         }));
-    driverController.leftBumper().negate().and(driverController.rightBumper().negate())
+        driverController.leftBumper().negate().and(driverController.rightBumper().negate())
         .onTrue(new InstantCommand(() -> snap = SnapButton.None));
+        
+        driverController.start().and(driverController.back().negate()).onTrue(new InstantCommand(() -> {
+          updateDrivetrainRobotPerspective();
+          var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
+          if (llMeasurement != null){
+            drivetrain.resetPose(llMeasurement.pose);
+          }
+        }));
 
-    driverController.start().and(driverController.back().negate()).onTrue(new InstantCommand(() -> {
-      updateDrivetrainRobotPerspective();
-      var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-      if (llMeasurement != null){
-        drivetrain.resetPose(llMeasurement.pose);
-      }
-    }));
-    // driverController.start().onTrue(drivetrain.runOnce(() ->
-    // drivetrain.seedFieldCentric()));
+        // best solution ever trust
+        driverController.x()
+            .onTrue(new InstantCommand(() -> jerkTimer.start()));
 
+        // driverController.start().onTrue(drivetrain.runOnce(() ->
+        // drivetrain.seedFieldCentric()));
+        
     driveFCFA.HeadingController.setPID(7, 0, 0);
-
-    // Note that X is defined as forward according to WPILib convention,
-    // and Y is defined as to the left according to WPILib convention.
-    // (On blue side. On red, Y is right and X +ve is away from blue)
+        
+        // Note that X is defined as forward according to WPILib convention,
+        // and Y is defined as to the left according to WPILib convention.
+        // (On blue side. On red, Y is right and X +ve is away from blue)
     drivetrain.setDefaultCommand(
         // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> {
+          if(jerkTimer.get() != 0 && jerkTimer.get() < 0.1){
+            return driveFC.withVelocityX(0)
+            .withVelocityY(0)
+            .withRotationalRate(0);
+          } else if (jerkTimer.get() > 0.1){
+            jerkTimer.stop();
+            jerkTimer.reset();
+          }
           if (climber.climbMotor.getPosition() < -140) {
             // point wheels to 0 when climbed for easier manipulation post match
             return point.withModuleDirection(Rotation2d.fromDegrees(0));

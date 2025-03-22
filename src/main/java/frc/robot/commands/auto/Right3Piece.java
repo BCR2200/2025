@@ -38,9 +38,9 @@ public class Right3Piece extends AutoCommand {
         // is auto step the problem??
         new WaitCommand(0.1),
         AutoBuildingBlocks.autoStep("PATH 1"),
-        new AutoRequesteStateCmd(e, RequestState.CoralLevel4),
-        AutoBuildingBlocks.followPathCommand(path1),
-        // new PathAndElevateWithinDist(path1, ReefSide.BR, SnapButton.Left, 4, RequestState.CoralLevel4, e),
+        // new AutoRequesteStateCmd(e, RequestState.CoralLevel4),
+        // AutoBuildingBlocks.followPathCommand(path1),
+        new PathAndElevateWithinDist(path1, ReefSide.BR, SnapButton.Left, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BR"),
         new LimelightAutoCmd(ReefSide.BR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2),
         AutoBuildingBlocks.autoStep("PATH 2"),
@@ -48,13 +48,19 @@ public class Right3Piece extends AutoCommand {
         AutoBuildingBlocks.autoStep("PATH 3"),
         new PathAndElevateWithinDist(path3, ReefSide.FR, SnapButton.Right, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("SCORE L4 RIGHT FR"),
-        new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
+        Commands.race(
+          new GiveUp(e),
+          new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2)
+        ),
         AutoBuildingBlocks.autoStep("PATH 4"),
         AutoBuildingBlocks.followPathCommand(path4),
         AutoBuildingBlocks.autoStep("PATH 5"),
         new PathAndElevateWithinDist(path5, ReefSide.FR, SnapButton.Left, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("RAHHHHHH"),
-        new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2),
+        Commands.race(
+          new GiveUp(e),
+          new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)
+        ),
         AutoBuildingBlocks.autoStep("PATH 6"),
         AutoBuildingBlocks.followPathCommand(path6),
         AutoBuildingBlocks.autoStep("IS HE GOATED??"),
