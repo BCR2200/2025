@@ -143,10 +143,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(8 * elevatorRatio, 38);
   public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(45 * elevatorRatio, 28);
   public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5 * elevatorRatio, 38);
-  public final static ElevArmPosition BARGE_PLACE_POSITION = new ElevArmPosition(103 * elevatorRatio, 17.6);
-  public final static ElevArmPosition BARGE_EPLACE_POSITION = new ElevArmPosition(103 * elevatorRatio, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition BARGE_PLACE_POSITION = new ElevArmPosition(105 * elevatorRatio, 16.8);
+  public final static ElevArmPosition BARGE_EPLACE_POSITION = new ElevArmPosition(105 * elevatorRatio, 28);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103 * elevatorRatio, 20);
-  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(103 * elevatorRatio, SAFE_ALGAE_ARM);
+  public final static ElevArmPosition BARGE_EMOVE_POSITION = new ElevArmPosition(103 * elevatorRatio, 38);
   public final static ElevArmPosition BARGE_WINDUP_POSITION = new ElevArmPosition(103 * elevatorRatio, 38);
   private final static double bargeShootingTimeWaitForThisLong = 0.08;
 
@@ -724,6 +724,25 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 break;
               case BargePlace:
                 state = ElevArmState.BargeEPlace;
+                break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 10*elevatorRatio);
+                break;
+            }
+            break;
+          case BargeEPlace:
+            switch (requestState) {
+              case BargePlace:
+                state = conditionalTransition(state, ElevArmState.BargePlace, 30*elevatorRatio);
+                break;
+              case Barge:
+                state = ElevArmState.BargeEMove;
+                break;
+              case AlgaeBottom:
+                state = ElevArmState.PickBottomEMove;
+                break;
+              case AlgaeTop:
+                state = ElevArmState.PickTopEMove;
                 break;
               default:
                 state = conditionalTransition(state, ElevArmState.SafeAlgaeEMove, 10*elevatorRatio);

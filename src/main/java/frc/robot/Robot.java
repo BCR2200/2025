@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.WarmupAutoCmd;
+import frc.robot.timing.TimingUtils;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -84,8 +85,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    // TimingUtils.logDuration("robotPeriodic", () -> {
-    CommandScheduler.getInstance().run();
+    TimingUtils.logDuration("robotPeriodic", () -> {
+      TimingUtils.logDuration("commandScheduler", () -> {
+        CommandScheduler.getInstance().run();
+      });
     if (Timer.getFPGATimestamp() > lastDashboardUpdate + 0.200) {
       SmartDashboard.putData("Field", m_field);
       m_robotContainer.e.printDashboard();
@@ -132,7 +135,7 @@ public class Robot extends TimedRobot {
       }
     }
     
-    // });
+    });
   }
   
   @Override
