@@ -1,6 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
 
@@ -30,20 +27,12 @@ public class Robot extends TimedRobot {
   private final RobotContainer m_robotContainer;
 
   final Field2d m_field = new Field2d();
-  final Field2d m_field2 = new Field2d();
-  final Field2d m_field3 = new Field2d();
 
   double lastDashboardUpdate = 0;
 
-  Timer climbToCoast;
+  public static Alliance alliance = Alliance.Blue;
 
-  public static Alliance alliance = Alliance.Blue; // Default
-  // Controls all configs for comp/practice bot
   public static final boolean isCompBot = false;
-
-  private Timer warmupCommandTimer = new Timer();
-  private Command warmupCommandNotAtStartPose = null;
-  private Command warmupCommandAtStartPose = null;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
@@ -53,7 +42,6 @@ public class Robot extends TimedRobot {
     updateAlliance();
     m_robotContainer.updateDrivetrainRobotPerspective();
 
-    climbToCoast = new Timer();
   }
 
   public static void updateAlliance() {
@@ -62,13 +50,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    warmupCommandNotAtStartPose = new WarmupAutoCmd(m_robotContainer.drivetrain, m_robotContainer.driveRC, true)
-        .ignoringDisable(true);
-    warmupCommandNotAtStartPose.schedule();
-    warmupCommandTimer.reset();
-    warmupCommandTimer.start();
-    SmartDashboard.putBoolean("warmupNotAtStartPose finished", false);
-    SmartDashboard.putBoolean("warmupAtStartPose finished", false);
+
     m_robotContainer.autoChooser.onChange(this::updateFieldPaths);
     updateAlliance();
   }
@@ -89,71 +71,46 @@ public class Robot extends TimedRobot {
       TimingUtils.logDuration("commandScheduler", () -> {
         CommandScheduler.getInstance().run();
       });
-    if (Timer.getFPGATimestamp() > lastDashboardUpdate + 0.200) {
-      SmartDashboard.putData("Field", m_field);
-      m_robotContainer.e.printDashboard();
-      m_robotContainer.climber.printDashboard();
-      lastDashboardUpdate = Timer.getFPGATimestamp();
-      var driveState = m_robotContainer.drivetrain.getState();
-      m_field.setRobotPose(driveState.Pose);
-      SmartDashboard.putBoolean("RobotThinksItIsOnRed", alliance == Alliance.Red);
-      SmartDashboard.putNumber("idlooking", m_robotContainer.idToLookFor);
+      if (Timer.getFPGATimestamp() > lastDashboardUpdate + 0.200) {
+        SmartDashboard.putData("Field", m_field);
 
-      if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
-        updateAlliance();
-        updateFieldPaths(m_robotContainer.autoChooser.getSelected());
-      }
-    }
-    
-    var botState = m_robotContainer.drivetrain.getState();
-    double omegarps = Units.radiansToRotations(botState.Speeds.omegaRadiansPerSecond);
+        lastDashboardUpdate = Timer.getFPGATimestamp();
+        var driveState = m_robotContainer.drivetrain.getState();
+        m_field.setRobotPose(driveState.Pose);
+        SmartDashboard.putBoolean("RobotThinksItIsOnRed", alliance == Alliance.Red);
 
-    if (DriverStation.isEnabled()) {
-      for (int i = 0; i < limelights.length; ++i) {
-        LimelightHelpers.SetRobotOrientation(limelights[i], botState.Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[i]);
-        if (poseEstimate != null && poseEstimate.tagCount > 0 && Math.abs(omegarps) < 1.0) {
-          m_robotContainer.drivetrain.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds, VecBuilder.fill(.9,.9,999999));
+        if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
+          updateAlliance();
+          updateFieldPaths(m_robotContainer.autoChooser.getSelected());
         }
       }
-    }
 
-    // Run warmup commands.
-    // Once the "not at the start pose" command is done, start the "at start pose" warmup command
-    if (warmupCommandNotAtStartPose != null) {
-      if (warmupCommandTimer.hasElapsed(10)) {
-        if (warmupCommandAtStartPose == null) {
-          SmartDashboard.putBoolean("warmupNotAtStartPose finished", true);
-          warmupCommandAtStartPose = new WarmupAutoCmd(m_robotContainer.drivetrain, m_robotContainer.driveRC, true)
-              .ignoringDisable(true);
-          warmupCommandAtStartPose.schedule();
-          warmupCommandTimer.reset();
-        } else if (warmupCommandTimer.hasElapsed(10)) {
-          SmartDashboard.putBoolean("warmupAtStartPose finished", true);
-          warmupCommandNotAtStartPose = null; // Prevent entering this block again; we have updated dashboard.
+      var botState = m_robotContainer.drivetrain.getState();
+      double omegarps = Units.radiansToRotations(botState.Speeds.omegaRadiansPerSecond);
+
+      if (DriverStation.isEnabled()) {
+        for (int i = 0; i < limelights.length; ++i) {
+          LimelightHelpers.SetRobotOrientation(limelights[i], botState.Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+          PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[i]);
+          if (poseEstimate != null && poseEstimate.tagCount > 0 && Math.abs(omegarps) < 1.0) {
+            m_robotContainer.drivetrain.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds,
+                VecBuilder.fill(.9, .9, 999999));
+          }
         }
       }
-    }
-    
+
     });
   }
-  
+
   @Override
   public void disabledInit() {
     m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Coast);
-    m_autonomousCommand = null; // Reset autonomous command when disabled
+    m_autonomousCommand = null;
   }
-  
+
   @Override
   public void disabledPeriodic() {
-    // TimingUtils.logDuration("disabledPeriodic", () -> {
-      if (climbToCoast.get() > 6 && climbToCoast.get() < 7) {
-        m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
-        m_robotContainer.e.shoulderMotor.setIdleCoastMode();
-        m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
-    }
-    
-    // Get autonomous command while disabled if not already set
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     if (m_autonomousCommand instanceof AutoCommand) {
       if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
@@ -162,18 +119,17 @@ public class Robot extends TimedRobot {
       }
     }
 
-    // });
   }
 
   @Override
   public void disabledExit() {
-    m_robotContainer.climber.climbMotor.setIdleBrakeMode();
+
     m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Brake);
   }
 
   @Override
   public void autonomousInit() {
-    // Reset pose based on the selected autonomous command
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
@@ -190,69 +146,23 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     m_robotContainer.drivetrain.setControl(m_robotContainer.driveRC.withVelocityX(0)
-    .withVelocityY(0)
-    .withRotationalRate(0));
+        .withVelocityY(0)
+        .withRotationalRate(0));
 
-    m_robotContainer.e.shoulderMotor.setIdleBrakeMode();
-    m_robotContainer.e.rightElevatorMotor.setIdleBrakeMode();
   }
 
   @Override
   public void teleopInit() {
-    m_robotContainer.e.shoulderMotor.setIdleCoastMode();
-    m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
+
   }
 
   @Override
   public void teleopPeriodic() {
-    // TimingUtils.logDuration("teleopPeriodic", () -> {
 
-    // });
   }
 
   @Override
   public void teleopExit() {
-    climbToCoast.restart();
-  }
 
-  Orchestra m_orchestra;
-
-  @Override
-  public void testInit() {
-    CommandScheduler.getInstance().cancelAll();
-    // m_robotContainer.testController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-    // m_robotContainer.testController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
-    // m_robotContainer.testController.y().whileTrue(m_robotContainer.drivetrain.sysIdQuasistatic(Direction.kForward));
-    // m_robotContainer.testController.b().whileTrue(m_robotContainer.drivetrain.sysIdQuasistatic(Direction.kReverse));
-    // m_robotContainer.testController.a().whileTrue(m_robotContainer.drivetrain.sysIdDynamic(Direction.kForward));
-    // m_robotContainer.testController.x().whileTrue(m_robotContainer.drivetrain.sysIdDynamic(Direction.kReverse));
-
-    m_orchestra = new Orchestra();
-    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(0).getSteerMotor());
-    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(1).getSteerMotor());
-    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(2).getSteerMotor());
-    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(3).getSteerMotor());
-    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(0).getDriveMotor());
-    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(1).getDriveMotor());
-    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(2).getDriveMotor());
-    m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(3).getDriveMotor());
-    m_orchestra.addInstrument(m_robotContainer.climber.climbMotor.motor);
-    m_orchestra.addInstrument(m_robotContainer.e.clawMotor.motor);
-    m_orchestra.addInstrument(m_robotContainer.e.rightElevatorMotor.motor);
-    m_orchestra.addInstrument(m_robotContainer.e.leftElevatorMotor.motor);
-    m_orchestra.addInstrument(m_robotContainer.e.shoulderMotor.motor);
-    var status = m_orchestra.loadMusic("kendrick.chrp");
-    if (!status.isOK()) {
-      m_orchestra.play();
-    }
-  }
-
-  @Override
-  public void testPeriodic() {
-  }
-
-  @Override
-  public void testExit() {
-    m_orchestra.close();
   }
 }
