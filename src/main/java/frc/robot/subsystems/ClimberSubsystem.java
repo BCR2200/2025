@@ -20,13 +20,13 @@ public class ClimberSubsystem extends SubsystemBase {
                 if(climbMotor.getPosition() > 0){ // negative stuff
                     return 0.0;
                 } else {
-                    return 1;
+                    return 0.3;
                 }
             case Down:
                 if(climbMotor.getPosition() < Constants.CLIMBER_MAX_HEIGHT){
                     return 0.0;
                 } else {
-                    return -1;
+                    return -0.3;
                 }
             default:
                 return 0.0;
@@ -35,7 +35,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public ClimberSubsystem() {
     climbMotor = PIDMotor.makeMotor(Constants.CLIMBER_ID, "climber", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
-    climbMotor.setCurrentLimit(15);
     climbMotor.setIdleBrakeMode();
   }
 

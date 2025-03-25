@@ -121,7 +121,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   static double elevatorRatio = 0.69625; // implied
 
-  public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
+  public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 11.5);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 1.0);
   public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
   public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(0, 23);
