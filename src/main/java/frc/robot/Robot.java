@@ -99,10 +99,10 @@ public class Robot extends TimedRobot {
       SmartDashboard.putBoolean("RobotThinksItIsOnRed", alliance == Alliance.Red);
       SmartDashboard.putNumber("idlooking", m_robotContainer.idToLookFor);
 
-      if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
-        updateAlliance();
-        updateFieldPaths(m_robotContainer.autoChooser.getSelected());
-      }
+      // if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
+      //   updateAlliance();
+      //   updateFieldPaths(m_robotContainer.autoChooser.getSelected());
+      // }
     }
     
     var botState = m_robotContainer.drivetrain.getState();
@@ -159,6 +159,9 @@ public class Robot extends TimedRobot {
       if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
         AutoCommand autoCmd = (AutoCommand) m_autonomousCommand;
         m_robotContainer.drivetrain.resetPose(autoCmd.getProperFlippedStartingPose());
+
+        updateAlliance();
+        updateFieldPaths(m_robotContainer.autoChooser.getSelected());
       }
     }
 
