@@ -26,7 +26,7 @@ public class GiveUp extends Command {
 
   @Override
   public void execute() {
-    if (e.isCoralInHopper() || e.isCoralInHopper() || e.isCoralSkibidi()){
+    if (e.isCoralInHopper() || e.isCoralInHopper() || e.isCoralLeavingClaw()){
       coralDetected = true;
     }
     if (giveupTimer.get() > 1 && !coralDetected){

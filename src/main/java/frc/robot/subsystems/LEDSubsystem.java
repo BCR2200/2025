@@ -39,6 +39,7 @@ import frc.robot.subsystems.led.disabledmodes.RainbowChase;
 import frc.robot.subsystems.led.disabledmodes.Tron;
 import frc.robot.subsystems.led.disabledmodes.Checkerboard;
 import frc.robot.subsystems.led.disabledmodes.Chaos;
+import frc.robot.subsystems.led.disabledmodes.DoubleBinary;
 
 public class LEDSubsystem implements Runnable {
   AddressableLED ledStrip;
@@ -134,6 +135,7 @@ public class LEDSubsystem implements Runnable {
     disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer)); 
     disableChooser.addOption("Fill", new Fill(this, ledStrip, buffer));
     disableChooser.addOption("Binary", new Binary(this, ledStrip, buffer, BetterWhite));
+    disableChooser.addOption("DoubleBinary", new DoubleBinary(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Siren", new Siren(this, ledStrip, buffer));
     disableChooser.addOption("LGTB", new RainbowWave(this, ledStrip, buffer));
     disableChooser.addOption("Fire", new Fire(this, ledStrip, buffer));

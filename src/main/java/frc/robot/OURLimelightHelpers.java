@@ -71,7 +71,7 @@ public class OURLimelightHelpers {
     }
     // PYTHAGOREANS THEORUM BABYYYY
     double distanceToTarget = 0;
-    if(ret[0] != null && ret[0].length >=3){
+    if(ret[0] != null && ret[0].length >= 3){
       distanceToTarget = Math.sqrt(Math.pow(-ret[0][2], 2) + Math.pow(ret[0][0], 2)); 
     }
     // SmartDashboard.putNumber("euclidian dist", distanceToTarget);
@@ -145,7 +145,7 @@ public class OURLimelightHelpers {
     }
     // PYTHAGOREANS THEORUM BABYYYY
     double distanceToTarget = 0;
-    if(ret[0] != null){
+    if(ret[0] != null && ret[0].length >= 3){
     distanceToTarget = Math.sqrt(Math.pow(-ret[0][2], 2) + Math.pow(ret[0][0], 2)); 
     }
     
