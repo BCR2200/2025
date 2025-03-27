@@ -326,7 +326,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs
     ) {
-        TimingUtils.logDuration("commandSserveDriveTrain.addVisionMeasurement2", () -> {
+        TimingUtils.logDuration("commandSwerveDriveTrain.addVisionMeasurement2", () -> {
             super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
         });
     }
