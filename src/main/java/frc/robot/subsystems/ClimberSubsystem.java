@@ -36,6 +36,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public ClimberSubsystem() {
     climbMotor = PIDMotor.makeMotor(Constants.CLIMBER_ID, "climber", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
     climbMotor.setIdleBrakeMode();
+    climbMotor.setCurrentLimit(50);
   }
 
   /**

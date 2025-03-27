@@ -10,13 +10,12 @@ public class Constants {
     public static final int SHOULDER_ID = 23;
     public static final int CLAW_ID = 24;
     public static final int CLIMBER_ID = 25;
-    public static final int CLIMBER_ID2 = 27;
     
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int CODRIVER_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
     
-    public static final int CLIMBER_MAX_HEIGHT = -200;
+    public static final int CLIMBER_MAX_HEIGHT = -400;
     public static final int LED_STRIP_ID = 0;
 
     //Digital IO
