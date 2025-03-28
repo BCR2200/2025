@@ -45,13 +45,19 @@ public class Left3Piece extends AutoCommand {
         AutoBuildingBlocks.autoStep("PATH 3"),
         new PathAndElevateWithinDist(path3, ReefSide.FL, SnapButton.Left, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("SCORE L4 LEFT FL"),
-        new LimelightAutoCmd(ReefSide.FL, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2),
+        Commands.race(
+          new GiveUp(e),
+          new LimelightAutoCmd(ReefSide.FL, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)
+        ),
         AutoBuildingBlocks.autoStep("PATH 4"),
         AutoBuildingBlocks.followPathCommand(path4),
         AutoBuildingBlocks.autoStep("PATH 5"),
         new PathAndElevateWithinDist(path5, ReefSide.FL, SnapButton.Right, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("3 PIECEEE BABY"),
-        new LimelightAutoCmd(ReefSide.FL, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
+        Commands.race(
+          new GiveUp(e),
+          new LimelightAutoCmd(ReefSide.FL, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2)
+        ),
         AutoBuildingBlocks.autoStep("PATH 6"),
         AutoBuildingBlocks.followPathCommand(path6),
         AutoBuildingBlocks.autoStep("DONE")

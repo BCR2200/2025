@@ -72,32 +72,32 @@ public class Robot extends TimedRobot {
     m_robotContainer.autoChooser.onChange(this::updateFieldPaths);
     updateAlliance();
     // is this the problem?
-    // TimingUtils.logDuration("commandSwerveDriveTrain.addVisionMeasurement2", () -> {
-    // });
-    // TimingUtils.logDuration("ClimberSubsystem.periodic", () -> {
-    // });
-    // TimingUtils.logDuration("CliberSubsystem.printDashboard", () -> {
-    // });
-    // TimingUtils.logDuration("ElevClArmSubsystem.periodic", () -> {
-    // });
-    // TimingUtils.logDuration("ElevClArmSubsystem.update_coral_dio", () -> {
-    // });
-    // TimingUtils.logDuration("ElevClArmSubsystem.first_switch", () -> {
-    // });
-    // TimingUtils.logDuration("ElevClArmSubsystem.second_switch", () -> {
-    // });
-    // TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
-    // });
-    // TimingUtils.logDuration("ElevClArmSubsystem.atPosition", () -> {
-    // });
-    // TimingUtils.logDuration("ElevClArmSubsystem.atFinalPosition", () -> {
-    // });
-    // TimingUtils.logDuration("ElevClArmSubsystem.getEMode", () -> {
-    // });
-    // TimingUtils.logDuration("ElevClArmSubsystem.printDashboard", () -> {
-    // });
-    // TimingUtils.logDuration("PigeonSubsystem.periodic", () -> {
-    // });
+    TimingUtils.logDuration("commandSwerveDriveTrain.addVisionMeasurement2", () -> {
+    });
+    TimingUtils.logDuration("ClimberSubsystem.periodic", () -> {
+    });
+    TimingUtils.logDuration("CliberSubsystem.printDashboard", () -> {
+    });
+    TimingUtils.logDuration("ElevClArmSubsystem.periodic", () -> {
+    });
+    TimingUtils.logDuration("ElevClArmSubsystem.update_coral_dio", () -> {
+    });
+    TimingUtils.logDuration("ElevClArmSubsystem.first_switch", () -> {
+    });
+    TimingUtils.logDuration("ElevClArmSubsystem.second_switch", () -> {
+    });
+    TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
+    });
+    TimingUtils.logDuration("ElevClArmSubsystem.atPosition", () -> {
+    });
+    TimingUtils.logDuration("ElevClArmSubsystem.atFinalPosition", () -> {
+    });
+    TimingUtils.logDuration("ElevClArmSubsystem.getEMode", () -> {
+    });
+    TimingUtils.logDuration("ElevClArmSubsystem.printDashboard", () -> {
+    });
+    TimingUtils.logDuration("PigeonSubsystem.periodic", () -> {
+    });
   }
 
   public void updateFieldPaths(AutoCommand auto) {
@@ -116,35 +116,41 @@ public class Robot extends TimedRobot {
       TimingUtils.logDuration("commandScheduler", () -> {
         CommandScheduler.getInstance().run();
       });
-      if (Timer.getFPGATimestamp() > lastDashboardUpdate + 0.200) {
-        SmartDashboard.putData("Field", m_field);
-        m_robotContainer.e.printDashboard();
-        m_robotContainer.climber.printDashboard();
-        lastDashboardUpdate = Timer.getFPGATimestamp();
-        var driveState = m_robotContainer.drivetrain.getState();
-        m_field.setRobotPose(driveState.Pose);
-        SmartDashboard.putBoolean("RobotThinksItIsOnRed", alliance == Alliance.Red);
-        SmartDashboard.putNumber("idlooking", m_robotContainer.idToLookFor);
 
-        // if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
-        // updateAlliance();
-        // updateFieldPaths(m_robotContainer.autoChooser.getSelected());
-        // }
-      }
+      TimingUtils.logDuration("dashboard", () -> {
+        if (Timer.getFPGATimestamp() > lastDashboardUpdate + 0.200) {
+          SmartDashboard.putData("Field", m_field);
+          m_robotContainer.e.printDashboard();
+          m_robotContainer.climber.printDashboard();
+          lastDashboardUpdate = Timer.getFPGATimestamp();
+          var driveState = m_robotContainer.drivetrain.getState();
+          m_field.setRobotPose(driveState.Pose);
+          SmartDashboard.putBoolean("RobotThinksItIsOnRed", alliance == Alliance.Red);
+          SmartDashboard.putNumber("idlooking", m_robotContainer.idToLookFor);
 
-      var botState = m_robotContainer.drivetrain.getState();
-      double omegarps = Units.radiansToRotations(botState.Speeds.omegaRadiansPerSecond);
+          // if (m_robotContainer.driverController.getHID().getBackButtonPressed()) {
+          // updateAlliance();
+          // updateFieldPaths(m_robotContainer.autoChooser.getSelected());
+          // }
+        }
+      });
 
-      if (DriverStation.isEnabled()) {
+      TimingUtils.logDuration("limelight", () -> {
+        var botState = m_robotContainer.drivetrain.getState();
+        double omegarps = Units.radiansToRotations(botState.Speeds.omegaRadiansPerSecond);
+
         for (int i = 0; i < limelights.length; ++i) {
-          LimelightHelpers.SetRobotOrientation(limelights[i], botState.Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+          LimelightHelpers.SetRobotOrientation(limelights[i], botState.Pose.getRotation().getDegrees(), 0, 0, 0, 0,
+              0);
           PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelights[i]);
-          if (poseEstimate != null && poseEstimate.tagCount > 0 && Math.abs(omegarps) < 1.0) {
-            m_robotContainer.drivetrain.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds,
-                VecBuilder.fill(.9, .9, 999999));
+          if (DriverStation.isEnabled()) {
+            if (poseEstimate != null && poseEstimate.tagCount > 0 && Math.abs(omegarps) < 1.0) {
+              m_robotContainer.drivetrain.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds,
+                  VecBuilder.fill(.9, .9, 999999));
+            }
           }
         }
-      }
+      });
 
       // Run warmup commands.
       // Once the "not at the start pose" command is done, start the "at start pose"
