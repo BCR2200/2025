@@ -156,14 +156,14 @@ public class Robot extends TimedRobot {
       // Once the "not at the start pose" command is done, start the "at start pose"
       // warmup command
       if (warmupCommandNotAtStartPose != null) {
-        if (warmupCommandTimer.hasElapsed(10)) {
+        if (warmupCommandTimer.hasElapsed(6)) {
           if (warmupCommandAtStartPose == null) {
             SmartDashboard.putBoolean("warmupNotAtStartPose finished", true);
             warmupCommandAtStartPose = new WarmupAutoCmd(m_robotContainer.drivetrain, m_robotContainer.driveRC, true)
                 .ignoringDisable(true);
             warmupCommandAtStartPose.schedule();
             warmupCommandTimer.reset();
-          } else if (warmupCommandTimer.hasElapsed(10)) {
+          } else if (warmupCommandTimer.hasElapsed(6)) {
             SmartDashboard.putBoolean("warmupAtStartPose finished", true);
             warmupCommandNotAtStartPose = null; // Prevent entering this block again; we have updated dashboard.
           }

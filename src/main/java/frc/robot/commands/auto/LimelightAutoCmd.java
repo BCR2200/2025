@@ -112,26 +112,26 @@ public class LimelightAutoCmd extends Command {
           // targetTy = 0.587;
           // targetYaw = 0;
           targetTx = 0.170;
-          if(idToLookFor == 6 || idToLookFor == 19){
-            targetTx = 0.130;
-          }
-          if(idToLookFor == 9 || idToLookFor == 22){
-            targetTy = 0.6;
-          }
-          if(idToLookFor == 20 || idToLookFor == 11){
-            targetTy = 0.56;
-          }
+          // if(idToLookFor == 6 || idToLookFor == 19){
+          //   targetTx = 0.130;
+          // }
+          // if(idToLookFor == 9 || idToLookFor == 22){
+          //   targetTy = 0.6;
+          // }
+          // if(idToLookFor == 20 || idToLookFor == 11){
+          //   targetTy = 0.56;
+          // }
           break;
         case Left:
           primaryCam = "limelight-right";
           fallbackCam = "limelight-left";
           targetTx = -0.17;
-          if(idToLookFor == 6 || idToLookFor == 19){
-            targetTx = -0.22;
-          }
-          if(idToLookFor == 9 || idToLookFor == 22){
-            targetTx = -0.22;
-          }
+          // if(idToLookFor == 6 || idToLookFor == 19){
+          //   targetTx = -0.22;
+          // }
+          // if(idToLookFor == 9 || idToLookFor == 22){
+          //   targetTx = -0.22;
+          // }
           break;
         default:
           primaryCam = "limelight-left";

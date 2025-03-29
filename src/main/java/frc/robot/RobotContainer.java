@@ -431,14 +431,16 @@ public class RobotContainer {
               case Right:
                 primaryCam = "limelight-left";
                 fallbackCam = "limelight-right";
-                targetTx = 0.150;
+                targetTx = 0.170; // competition value
+                // targetTx = 0.150;
                 // targetTy = 0.587;
                 // targetYaw = 0;
                 break;
               case Left:
                 primaryCam = "limelight-right";
                 fallbackCam = "limelight-left";
-                targetTx = -0.18;
+                targetTx = -0.170; // competition value
+                // targetTx = -0.18;
                 break;
               default:
                 primaryCam = "limelight-left";

@@ -57,7 +57,7 @@ public class CenterAuto extends AutoCommand {
           // AutoBuildingBlocks.autoStep("YEEET!!"),
           // new AlgaeYeet(e, RequestState.Barge, 2),
           // AutoBuildingBlocks.autoStep("GET OUT!!!"),
-          new ModeCmd(e, ControlMode.Coral),
+          // new ModeCmd(e, ControlMode.Coral),
           // AutoBuildingBlocks.followPathCommand(path6),
           AutoBuildingBlocks.autoStep("DONE")
     );

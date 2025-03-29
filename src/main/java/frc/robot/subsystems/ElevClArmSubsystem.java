@@ -121,7 +121,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   static double elevatorRatio = 0.69625; // implied
 
-  public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 11.5);
+  public final static ElevArmPosition HOPPER_POSITION = new ElevArmPosition(0, 9);
   public final static ElevArmPosition INTAKE_POSITION = new ElevArmPosition(0, 1.0);
   public final static ElevArmPosition SAFE_CORAL_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
   public final static ElevArmPosition SAFE_ALGAE_POSITION = new ElevArmPosition(0, 23);
@@ -141,9 +141,9 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   // public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(21 * elevatorRatio, 38);
   public final static ElevArmPosition PICKBOTTOM_POSITION = new ElevArmPosition(23 * elevatorRatio, 38);
-  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(8 * elevatorRatio, 38);
-  public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(45 * elevatorRatio, 28);
-  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(53.5 * elevatorRatio, 38);
+  public final static ElevArmPosition PICKBOTTOM_EMOVE_POSITION = new ElevArmPosition(9 * elevatorRatio, 38);
+  public final static ElevArmPosition PICKTOP_POSITION = new ElevArmPosition(41 * elevatorRatio, 28);
+  public final static ElevArmPosition PICKTOP_EMOVE_POSITION = new ElevArmPosition(50* elevatorRatio, 38);
   public final static ElevArmPosition BARGE_PLACE_POSITION = new ElevArmPosition(105 * elevatorRatio, 16.8);
   public final static ElevArmPosition BARGE_EPLACE_POSITION = new ElevArmPosition(105 * elevatorRatio, 28);
   public final static ElevArmPosition BARGE_POSITION = new ElevArmPosition(103 * elevatorRatio, 20);
@@ -242,13 +242,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   Timer intakeTimer;
   Timer bargeTimer;
+  Timer pickTimer;
   public boolean manualCoral = false;
 
   final int normalShoulderCurrentLimit = 30;
   final int softShoulderCurrentLimit = 10;
 
   final int normalClawCurrentLimit = 30;
-  final int algaeClawCurrentLimit = 35;
+  final int algaeClawCurrentLimit = 45;
 
   public ElevClArmSubsystem() {
     leftElevatorMotor = PIDMotor.makeMotor(Constants.LEFT_ELEVATOR_ID, "left elevator", 2.5, 0, 0.1, 0.25, 0.1, 
@@ -275,6 +276,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     intakeTimer = new Timer();
     bargeTimer = new Timer();
+    pickTimer = new Timer();
   }
 
   @Override
@@ -420,6 +422,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
             }
             switch (requestState) {
               case AlgaeTop:
+                pickTimer.stop();
+                pickTimer.reset();
                 state = conditionalTransition(state, ElevArmState.PickTopEMove);
                 break;
               case AlgaeBottom:
@@ -429,10 +433,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 state = conditionalTransition(state, ElevArmState.Processor);
                 break;
               case Barge:
-                state = conditionalTransition(state, ElevArmState.BargeEMove);
+                state = ElevArmState.SafeAlgaeEMove;
                 break;
               case BargePlace:
-                state = conditionalTransition(state, ElevArmState.BargeEPlace);
+                state = ElevArmState.SafeAlgaeEMove;
                 break;
               default:
                 break;
@@ -670,7 +674,12 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case PickTopEMove:
             switch (requestState) {
               case AlgaeTop:
-                state = conditionalTransition(state, ElevArmState.PickTop);
+                if(atPosition() && pickTimer.get() == 0){
+                  pickTimer.start();
+                }
+                if(pickTimer.get() >= 0.5){
+                  state = conditionalTransition(state, ElevArmState.PickTop);
+                }
                 break;
               case AlgaeBottom:
                 state = ElevArmState.PickBottomEMove;
@@ -772,10 +781,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 state = ElevArmState.PickBottomEMove;
                 break;
               case Barge:
-                state = ElevArmState.BargeEMove;
+                state = conditionalTransition(state, ElevArmState.BargeEMove);
                 break;
               case BargePlace:
-                state = ElevArmState.BargeEPlace;
+                state = conditionalTransition(state, ElevArmState.BargeEPlace);
                 break;
               case Processor:
                 state = conditionalTransition(state, ElevArmState.Processor);
@@ -905,15 +914,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
     }
   }
 
-  double lvl1SlowAccel = 250;
-  double algaeArmAccel = 250;
+  double lvl1SlowAccel = 100;
+  double lvl1SlowVel = 60;
+  double algaeArmAccel = 200;
   double algaeYeetVel = 70;
   double algaeYeetAccel = 400;
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
     TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
       if(state == ElevArmState.LvlOne){
-        shoulderMotor.setTarget(goal.armPos, lvl1SlowAccel);
+        shoulderMotor.setTarget(goal.armPos, lvl1SlowVel, lvl1SlowAccel);
       } else if(state == ElevArmState.SafeCoral){
         shoulderMotor.setTarget(goal.armPos, 250);
       } else if(state == ElevArmState.Barge){
@@ -925,7 +935,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
       } else{
         shoulderMotor.setTarget(goal.armPos);
       }
-      rightElevatorMotor.setTarget(goal.elevatorPos);
+      if(state == ElevArmState.PickTopEMove){
+        rightElevatorMotor.setTarget(goal.elevatorPos, 80, 300);
+      } else {
+        rightElevatorMotor.setTarget(goal.elevatorPos);
+      }
     });
   }
 
