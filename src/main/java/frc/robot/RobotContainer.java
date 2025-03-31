@@ -146,7 +146,7 @@ public class RobotContainer {
   // SwerveRequest.SwerveDriveBrake();
   public final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-  private final Telemetry logger;
+//  private final Telemetry logger;
 
   public final CommandSwerveDrivetrain drivetrain;
   double heightFactor;
@@ -167,7 +167,7 @@ public class RobotContainer {
       MaxSpeed = TunerConstantsPrac.kSpeedAt12Volts.in(MetersPerSecond) * speedFactor;
     }
     MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * speedFactor;
-    logger = new Telemetry(MaxSpeed);
+//    logger = new Telemetry(MaxSpeed);
     AutoBuildingBlocks.drivetrain = drivetrain;
 
     // gyro = new PigeonSubsystem();
@@ -535,7 +535,7 @@ public class RobotContainer {
           }
         }));
 
-    drivetrain.registerTelemetry(logger::telemeterize);
+    //drivetrain.registerTelemetry(logger::telemeterize);
   }
   
   public ReefSide getFacingSide() {
