@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PIDMotor;
-import frc.robot.timing.TimingUtils;
 // slow down arm for algae processor/stow
 public class ElevClArmSubsystem extends SubsystemBase {
   private final DataLog log = DataLogManager.getLog();
@@ -279,19 +278,15 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    TimingUtils.logDuration("ElevClArmSubsystem.periodic", () -> {
 
       AtomicBoolean coralInHopper = new AtomicBoolean(false);
       AtomicBoolean coralLeavingClaw = new AtomicBoolean(false);
       AtomicBoolean coralEnteredClaw = new AtomicBoolean(false);
-      TimingUtils.logDuration("ElevClArmSubsystem.update_coral_dio", () -> {
         // if arm back, claws forward tracker
         coralLeavingClaw.set(isCoralLeavingClaw());
         coralEnteredClaw.set(isCoralEnteredClaw());
         coralInHopper.set(isCoralInHopper());
-      });
 
-      TimingUtils.logDuration("ElevClArmSubsystem.first_switch", () -> {
         switch (state) { // state transitions
           case Hopper:
             switch (requestMode) {
@@ -787,9 +782,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
             break;
 
         }
-      });
 
-      TimingUtils.logDuration("ElevClArmSubsystem.second_switch", () -> {
         switch (state) { // in state what are we doing with claw
           case Hopper:
           case SafeCoral:
@@ -828,8 +821,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
           default:
             throw new IllegalArgumentException("Unexpected value: " + this);
         }
-      });
-      
+
       go(state.position());
       ControlMode eMode = getEMode();
 
@@ -894,7 +886,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
       coralInHopperLog.append(coralInHopper.get());
       coralInClawLog.append(coralLeavingClaw.get());
       // coralInClawLog.append(coralEnteredClaw.get());
-    });
   }
 
   private void turnOnPosCtrl() {
@@ -911,7 +902,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
   double algaeYeetAccel = 400;
   // manage positions asked to, only go if safe
   public void go(ElevArmPosition goal) {
-    TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
       if(state == ElevArmState.LvlOne){
         shoulderMotor.setTarget(goal.armPos, lvl1SlowAccel);
       } else if(state == ElevArmState.SafeCoral){
@@ -926,7 +916,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
         shoulderMotor.setTarget(goal.armPos);
       }
       rightElevatorMotor.setTarget(goal.elevatorPos);
-    });
   }
 
   public boolean isCoralInHopper() {
@@ -965,23 +954,19 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public boolean atPosition(double epsilon) {
     AtomicBoolean retVal = new AtomicBoolean(false);
-    TimingUtils.logDuration("ElevClArmSubsystem.atPosition", () -> {
       retVal.set(
 
           rightElevatorMotor.atPosition(epsilon) &&
               shoulderMotor.atPosition(epsilon));
-    });
     return retVal.get();
   }
 
   public boolean atFinalPosition(double epsilon) {
     AtomicBoolean retVal = new AtomicBoolean(false);
-    TimingUtils.logDuration("ElevClArmSubsystem.atFinalPosition", () -> {
       retVal.set(
           requestState.finaleState() == state &&
               rightElevatorMotor.atPosition(epsilon) &&
               shoulderMotor.atPosition(epsilon));
-    });
     return retVal.get();
   }
 
@@ -995,14 +980,11 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
   public ControlMode getEMode() {
     AtomicReference<ControlMode> retVal = new AtomicReference<>(ControlMode.Coral);
-    TimingUtils.logDuration("ElevClArmSubsystem.getEMode", () -> {
       retVal.set(state.getControlMode());
-    });
     return retVal.get();
   }
 
   public void printDashboard() {
-    TimingUtils.logDuration("ElevClArmSubsystem.printDashboard", () -> {
       SmartDashboard.putString("ElevArm State:", state.toString());
       SmartDashboard.putString("Requested State:", requestState.toString());
 
@@ -1037,7 +1019,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
       rightElevatorMotor.putP();
       shoulderMotor.putP();
       // clawMotor.putPV();
-    });
 
   }
 

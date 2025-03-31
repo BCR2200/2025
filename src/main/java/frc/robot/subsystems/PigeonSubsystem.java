@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import frc.robot.timing.TimingUtils;
 
 public class PigeonSubsystem extends SubsystemBase {
   Pigeon2 pigeon;
@@ -18,14 +17,12 @@ public class PigeonSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    TimingUtils.logDuration("PigeonSubsystem.periodic", () -> {
       try {
         updateValues();
         // printDashboard();
       } catch (Exception e) {
         // SmartDashboard.putString("CTRE Last Error", e.getMessage());
       }
-    });
   }
 
   public void updateValues() {

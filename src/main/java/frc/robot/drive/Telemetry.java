@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.robot.timing.TimingUtils;
 
 public class Telemetry {
     private final double MaxSpeed;
@@ -84,7 +83,6 @@ public class Telemetry {
 
     /** Accept the swerve drive state and telemeterize it to SmartDashboard and SignalLogger. */
     public void telemeterize(SwerveDriveState state) {
-        TimingUtils.logDuration("Telemetry.telemeterize", () -> {
             /* Telemeterize the swerve drive state */
             drivePose.set(state.Pose);
             driveSpeeds.set(state.Speeds);
@@ -122,6 +120,5 @@ public class Telemetry {
 
                 SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
             }
-        });
     }
 }

@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PIDMotor;
-import frc.robot.timing.TimingUtils;
 
 public class ClimberSubsystem extends SubsystemBase {
   public PIDMotor climbMotor;
@@ -68,14 +67,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    TimingUtils.logDuration("ClimberSubsystem.periodic", () -> {
       climbMotor.setPercentOutput(speed());
-    });
   }
 
   public void printDashboard() {
-    TimingUtils.logDuration("CliberSubsystem.printDashboard", () -> {
       climbMotor.putP();
-    });
   }
 }

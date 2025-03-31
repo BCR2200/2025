@@ -6,12 +6,8 @@ package frc.robot;
 
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -22,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.WarmupAutoCmd;
-import frc.robot.timing.TimingUtils;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -47,8 +42,6 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robotContainer = new RobotContainer();
-    DataLogManager.start();
-    DriverStation.startDataLog(DataLogManager.getLog());
 
     updateAlliance();
     m_robotContainer.updateDrivetrainRobotPerspective();
@@ -71,33 +64,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("warmupAtStartPose finished", false);
     m_robotContainer.autoChooser.onChange(this::updateFieldPaths);
     updateAlliance();
-    // is this the problem?
-    TimingUtils.logDuration("commandSwerveDriveTrain.addVisionMeasurement2", () -> {
-    });
-    TimingUtils.logDuration("ClimberSubsystem.periodic", () -> {
-    });
-    TimingUtils.logDuration("CliberSubsystem.printDashboard", () -> {
-    });
-    TimingUtils.logDuration("ElevClArmSubsystem.periodic", () -> {
-    });
-    TimingUtils.logDuration("ElevClArmSubsystem.update_coral_dio", () -> {
-    });
-    TimingUtils.logDuration("ElevClArmSubsystem.first_switch", () -> {
-    });
-    TimingUtils.logDuration("ElevClArmSubsystem.second_switch", () -> {
-    });
-    TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
-    });
-    TimingUtils.logDuration("ElevClArmSubsystem.atPosition", () -> {
-    });
-    TimingUtils.logDuration("ElevClArmSubsystem.atFinalPosition", () -> {
-    });
-    TimingUtils.logDuration("ElevClArmSubsystem.getEMode", () -> {
-    });
-    TimingUtils.logDuration("ElevClArmSubsystem.printDashboard", () -> {
-    });
-    TimingUtils.logDuration("PigeonSubsystem.periodic", () -> {
-    });
   }
 
   public void updateFieldPaths(AutoCommand auto) {
@@ -112,12 +78,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    TimingUtils.logDuration("robotPeriodic", () -> {
-      TimingUtils.logDuration("commandScheduler", () -> {
         CommandScheduler.getInstance().run();
-      });
 
-      TimingUtils.logDuration("dashboard", () -> {
         if (Timer.getFPGATimestamp() > lastDashboardUpdate + 0.200) {
           SmartDashboard.putData("Field", m_field);
           m_robotContainer.e.printDashboard();
@@ -133,9 +95,7 @@ public class Robot extends TimedRobot {
           // updateFieldPaths(m_robotContainer.autoChooser.getSelected());
           // }
         }
-      });
 
-      TimingUtils.logDuration("limelight", () -> {
         var botState = m_robotContainer.drivetrain.getState();
         double omegarps = Units.radiansToRotations(botState.Speeds.omegaRadiansPerSecond);
 
@@ -150,7 +110,6 @@ public class Robot extends TimedRobot {
             }
           }
         }
-      });
 
       // Run warmup commands.
       // Once the "not at the start pose" command is done, start the "at start pose"
@@ -169,8 +128,6 @@ public class Robot extends TimedRobot {
           }
         }
       }
-
-    });
   }
 
   @Override
@@ -181,7 +138,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    // TimingUtils.logDuration("disabledPeriodic", () -> {
     if (climbToCoast.get() > 6 && climbToCoast.get() < 7) {
       m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
       m_robotContainer.e.shoulderMotor.setIdleCoastMode();
@@ -199,8 +155,6 @@ public class Robot extends TimedRobot {
         updateFieldPaths(m_robotContainer.autoChooser.getSelected());
       }
     }
-
-    // });
   }
 
   @Override
@@ -244,9 +198,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    // TimingUtils.logDuration("teleopPeriodic", () -> {
-
-    // });
   }
 
   @Override
