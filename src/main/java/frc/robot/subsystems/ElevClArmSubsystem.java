@@ -364,7 +364,6 @@ public class ElevClArmSubsystem extends SubsystemBase {
               break;
             }
             
-            
             switch (requestState) {
               case UnjamStrat1:
                 if (manualCoral) {
@@ -381,8 +380,10 @@ public class ElevClArmSubsystem extends SubsystemBase {
               case CoralLevel2:
               case CoralLevel3:
               case CoralLevel4:
-                state = conditionalTransition(state, ElevArmState.LvlOneEMove);
-                break;
+                if(coralLeavingClaw.get() || manualCoral){
+                  state = conditionalTransition(state, ElevArmState.LvlOneEMove);
+                  break;
+                }
               default:
                 break;
             }
