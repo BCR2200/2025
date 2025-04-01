@@ -446,7 +446,7 @@ public class RobotContainer {
                 primaryCam = "limelight-left";
                 fallbackCam = "limelight-right";
                 targetTx = 0.0;
-                targetTy = 0.65;
+                targetTy = 0.67;
                 if (e.getEMode() == ControlMode.Algae) {
                   targetTx = 0.0;
                   targetTy = 0.49;

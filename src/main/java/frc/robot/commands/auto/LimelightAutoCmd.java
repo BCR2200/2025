@@ -137,7 +137,7 @@ public class LimelightAutoCmd extends Command {
           primaryCam = "limelight-left";
           fallbackCam = "limelight-right";
           targetTx = 0.0;
-          targetTy = 0.5;
+          targetTy = 0.67;
       }
 
       camRet = OURLimelightHelpers.getBotPoseTargetSpace(primaryCam, fallbackCam, idToLookFor, 10000000.0);

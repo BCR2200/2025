@@ -225,11 +225,12 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public double clawTargetPosition;
 
   public enum ClawState {
-    Eat, Stop________HammerTime, Vomit, EatAlgae, Poop, Drool, LazyBowelSyndrome;
+    Eat, SlowEat, Stop________HammerTime, Vomit, EatAlgae, Poop, Drool, LazyBowelSyndrome;
 
     public double speed() {
       return switch (this) {
         case Eat -> 0.6;
+        case SlowEat -> 0.3;
         case EatAlgae -> 0.7;
         case Poop -> 1.0;
         case Stop________HammerTime -> 0.0;
@@ -362,6 +363,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               state = conditionalTransition(state, ElevArmState.Hopper);
               break;
             }
+            
             
             switch (requestState) {
               case UnjamStrat1:
@@ -875,12 +877,22 @@ public class ElevClArmSubsystem extends SubsystemBase {
         clawstate = ClawState.Drool;
       }
 
-
+      
+      
       if (!coralEnteredClaw.get() && !coralLeavingClaw.get()) {
         positionControl = false;
       }
+      
+      if(state == ElevArmState.SafeCoral && atPosition() && coralEnteredClaw.get() && !coralLeavingClaw.get() && !manualCoral){
+        if(positionControl){
+          clawStartPosition += 0.1;
+        } else {
+          clawstate = ClawState.SlowEat;
+        }
+      }
 
       clawTargetPosition = ( (shoulderMotor.getPosition() - armStartPosition) * -(24.0 / 73.4)) + clawStartPosition;
+      
 
       // if(requestState == ElevArmState.LvlOne){
       //   clawTargetPosition -= 5;
@@ -931,12 +943,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
       } else if(state == ElevArmState.SafeAlgae){
         shoulderMotor.setTarget(goal.armPos, 50, algaeArmAccel);
       } else if (getEMode() == ControlMode.Algae){
-        shoulderMotor.setTarget(goal.armPos, algaeArmAccel);
+        shoulderMotor.setTarget(goal.armPos, 70, 150); // algae slowdown
       } else{
         shoulderMotor.setTarget(goal.armPos);
       }
       if(state == ElevArmState.PickTopEMove){
         rightElevatorMotor.setTarget(goal.elevatorPos, 80, 300);
+      }else if (getEMode() == ControlMode.Algae){
+        rightElevatorMotor.setTarget(goal.elevatorPos, 70, 150); // algae slowdown
       } else {
         rightElevatorMotor.setTarget(goal.elevatorPos);
       }
@@ -1032,6 +1046,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("Elevator current:", rightElevatorMotor.getCurrent());
       SmartDashboard.putNumber("Arm current:", shoulderMotor.getCurrent());
       SmartDashboard.putNumber("Claw current:", clawMotor.getCurrent());
+      SmartDashboard.putBoolean("Position Control:", positionControl);
 
       // SmartDashboard.putNumber("Elevator voltage applied:",
       //     rightElevatorMotor.motor.getMotorVoltage().getValue().magnitude());
