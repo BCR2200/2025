@@ -328,7 +328,7 @@ public class LEDSubsystem implements Runnable {
         setColour(fullStrip, Color.kBlack); // reset is needed
         sleepInterval = 100;
         if(robot.snap == SnapButton.Left){
-          if (Math.abs(robot.positionError) < 0.045) {
+          if (Math.abs(robot.positionError) < 0.045 && Math.abs(robot.positionError) != 0) {
             setColour(fullStrip, Color.kGreen);
           } else {
             if(turnSignalOn){
