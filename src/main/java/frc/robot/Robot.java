@@ -71,7 +71,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("warmupAtStartPose finished", false);
     m_robotContainer.autoChooser.onChange(this::updateFieldPaths);
     updateAlliance();
-    // is this the problem?
+    m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Brake);   
+
     TimingUtils.logDuration("commandSwerveDriveTrain.addVisionMeasurement2", () -> {
     });
     TimingUtils.logDuration("ClimberSubsystem.periodic", () -> {
@@ -175,7 +176,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Coast);
+  //  m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Coast);
     m_autonomousCommand = null; // Reset autonomous command when disabled
   }
 
@@ -183,9 +184,9 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     // TimingUtils.logDuration("disabledPeriodic", () -> {
     if (climbToCoast.get() > 6 && climbToCoast.get() < 7) {
-      m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
-      m_robotContainer.e.shoulderMotor.setIdleCoastMode();
-      m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
+      //m_robotContainer.climber.climbMotor.setIdleCoastMode(); // drop robot after 6 seconds post match
+      //m_robotContainer.e.shoulderMotor.setIdleCoastMode();
+      //m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
     }
 
     // Get autonomous command while disabled if not already set
@@ -205,8 +206,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledExit() {
-    m_robotContainer.climber.climbMotor.setIdleBrakeMode();
-    m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Brake);
+  //  m_robotContainer.climber.climbMotor.setIdleBrakeMode();
+  //  m_robotContainer.drivetrain.configNeutralMode(NeutralModeValue.Brake);
   }
 
   @Override
@@ -228,14 +229,14 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    m_robotContainer.e.shoulderMotor.setIdleBrakeMode();
-    m_robotContainer.e.rightElevatorMotor.setIdleBrakeMode();
+//    m_robotContainer.e.shoulderMotor.setIdleBrakeMode();
+//    m_robotContainer.e.rightElevatorMotor.setIdleBrakeMode();
   }
 
   @Override
   public void teleopInit() {
-    m_robotContainer.e.shoulderMotor.setIdleCoastMode();
-    m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
+  //  m_robotContainer.e.shoulderMotor.setIdleCoastMode();
+  //  m_robotContainer.e.rightElevatorMotor.setIdleCoastMode();
 
     m_robotContainer.drivetrain.setControl(m_robotContainer.driveRC.withVelocityX(0)
         .withVelocityY(0)

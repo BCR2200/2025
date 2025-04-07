@@ -225,7 +225,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public double clawTargetPosition;
 
   public enum ClawState {
-    Eat, SlowEat, Stop________HammerTime, Vomit, EatAlgae, Poop, Drool, LazyBowelSyndrome;
+    Eat, SlowEat, Stop________HammerTime, Vomit, EatAlgae, Poop, ChillPoop, Drool, LazyBowelSyndrome;
 
     public double speed() {
       return switch (this) {
@@ -233,6 +233,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case SlowEat -> 0.3;
         case EatAlgae -> 0.7;
         case Poop -> 1.0;
+        case ChillPoop -> 0.7;
         case Stop________HammerTime -> 0.0;
         case Vomit -> -1.0;
         case Drool -> -0.8;
@@ -845,15 +846,19 @@ public class ElevClArmSubsystem extends SubsystemBase {
       go(state.position());
       ControlMode eMode = getEMode();
 
-      if(coralLeavingClaw.get() && eMode == ControlMode.Coral && !positionControl && clawstate != ClawState.Poop){
+      if(coralLeavingClaw.get() && eMode == ControlMode.Coral && !positionControl && clawstate != ClawState.Poop && clawstate != ClawState.ChillPoop){
         turnOnPosCtrl();
       }
 
       if (shootLust && eMode == ControlMode.Coral && state != ElevArmState.SafeCoral
           && state != ElevArmState.Intake && state != ElevArmState.Hopper
+          && state != ElevArmState.LvlTwo && state != ElevArmState.LvlThree
           || shootLust && eMode == ControlMode.Coral && manualCoral) {
         positionControl = false;
         clawstate = ClawState.Poop;
+      } else if (shootLust && (state == ElevArmState.LvlTwo || state == ElevArmState.LvlThree)) {
+        positionControl = false;
+        clawstate = ClawState.ChillPoop;
       } else if (shootLust && eMode == ControlMode.Coral && state == ElevArmState.Hopper) {
         positionControl = false;
         clawstate = ClawState.LazyBowelSyndrome;

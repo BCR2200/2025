@@ -118,9 +118,9 @@ public class LimelightAutoCmd extends Command {
           // if(idToLookFor == 9 || idToLookFor == 22){
           //   targetTy = 0.6;
           // }
-          // if(idToLookFor == 20 || idToLookFor == 11){
-          //   targetTy = 0.56;
-          // }
+          if(idToLookFor == 20 || idToLookFor == 11){
+            targetTy = 0.56;
+          }
           break;
         case Left:
           primaryCam = "limelight-right";

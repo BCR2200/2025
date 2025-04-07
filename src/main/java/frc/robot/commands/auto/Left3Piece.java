@@ -35,13 +35,17 @@ public class Left3Piece extends AutoCommand {
     path6 = AutoBuildingBlocks.loadPathOrThrow("Left.6");
     addCommands(
         // is auto step the problem??
-        new WaitCommand(0.1),
+        new WaitCommand(0.01),
         AutoBuildingBlocks.autoStep("PATH 1"),
         new PathAndElevateWithinDist(path1, ReefSide.BL, SnapButton.Right, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BL"),
-        new LimelightAutoCmd(ReefSide.BL, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
+        Commands.race(
+          new GiveUp(e),
+          new LimelightAutoCmd(ReefSide.BL, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2)
+        ),
         AutoBuildingBlocks.autoStep("PATH 2"),
         AutoBuildingBlocks.followPathCommand(path2),
+        new WaitCommand(0.2),
         AutoBuildingBlocks.autoStep("PATH 3"),
         new PathAndElevateWithinDist(path3, ReefSide.FL, SnapButton.Left, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("SCORE L4 LEFT FL"),
@@ -51,6 +55,7 @@ public class Left3Piece extends AutoCommand {
         ),
         AutoBuildingBlocks.autoStep("PATH 4"),
         AutoBuildingBlocks.followPathCommand(path4),
+        new WaitCommand(0.2),
         AutoBuildingBlocks.autoStep("PATH 5"),
         new PathAndElevateWithinDist(path5, ReefSide.FL, SnapButton.Right, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("3 PIECEEE BABY"),
