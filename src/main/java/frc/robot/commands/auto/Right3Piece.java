@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.ReefSide;
+import frc.robot.RobotContainer;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.input.SnapButton;
@@ -27,7 +28,7 @@ public class Right3Piece extends AutoCommand {
   private final PathPlannerPath path5;
   private final PathPlannerPath path6;
 
-  public Right3Piece(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
+  public Right3Piece(RobotContainer robot, ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
     path1 = AutoBuildingBlocks.loadPathOrThrow("Right.1");
     path2 = AutoBuildingBlocks.loadPathOrThrow("Right.2");
     path3 = AutoBuildingBlocks.loadPathOrThrow("Right.3");
@@ -44,7 +45,7 @@ public class Right3Piece extends AutoCommand {
         AutoBuildingBlocks.autoStep("SCORE L4 RIGHT BR"),
         Commands.race(
             new GiveUp(e),
-            new LimelightAutoCmd(ReefSide.BR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)),
+            new LimelightAutoCmd(robot, ReefSide.BR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)),
         AutoBuildingBlocks.autoStep("PATH 2"),
         AutoBuildingBlocks.followPathCommand(path2),
         new WaitCommand(0.2),
@@ -53,7 +54,7 @@ public class Right3Piece extends AutoCommand {
         AutoBuildingBlocks.autoStep("SCORE L4 RIGHT FR"),
         Commands.race(
             new GiveUp(e),
-            new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2)),
+            new LimelightAutoCmd(robot, ReefSide.FR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2)),
         AutoBuildingBlocks.autoStep("PATH 4"),
         AutoBuildingBlocks.followPathCommand(path4),
         new WaitCommand(0.2),
@@ -62,7 +63,7 @@ public class Right3Piece extends AutoCommand {
         AutoBuildingBlocks.autoStep("RAHHHHHH"),
         Commands.race(
             new GiveUp(e),
-            new LimelightAutoCmd(ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)),
+            new LimelightAutoCmd(robot, ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel4, swerve, 2)),
         AutoBuildingBlocks.autoStep("PATH 6"),
         AutoBuildingBlocks.followPathCommand(path6),
         AutoBuildingBlocks.autoStep("IS HE GOATED??"),
