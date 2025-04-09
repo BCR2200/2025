@@ -30,7 +30,11 @@ import frc.robot.commands.SuckCmd;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.CenterAuto;
 import frc.robot.commands.auto.Left3Piece;
+import frc.robot.commands.auto.Left4Piece;
 import frc.robot.commands.auto.Right3Piece;
+import frc.robot.commands.auto.TautoLF;
+import frc.robot.commands.auto.TautoRB;
+import frc.robot.commands.auto.TautoRF;
 import frc.robot.commands.auto.Testing;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
@@ -90,8 +94,10 @@ public class RobotContainer {
   DPadButton upDpad;
   DPadButton downDpad;
 
-  DPadButton climb;
-  DPadButton unclimb;
+  DPadButton coDpadUp;
+  DPadButton coDpadDown;
+  DPadButton coDpadLeft;
+  DPadButton coDpadRight;
 
   public double dpadShiftX;
   public double dpadShiftY;
@@ -114,6 +120,8 @@ public class RobotContainer {
   static Rotation2d LeftFeederAngle = Rotation2d.fromDegrees(90 - 144.011);
   static Rotation2d RightFeederAngle = Rotation2d.fromDegrees(144.011 - 90); // measurements stolen from spectrum
   static Rotation2d ReefFAngle = Rotation2d.fromDegrees(0);
+  static Rotation2d LeftL1Angle = Rotation2d.fromDegrees(45);
+  static Rotation2d RightL1Angle = Rotation2d.fromDegrees(-45);
   static Rotation2d ReefFRAngle = Rotation2d.fromDegrees(60);
   static Rotation2d ReefFLAngle = Rotation2d.fromDegrees(-60);
   static Rotation2d ReefBLAngle = Rotation2d.fromDegrees(-120);
@@ -183,9 +191,10 @@ public class RobotContainer {
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("None", null);
     // autoChooser.addOption("Testing", new Testing(e, drivetrain, driveRC));
-    autoChooser.addOption("CenterAuto", new CenterAuto(e, drivetrain, driveRC));
-    autoChooser.addOption("Left3PieceAuto", new Left3Piece(e, drivetrain, driveRC));
-    autoChooser.addOption("Right3PieceAuto", new Right3Piece(e, drivetrain, driveRC));
+    autoChooser.addOption("CenterAuto", new CenterAuto(this, e, drivetrain, driveRC));
+    autoChooser.addOption("Left3PieceAuto", new Left3Piece(this, e, drivetrain, driveRC));
+    autoChooser.addOption("Right3PieceAuto", new Right3Piece(this, e, drivetrain, driveRC));
+    autoChooser.addOption("Left4PieceAuto", new Left4Piece(this, e, drivetrain, driveRC));
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -228,8 +237,10 @@ public class RobotContainer {
     upDpad = new DPadButton(driverController, DPad.Up);
     downDpad = new DPadButton(driverController, DPad.Down);
 
-    climb = new DPadButton(codriverController, DPad.Up);
-    unclimb = new DPadButton(codriverController, DPad.Down);
+    coDpadUp = new DPadButton(codriverController, DPad.Up);
+    coDpadDown = new DPadButton(codriverController, DPad.Down);
+    coDpadLeft = new DPadButton(codriverController, DPad.Left);
+    coDpadRight = new DPadButton(codriverController, DPad.Right);
 
     // processor (just shoot in safe?) maybe default to processor rather than
     // algaesafe
@@ -269,10 +280,16 @@ public class RobotContainer {
         .whileTrue(new SuckCmd(e));
 
     // snap feeder station angles
-    feederRightTrigger.trigger()
+    feederRightTrigger.trigger().and(driverController.rightBumper().negate())
         .whileTrue(new InstantCommand(() -> snap = SnapButton.LeftFeeder));
-    feederLeftTrigger.trigger()
+    feederLeftTrigger.trigger().and(driverController.leftBumper().negate())
         .whileTrue(new InstantCommand(() -> snap = SnapButton.RightFeeder));
+
+    // L1 snap
+    driverController.rightBumper().and(feederRightTrigger.trigger())
+        .whileTrue(new InstantCommand(() -> snap = SnapButton.RightL1));
+    driverController.leftBumper().and(feederLeftTrigger.trigger())
+        .whileTrue(new InstantCommand(() -> snap = SnapButton.LeftL1));
 
     // snap to reef angles
     // snapA.trigger().and(
@@ -339,10 +356,19 @@ public class RobotContainer {
     xButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
         .whileTrue(new RequesteStateCmd(e, RequestState.Processor));
 
-    climb.trigger().and(() -> e.getEMode() == ControlMode.Climb)
+    coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Climb)
         .whileTrue(new ClimberCmd(climber, ClimbState.Up));
-    unclimb.trigger().and(() -> e.getEMode() == ControlMode.Climb)
+    coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Climb)
         .whileTrue(new ClimberCmd(climber, ClimbState.Down));
+
+    // coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+    //     .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
+    coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+         .whileTrue(new TautoLF(this, e, drivetrain, driveRC));
+    coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+        .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
+    coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+         .whileTrue(new TautoRB(this, e, drivetrain, driveRC));
 
     leftDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = -0.08));
     rightDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = 0.08));
@@ -419,7 +445,7 @@ public class RobotContainer {
               -driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
 
           // limelight snaps
-          if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center) {
+          if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center || snap == SnapButton.LeftL1 || snap == SnapButton.RightL1) {
             double tx, ty, yaw;
             double targetTx, targetTy = 0.580, targetYaw = 0; // define unchanging values
             double[][] camRet;
@@ -442,11 +468,25 @@ public class RobotContainer {
                 targetTx = -0.170; // competition value
                 // targetTx = -0.18;
                 break;
+              case RightL1:
+                primaryCam = "limelight-left";
+                fallbackCam = "limelight-right";
+                targetTx = -0.05; // competition value
+                targetTy = 0.70;
+                targetYaw = 25;
+                break;
+              case LeftL1:
+                primaryCam = "limelight-right";
+                fallbackCam = "limelight-left";
+                targetTx = 0.05; // competition value
+                targetTy = 0.70;
+                targetYaw = -25;
+                break;
               default:
                 primaryCam = "limelight-left";
                 fallbackCam = "limelight-right";
                 targetTx = 0.0;
-                targetTy = 0.67;
+                targetTy = 0.45;
                 if (e.getEMode() == ControlMode.Algae) {
                   targetTx = 0.0;
                   targetTy = 0.49;
@@ -515,6 +555,8 @@ public class RobotContainer {
                 case ReefFL -> ReefFLAngle;
                 case ReefFR -> ReefFRAngle;
                 case ReefF -> ReefFAngle;
+                case RightL1 -> RightL1Angle;
+                case LeftL1 -> LeftL1Angle;
                 case Processor -> ProcessorAngle;
                 default -> ReefFAngle;
               };

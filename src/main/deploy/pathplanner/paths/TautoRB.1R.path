@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.6303278688524592,
+        "y": 0.7703381147540983
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.4402055006340087,
+        "y": 1.3683877075868867
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.358504098360656,
+        "y": 2.5684938524590155
+      },
+      "prevControl": {
+        "x": 6.005840163934426,
+        "y": 1.8252561475409834
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.2,
+    "maxAcceleration": 10.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 121.3902681041878
+  },
+  "reversed": false,
+  "folder": "Tauto RB",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 51.34019174590988
+  },
+  "useDefaultConstraints": false
+}

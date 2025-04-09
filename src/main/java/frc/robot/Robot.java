@@ -113,6 +113,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+    SmartDashboard.putString("snap", m_robotContainer.snap.toString());
     TimingUtils.logDuration("robotPeriodic", () -> {
       TimingUtils.logDuration("commandScheduler", () -> {
         CommandScheduler.getInstance().run();

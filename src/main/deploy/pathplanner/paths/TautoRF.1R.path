@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.5224385245901637,
+        "y": 0.734375
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.3646737869072765,
+        "y": 1.3753961806661668
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.668237704918033,
+        "y": 2.520543032786885
+      },
+      "prevControl": {
+        "x": 3.088914374631697,
+        "y": 2.064353251999767
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.2,
+    "maxAcceleration": 10.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 59.620873988631594
+  },
+  "reversed": false,
+  "folder": "Tauto RF",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 51.34019174590988
+  },
+  "useDefaultConstraints": false
+}

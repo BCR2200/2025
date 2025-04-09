@@ -13,6 +13,7 @@ public class Tron extends LEDDrawer {
     private static final double HEAD_BRIGHTNESS = 1.0;
     private static final double TRAIL_BRIGHTNESS = 0.6;
     private static final Color TRON_BLUE = new Color(0, 0.5, 1.0); // Bright cyan color
+    private static final Color TRON_RED = new Color(1.0, 0.5, 0); // Bright red color
     
     private double position = 0;
     private boolean direction = true; // true = moving right, false = moving left
@@ -59,13 +60,22 @@ public class Tron extends LEDDrawer {
                     }
                 }
                 
-                // Create the Tron color with the calculated brightness
-                Color tronColor = new Color(
-                    (int)(TRON_BLUE.red * brightness * 255),
-                    (int)(TRON_BLUE.green * brightness * 255),
-                    (int)(TRON_BLUE.blue * brightness * 255)
+                Color tronColor;
+                // Determine the color of the trail based on the alliance color
+                if (susystem.allianceColor == susystem.BetterRed) {
+                    tronColor = TRON_RED; 
+                } else {
+                    tronColor = TRON_BLUE; 
+                }
+
+                // Adjust the color brightness based on the calculated brightness value
+                tronColor = new Color(
+                    (int)(tronColor.red * brightness * 255),   
+                    (int)(tronColor.green * brightness * 255), 
+                    (int)(tronColor.blue * brightness * 255)  
                 );
-                
+
+                // Set the LED at the calculated position on the strip to the adjusted color
                 susystem.safeSetLED(strip.start + strip.direction * i, tronColor);
             }
         }
@@ -75,4 +85,4 @@ public class Tron extends LEDDrawer {
     public int sleepInterval() {
         return 20;
     }
-} 
+}

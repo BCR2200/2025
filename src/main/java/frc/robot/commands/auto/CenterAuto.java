@@ -11,6 +11,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ReefSide;
+import frc.robot.RobotContainer;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.input.SnapButton;
 import frc.robot.subsystems.ElevClArmSubsystem;
@@ -25,7 +26,7 @@ public class CenterAuto extends AutoCommand {
   private final PathPlannerPath path5;
   // private final PathPlannerPath path6;
 
-  public CenterAuto(ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
+  public CenterAuto(RobotContainer robot, ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
     path1 = AutoBuildingBlocks.loadPathOrThrow("Center.1");
     path2 = AutoBuildingBlocks.loadPathOrThrow("Center.2");
     path3 = AutoBuildingBlocks.loadPathOrThrow("Center.3");
@@ -36,7 +37,7 @@ public class CenterAuto extends AutoCommand {
         AutoBuildingBlocks.autoStep("PATH 1"),
         new PathAndElevateWithinDist(path1, ReefSide.BC, SnapButton.Right, 1.5, RequestState.CoralLevel4, e),
         AutoBuildingBlocks.autoStep("SCORE L4 CENTER BC"),
-        new LimelightAutoCmd(ReefSide.BC, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
+        new LimelightAutoCmd(robot, ReefSide.BC, e, drivetrain, SnapButton.Right, RequestState.CoralLevel4, swerve, 2),
         AutoBuildingBlocks.autoStep("ALGAE TIME"),
         Commands.parallel(
           AutoBuildingBlocks.followPathCommand(path2),

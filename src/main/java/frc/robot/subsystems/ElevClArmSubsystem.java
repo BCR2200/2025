@@ -131,6 +131,8 @@ public class ElevClArmSubsystem extends SubsystemBase {
   public final static ElevArmPosition PROCESSOR_POSITION = new ElevArmPosition(6.5 * elevatorRatio, 47);
   
   public final static ElevArmPosition LVL1_POSITION = new ElevArmPosition(15 * elevatorRatio, 45);
+  public final static ElevArmPosition GOOFYLVL1_POSITION = new ElevArmPosition(17.68, 38.57);
+  public final static ElevArmPosition GOOFYLVL1_EMOVE_POSITION = new ElevArmPosition(17.68, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL1_EMOVE_POSITION = new ElevArmPosition(0, SAFE_CORAL_ARM);
   public final static ElevArmPosition LVL2_POSITION = new ElevArmPosition(17 * elevatorRatio, 25.4);
   public final static ElevArmPosition LVL2_EMOVE_POSITION = new ElevArmPosition(17 * elevatorRatio, SAFE_CORAL_ARM);
@@ -156,6 +158,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     UnjamStrat1, UnjamStrat2,
     LvlOne, LvlTwo, LvlThree, LvlFour,
     LvlOneEMove, LvlTwoEMove, LvlThreeEMove, LvlFourEMove,
+    LvlOneGoofyEMove,
     CorgaeTransition,
     SafeAlgae, PickBottom, PickTop, SafeAlgaeEMove,
     PickBottomEMove, PickTopEMove, Barge, BargeWindup, BargeEMove, Processor,
@@ -172,13 +175,14 @@ public class ElevClArmSubsystem extends SubsystemBase {
         case SafeAlgaeEMove -> SAFE_ALGAE_EMOVE_POSITION;
         case SafeClimb -> SAFE_CLIMB_POSITION;
         case UnlockClimb -> SAFE_CLIMB_POSITION;
-        case LvlOne -> LVL1_POSITION;
+        case LvlOne -> GOOFYLVL1_POSITION; // temp
         case LvlTwo -> LVL2_POSITION;
         case LvlThree -> LVL3_POSITION;
         case LvlFour -> LVL4_POSITION;
         case PickBottom -> PICKBOTTOM_POSITION;
         case PickTop -> PICKTOP_POSITION;
         case LvlOneEMove -> LVL1_EMOVE_POSITION;
+        case LvlOneGoofyEMove -> GOOFYLVL1_EMOVE_POSITION;
         case LvlTwoEMove, UnjamStrat2 -> LVL2_EMOVE_POSITION;
         case LvlThreeEMove -> LVL3_EMOVE_POSITION;
         case LvlFourEMove -> LVL4_EMOVE_POSITION;
@@ -195,7 +199,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
     public ControlMode getControlMode() {
       return switch (this) {
-        case SafeCoral, Hopper, Intake, LvlOne, LvlTwo, LvlThree, LvlFour, LvlOneEMove, LvlTwoEMove, LvlThreeEMove,
+        case SafeCoral, Hopper, Intake, LvlOne, LvlTwo, LvlThree, LvlFour, LvlOneEMove, LvlOneGoofyEMove, LvlTwoEMove, LvlThreeEMove,
             LvlFourEMove, UnjamStrat1, UnjamStrat2 ->
           ControlMode.Coral;
         case Processor, Barge, BargeWindup, SafeAlgae, PickTop, PickBottom, PickTopEMove, PickBottomEMove, BargeEMove,
@@ -269,6 +273,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     shoulderMotor.setCurrentLimit(normalShoulderCurrentLimit);
     clawMotor.setCurrentLimit(normalClawCurrentLimit);
     clawMotor.setIdleBrakeMode();
+    shoulderMotor.setIdleBrakeMode();
 
     hopperBeamBreak = new DigitalInput(Constants.HOPPER_ID);
 
@@ -378,11 +383,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 // }
                 break;
               case CoralLevel1:
+              if(coralLeavingClaw.get() || manualCoral){
+                state = conditionalTransition(state, ElevArmState.LvlOne, 10);
+                break;
+              }
+              break;
               case CoralLevel2:
               case CoralLevel3:
               case CoralLevel4:
                 if(coralLeavingClaw.get() || manualCoral){
-                  state = conditionalTransition(state, ElevArmState.LvlOneEMove);
+                  state = conditionalTransition(state, ElevArmState.LvlOneEMove, 10);
                   break;
                 }
               default:
@@ -522,7 +532,16 @@ public class ElevClArmSubsystem extends SubsystemBase {
               case CoralLevel1:
                 break;
               default:
-                state = ElevArmState.LvlOneEMove;
+                state = ElevArmState.LvlOneGoofyEMove;
+                break;
+            }
+            break;
+          case LvlOneGoofyEMove:
+            switch (requestState) {
+              // case CoralLevel1:
+              //   break;
+              default:
+                state = conditionalTransition(state, ElevArmState.SafeCoral, 1);
                 break;
             }
             break;
@@ -811,6 +830,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case LvlFourEMove:
           case LvlOne:
           case LvlOneEMove:
+          case LvlOneGoofyEMove:
           case LvlThree:
           case LvlThreeEMove:
           case LvlTwo:
@@ -880,7 +900,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
 
       if (shootLust && eMode == ControlMode.Coral && state == ElevArmState.LvlOne) {
         positionControl = false;
-        clawstate = ClawState.Drool;
+        clawstate = ClawState.ChillPoop;
       }
 
       
