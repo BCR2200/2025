@@ -48,7 +48,8 @@ import frc.robot.input.Keybind;
 import frc.robot.input.SnapButton;
 import frc.robot.input.Keybind.Button;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.ClimberSubsystem.ClimbState;
+import frc.robot.subsystems.ClimberSubsystem.ClimbHeight;
+import frc.robot.subsystems.ClimberSubsystem.ManualClimbState;
 import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.ControlMode;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
@@ -357,9 +358,13 @@ public class RobotContainer {
         .whileTrue(new RequesteStateCmd(e, RequestState.Processor));
 
     coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Climb)
-        .whileTrue(new ClimberCmd(climber, ClimbState.Up));
+        .whileTrue(new ClimberCmd(climber, ManualClimbState.Up));
     coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Climb)
-        .whileTrue(new ClimberCmd(climber, ClimbState.Down));
+        .whileTrue(new ClimberCmd(climber, ManualClimbState.Down));
+    coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Climb)
+        .whileTrue(new ClimberCmd(climber, ClimbHeight.Stowed));
+    coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Climb)
+        .whileTrue(new ClimberCmd(climber, ClimbHeight.Engaged));
 
     // coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral)
     //     .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
@@ -423,10 +428,10 @@ public class RobotContainer {
           //   jerkTimer.stop();
           //   jerkTimer.reset();
           // }
-          if (climber.climbMotor.getPosition() < -140) {
-            // point wheels to 0 when climbed for easier manipulation post match
-            return point.withModuleDirection(Rotation2d.fromDegrees(0));
-          }
+          // if (climber.climbMotor.getPosition() < -140) {
+          //   // point wheels to 0 when climbed for easier manipulation post match
+          //   return point.withModuleDirection(Rotation2d.fromDegrees(0));
+          // }
           if (e.rightElevatorMotor.getPosition() > 10) {
             heightFactor = (1.4 / e.rightElevatorMotor.getPosition()) * 15;
             if (heightFactor < 0.2) {
