@@ -523,7 +523,7 @@ public class RobotContainer {
                   .withVelocityY(horizontal)
                   .withTargetDirection(direction);
             } else {
-              // If we just released the center alignment in algae mode... drive back 0.4 seconds TODO
+              // If we just released the center alignment in algae mode... drive back 0.3 seconds TODO
               if(backItUpTimer.get() < 0.3 && e.getEMode() == ControlMode.Algae){
                 return driveRC.withVelocityX(-1.5); // ExtraMath.deadzone(-driverController.getLeftY() * heightFactor * MaxSpeed, 0.1);
                     // .withVelocityY(horizontal)

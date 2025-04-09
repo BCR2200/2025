@@ -374,7 +374,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
                 break;
               case UnjamStrat2:
                 // if (manualCoral) {
-                  state = conditionalTransition(state, ElevArmState.UnjamStrat2);
+                  state = conditionalTransition(state, ElevArmState.UnjamStrat2, 10);
                 // }
                 break;
               case CoralLevel1:
@@ -718,7 +718,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               default:
                 state = ElevArmState.LvlTwoEMove;
                 manualCoral = false;
-                turnOnPosCtrl();
+                turnOnPosCtrl(); // ???
                 break;
               // if stuck in unjam position check out
             }
@@ -942,7 +942,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
     TimingUtils.logDuration("ElevClArmSubsystem.go", () -> {
       if(state == ElevArmState.LvlOne){
         shoulderMotor.setTarget(goal.armPos, lvl1SlowVel, lvl1SlowAccel);
-      } else if(state == ElevArmState.SafeCoral){
+      } else if(state == ElevArmState.SafeCoral && requestState != RequestState.UnjamStrat2){
         shoulderMotor.setTarget(goal.armPos, 250);
       } else if(state == ElevArmState.Barge){
         shoulderMotor.setTarget(goal.armPos, algaeYeetVel, algaeYeetAccel);
@@ -951,7 +951,13 @@ public class ElevClArmSubsystem extends SubsystemBase {
       } else if (getEMode() == ControlMode.Algae){
         shoulderMotor.setTarget(goal.armPos, 70, 150); // algae slowdown
       } else{
-        shoulderMotor.setTarget(goal.armPos);
+        if(getEMode() == ControlMode.Coral && !isCoralLeavingClaw() && !isCoralEnteredClaw()){
+          // if there's no coral in the claw and we're in coral mode let the arm move full speed
+          // especially helpful for going back to hopper pos/getting the elevator down faster
+          shoulderMotor.setTarget(goal.armPos, 450);
+        } else {
+          shoulderMotor.setTarget(goal.armPos);
+        }
       }
       if(state == ElevArmState.PickTopEMove){
         rightElevatorMotor.setTarget(goal.elevatorPos, 80, 300);
