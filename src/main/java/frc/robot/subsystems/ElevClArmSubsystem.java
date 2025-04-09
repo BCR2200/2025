@@ -737,7 +737,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
               default:
                 state = ElevArmState.LvlTwoEMove;
                 manualCoral = false;
-                turnOnPosCtrl();
+                turnOnPosCtrl(); // ???
                 break;
               // if stuck in unjam position check out
             }
