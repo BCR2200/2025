@@ -37,7 +37,7 @@ public class TautoLF extends AutoCommand {
     path2R = AutoBuildingBlocks.loadPathOrThrow("TautoLF.2R");
     addCommands(
         // is auto step the problem??
-        new WaitCommand(0.01),
+        new WaitForCoralCmd(e),
 
         AutoBuildingBlocks.autoStep("PATH 1"),
         new PathAndElevateWithinDist(path1L, ReefSide.FL, SnapButton.Left, 1.5, RequestState.CoralLevel3, e),

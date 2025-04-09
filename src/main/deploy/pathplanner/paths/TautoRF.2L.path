@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5224385245901637,
-        "y": 0.734375
+        "x": 3.6172500000000003,
+        "y": 2.8452499999999996
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3323161563717134,
-        "y": 1.3324245928327882
+        "x": 2.5447500000000005,
+        "y": 1.9189999999999996
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.5977499999999996,
-        "y": 2.51375
+        "x": 1.6303278688524592,
+        "y": 0.8542520491803282
       },
       "prevControl": {
-        "x": 3.123347600350756,
-        "y": 2.1619726387149947
+        "x": 2.6053278688524593,
+        "y": 1.6342520491803283
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.620873988631594
+    "rotation": 54.90418321297389
   },
   "reversed": false,
   "folder": "Tauto RF",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 51.34019174590988
+    "rotation": 60.36161631184867
   },
   "useDefaultConstraints": false
 }

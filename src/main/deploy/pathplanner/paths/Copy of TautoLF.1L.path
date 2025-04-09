@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 3.4515,
-        "y": 5.4582500000000005
+        "x": 3.705,
+        "y": 5.57525
       },
       "prevControl": {
-        "x": 2.934621905581083,
-        "y": 5.944008168705716
+        "x": 3.188121905581083,
+        "y": 6.061008168705715
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": -59.15341258785135
   },
   "reversed": false,
-  "folder": "Tauto LF",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -56.61148642388854

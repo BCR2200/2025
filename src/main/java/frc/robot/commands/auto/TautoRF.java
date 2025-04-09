@@ -25,64 +25,66 @@ import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
 
 public class TautoRF extends AutoCommand {
-  private final PathPlannerPath path1;
-  private final PathPlannerPath path2;
-  private final PathPlannerPath path3;
+  private final PathPlannerPath path1L;
+  private final PathPlannerPath path1R;
+  private final PathPlannerPath path2L;
+  private final PathPlannerPath path2R;
 
   public TautoRF(RobotContainer robot, ElevClArmSubsystem e, CommandSwerveDrivetrain drivetrain, SwerveRequest.RobotCentric swerve) {
-    path1 = AutoBuildingBlocks.loadPathOrThrow("TautoRF.1");
-    path2 = AutoBuildingBlocks.loadPathOrThrow("TautoRF.2");
-    path3 = AutoBuildingBlocks.loadPathOrThrow("TautoRF.3");
+    path1L = AutoBuildingBlocks.loadPathOrThrow("TautoRF.1L");
+    path1R = AutoBuildingBlocks.loadPathOrThrow("TautoRF.1R");
+    path2L = AutoBuildingBlocks.loadPathOrThrow("TautoRF.2L");
+    path2R = AutoBuildingBlocks.loadPathOrThrow("TautoRF.2R");
     addCommands(
         // is auto step the problem??
-        new WaitCommand(0.01),
+        new WaitForCoralCmd(e),
 
         AutoBuildingBlocks.autoStep("PATH 1"),
-        new PathAndElevateWithinDist(path1, ReefSide.FR, SnapButton.Left, 1.5, RequestState.CoralLevel3, e),
-        AutoBuildingBlocks.autoStep("SCORE L3 Left FR"),
+        new PathAndElevateWithinDist(path1L, ReefSide.FR, SnapButton.Left, 1.5, RequestState.CoralLevel3, e),
+        AutoBuildingBlocks.autoStep("SCORE L3 Left FL"),
         new LimelightAutoCmd(robot, ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel3, swerve, 2),
         AutoBuildingBlocks.autoStep("Return to Feeder"),
-        AutoBuildingBlocks.followPathCommand(path3),
+        AutoBuildingBlocks.followPathCommand(path2L),
 
         new WaitForCoralCmd(e),
         
-        AutoBuildingBlocks.autoStep("PATH 1"),
-        new PathAndElevateWithinDist(path1, ReefSide.FR, SnapButton.Right, 1.5, RequestState.CoralLevel3, e),
-        AutoBuildingBlocks.autoStep("SCORE L3 RIGHT FR"),
+        AutoBuildingBlocks.autoStep("PATH 1R"),
+        new PathAndElevateWithinDist(path1R, ReefSide.FR, SnapButton.Right, 1.5, RequestState.CoralLevel3, e),
+        AutoBuildingBlocks.autoStep("SCORE L3 RIGHT FL"),
         new LimelightAutoCmd(robot, ReefSide.FR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel3, swerve, 2),
         AutoBuildingBlocks.autoStep("Return to Feeder"),
-        AutoBuildingBlocks.followPathCommand(path2),
+        AutoBuildingBlocks.followPathCommand(path2R),
 
         new WaitForCoralCmd(e),
         
-        AutoBuildingBlocks.autoStep("PATH 1"),
-        new PathAndElevateWithinDist(path1, ReefSide.FR, SnapButton.Left, 1.5, RequestState.CoralLevel2, e),
-        AutoBuildingBlocks.autoStep("SCORE L3 Left FR"),
+        AutoBuildingBlocks.autoStep("PATH 1L"),
+        new PathAndElevateWithinDist(path1L, ReefSide.FR, SnapButton.Left, 1.5, RequestState.CoralLevel2, e),
+        AutoBuildingBlocks.autoStep("SCORE L3 Left FL"),
         new LimelightAutoCmd(robot, ReefSide.FR, e, drivetrain, SnapButton.Left, RequestState.CoralLevel2, swerve, 2),
         AutoBuildingBlocks.autoStep("Return to Feeder"),
-        AutoBuildingBlocks.followPathCommand(path3),
+        AutoBuildingBlocks.followPathCommand(path2L),
 
         new WaitForCoralCmd(e),
         
-        AutoBuildingBlocks.autoStep("PATH 1"),
-        new PathAndElevateWithinDist(path1, ReefSide.FR, SnapButton.Right, 1.5, RequestState.CoralLevel2, e),
-        AutoBuildingBlocks.autoStep("SCORE L3 RIGHT FR"),
+        AutoBuildingBlocks.autoStep("PATH 1R"),
+        new PathAndElevateWithinDist(path1R, ReefSide.FR, SnapButton.Right, 1.5, RequestState.CoralLevel2, e),
+        AutoBuildingBlocks.autoStep("SCORE L3 RIGHT FL"),
         new LimelightAutoCmd(robot, ReefSide.FR, e, drivetrain, SnapButton.Right, RequestState.CoralLevel2, swerve, 2),
         AutoBuildingBlocks.autoStep("Return to Feeder"),
-        AutoBuildingBlocks.followPathCommand(path2)
+        AutoBuildingBlocks.followPathCommand(path2R)
     );
   }
 
   @Override
   List<Pose2d> getAllRawPathPoses() {
-    return Stream.of(path1.getPathPoses(), path2.getPathPoses(), path3.getPathPoses())
+    return Stream.of(path1L.getPathPoses(), path1R.getPathPoses(), path2L.getPathPoses(), path2R.getPathPoses())
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
   }
 
   @Override
   public Pose2d getRawStartingPose() {
-    return path1.getStartingHolonomicPose().orElseThrow();
+    return path1L.getStartingHolonomicPose().orElseThrow();
   }
 
 }
