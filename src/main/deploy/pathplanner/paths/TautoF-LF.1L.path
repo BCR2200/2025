@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.464596094732105,
-        "y": 6.53538701455438
+        "x": 3.0448770491803274,
+        "y": 6.584375
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.705,
-        "y": 5.57525
+        "x": 2.8770491803278686,
+        "y": 4.43857581967213
       },
       "prevControl": {
-        "x": 3.188121905581083,
-        "y": 6.061008168705715
+        "x": 1.7382172131147542,
+        "y": 5.097899590163934
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.15341258785135
+    "rotation": -1.06091169026419
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Tauto F-LF",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -56.61148642388854
+    "rotation": -56.61148642388855
   },
   "useDefaultConstraints": false
 }

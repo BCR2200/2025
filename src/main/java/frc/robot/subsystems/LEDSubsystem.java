@@ -324,7 +324,7 @@ public class LEDSubsystem implements Runnable {
           setColour(fullStrip, colorCoralClaw);
         }
         
-      } else {
+      } else if (robot.snap != SnapButton.RightFeeder && robot.snap != SnapButton.LeftFeeder){
         setColour(fullStrip, Color.kBlack); // reset is needed
         sleepInterval = 100;
         if(robot.snap == SnapButton.Left){

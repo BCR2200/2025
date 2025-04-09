@@ -32,6 +32,8 @@ import frc.robot.commands.auto.CenterAuto;
 import frc.robot.commands.auto.Left3Piece;
 import frc.robot.commands.auto.Left4Piece;
 import frc.robot.commands.auto.Right3Piece;
+import frc.robot.commands.auto.TautoFLF;
+import frc.robot.commands.auto.TautoLB;
 import frc.robot.commands.auto.TautoLF;
 import frc.robot.commands.auto.TautoRB;
 import frc.robot.commands.auto.TautoRF;
@@ -321,9 +323,9 @@ public class RobotContainer {
     // request states for elevclarm
     // include negative feedback (rumble) for unavailable changes of state/mode TODO
 
-    // Unjam strats
-    leftBumper.trigger().and(() -> e.getEMode() == ControlMode.Coral)
-        .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat1));
+    // // Unjam strats
+    // leftBumper.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+    //     .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat1));
     rightBumper.trigger().and(() -> e.getEMode() == ControlMode.Coral)
         .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat2));
 
@@ -363,12 +365,23 @@ public class RobotContainer {
 
     // coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral)
     //     .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
-    coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Coral)
-         .whileTrue(new TautoLF(this, e, drivetrain, driveRC));
-    coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+    coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
         .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
-    coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Coral)
-         .whileTrue(new TautoRB(this, e, drivetrain, driveRC));
+    coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
+        .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
+    coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
+        .whileTrue(new TautoFLF(this, e, drivetrain, driveRC));
+    coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
+        .whileTrue(new TautoRB(this, e, drivetrain, driveRC));
+
+    coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
+        .whileTrue(new TautoLF(this, e, drivetrain, driveRC));
+    coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
+        .whileTrue(new TautoLF(this, e, drivetrain, driveRC));
+    coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
+        .whileTrue(new TautoFLF(this, e, drivetrain, driveRC));
+    coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
+        .whileTrue(new TautoLB(this, e, drivetrain, driveRC));
 
     leftDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = -0.08));
     rightDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = 0.08));

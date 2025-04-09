@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.9195000000000007,
-        "y": 5.3705
+        "x": 3.0448770491803274,
+        "y": 4.210809426229508
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.683278017658031,
-        "y": 6.4061965945812
+        "x": 1.5464139344262293,
+        "y": 4.09093237704918
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 7.2035
       },
       "prevControl": {
-        "x": 2.7259514520444386,
-        "y": 6.245145943307831
+        "x": 2.133811475409836,
+        "y": 5.973002049180327
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,10 +45,10 @@
     "rotation": -54.16234704572172
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Tauto F-LF",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -61.3082313353816
+    "rotation": -0.9469514467734662
   },
   "useDefaultConstraints": false
 }
