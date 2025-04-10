@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PIDMotor;
@@ -8,7 +9,7 @@ import frc.robot.timing.TimingUtils;
 public class ClimberSubsystem extends SubsystemBase {
   public PIDMotor climbMotor;
   public double target;
-  double manualAdjustBy = 1;
+  double manualAdjustBy = 0.6;
 
   public enum ManualClimbState {
     Down, Up, Off;
@@ -53,7 +54,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public ClimberSubsystem() {
     climbMotor = PIDMotor.makeMotor(Constants.CLIMBER_ID, "climber", 2, 0, 0.1, 0.25, 0.12, 0.01, 0.2, 100, 200, 0);
-    climbMotor.setCurrentLimit(15);
+    climbMotor.setCurrentLimit(55);
     climbMotor.setIdleBrakeMode();
     target = 0;
   }
@@ -101,13 +102,13 @@ public class ClimberSubsystem extends SubsystemBase {
 
       switch (climbState) {
         case Up:
-          if (currentPosition <= 0) {
-            target = Math.min(target + manualAdjustBy, Constants.CLIMBER_MAX_HEIGHT);
+          if (currentPosition > Constants.CLIMBER_MAX_HEIGHT) {
+            target =target - manualAdjustBy;
           }
           break;
         case Down:
-          if (currentPosition >= Constants.CLIMBER_MAX_HEIGHT) {
-            target = Math.max(target - manualAdjustBy, 0);
+          if (currentPosition < 0) {
+            target = target + manualAdjustBy;
           }
           break;
         default:
@@ -122,6 +123,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public void printDashboard() {
     TimingUtils.logDuration("ClimberSubsystem.printDashboard", () -> {
       climbMotor.putP();
+      SmartDashboard.putNumber("target", target);
     });
   }
 }

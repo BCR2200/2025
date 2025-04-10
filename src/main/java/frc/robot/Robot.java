@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
 
   public static Alliance alliance = Alliance.Blue; // Default
   // Controls all configs for comp/practice bot
-  public static final boolean isCompBot = true;
+  public static final boolean isCompBot = false;
 
   private Timer warmupCommandTimer = new Timer();
   private Command warmupCommandNotAtStartPose = null;
@@ -47,8 +47,8 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robotContainer = new RobotContainer();
-    DataLogManager.start();
-    DriverStation.startDataLog(DataLogManager.getLog());
+   DataLogManager.start();
+   DriverStation.startDataLog(DataLogManager.getLog());
 
     updateAlliance();
     m_robotContainer.updateDrivetrainRobotPerspective();

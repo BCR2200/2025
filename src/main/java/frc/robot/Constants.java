@@ -15,9 +15,9 @@ public class Constants {
     public static final int CODRIVER_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
     
-    public static final int CLIMBER_MAX_HEIGHT = -200;
+    public static final int CLIMBER_MAX_HEIGHT = -220;
     public static final int CLIMBER_STOWED = 0;
-    public static final int CLIMBER_ENGAGED = -100;
+    public static final int CLIMBER_ENGAGED = -42;
     public static final int LED_STRIP_ID = 0;
 
     //Digital IO
