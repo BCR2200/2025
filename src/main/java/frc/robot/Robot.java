@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
 
   public static Alliance alliance = Alliance.Blue; // Default
   // Controls all configs for comp/practice bot
-  public static final boolean isCompBot = false;
+  public static final boolean isCompBot = true;
 
   private Timer warmupCommandTimer = new Timer();
   private Command warmupCommandNotAtStartPose = null;

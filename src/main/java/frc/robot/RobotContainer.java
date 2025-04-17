@@ -289,10 +289,10 @@ public class RobotContainer {
         .whileTrue(new InstantCommand(() -> snap = SnapButton.RightFeeder));
 
     // L1 snap
-    driverController.rightBumper().and(feederRightTrigger.trigger())
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.RightL1));
-    driverController.leftBumper().and(feederLeftTrigger.trigger())
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.LeftL1));
+    // driverController.rightBumper().and(feederRightTrigger.trigger())
+    //     .whileTrue(new InstantCommand(() -> snap = SnapButton.RightL1));
+    // driverController.leftBumper().and(feederLeftTrigger.trigger())
+    //     .whileTrue(new InstantCommand(() -> snap = SnapButton.LeftL1));
 
     // snap to reef angles
     // snapA.trigger().and(
@@ -465,7 +465,7 @@ public class RobotContainer {
           // limelight snaps
           if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center || snap == SnapButton.LeftL1 || snap == SnapButton.RightL1) {
             double tx, ty, yaw;
-            double targetTx, targetTy = 0.580, targetYaw = 0; // define unchanging values
+            double targetTx, targetTy = 0.587, targetYaw = 0; // define unchanging values
             double[][] camRet;
             double[] botPose = null;
 
