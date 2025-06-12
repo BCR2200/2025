@@ -826,18 +826,18 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case Hopper:
           case SafeCoral:
           case CorgaeTransition:
-          case LvlFour:
           case LvlFourEMove:
           case LvlOne:
           case LvlOneEMove:
           case LvlOneGoofyEMove:
-          case LvlThree:
           case LvlThreeEMove:
-          case LvlTwo:
           case LvlTwoEMove:
           case SafeClimb:
           case UnlockClimb:
           case UnjamStrat2:
+          case LvlTwo:
+          case LvlThree:
+          case LvlFour:
             clawstate = ClawState.Stop________HammerTime;
             break;
           case Intake:
@@ -858,6 +858,7 @@ public class ElevClArmSubsystem extends SubsystemBase {
           case SafeAlgaeEMove:
             clawstate = ClawState.EatAlgae;
             break;
+          
           default:
             throw new IllegalArgumentException("Unexpected value: " + this);
         }

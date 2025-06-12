@@ -55,11 +55,11 @@ public class AlgaeYeet extends Command {
 
     // e movement stuff
     if (e.atFinalPosition(ep) && shootTimer.get() == 0) {
-      e.shootLust = true;
+      // e.shootLust = true;
       shootTimer.restart();
     }
     if (shootTimer.get() > 0.3) {
-      e.shootLust = false;
+      // e.shootLust = false;
       e.requestState(RequestState.None);
     }
 
@@ -72,7 +72,7 @@ public class AlgaeYeet extends Command {
   public void end(boolean interrupted) {
     // still stow if interrupted
     e.requestState(RequestState.None);
-    e.shootLust = false;
+    // e.shootLust = false;
   }
 
   @Override

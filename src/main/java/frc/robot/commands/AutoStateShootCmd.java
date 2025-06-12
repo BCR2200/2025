@@ -35,7 +35,7 @@ public class AutoStateShootCmd extends Command {
   @Override
   public void execute() {
     if (e.atPosition(ep) && state.finaleState() == e.state && shootTimer.get() == 0) {
-       e.shootLust = true;
+      //  e.shootLust = true;
        shootTimer.start();
     }; 
     //TODO adjust the value
@@ -47,7 +47,7 @@ public class AutoStateShootCmd extends Command {
   @Override
   public void end(boolean interrupted) {
     e.requestState(RequestState.None);
-    e.shootLust = false;
+    // e.shootLust = false;
   }
 
   @Override

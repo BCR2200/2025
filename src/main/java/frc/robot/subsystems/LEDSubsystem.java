@@ -273,42 +273,42 @@ public class LEDSubsystem implements Runnable {
 
 
     // Change coral hopper coral (alliance or a unique color)
-    Color coralColor = Color.kMediumVioletRed;
-    //Color coralColor = allianceColor
+    // Color coralColor = Color.kMediumVioletRed;
+    // Color coralColor = allianceColor
     
     // Display mode
-    Color algaeColor = Color.kGreen;
-    Color climbColor = Color.kDarkOrange;
-    if(robot.dpadShiftX == 0 && robot.dpadShiftY == 0){
-      sleepInterval = 20; // do we need to reset?
-      if(robot.snap == SnapButton.None){
-        if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
-          setColour(fullStrip, coralColor);
-        }
-        if (mode == ControlMode.Algae && current < 20) {
-          setColour(fullStrip, algaeColor);
-          if (algaeTime != 0) {
-            algaeTimer.reset();
-          }
-        }
-        if (mode == ControlMode.Climb) {
-          setColour(fullStrip, climbColor);
-        }
+    // Color algaeColor = Color.kGreen;
+    // Color climbColor = Color.kDarkOrange;
+    // if(robot.dpadShiftX == 0 && robot.dpadShiftY == 0){
+    //   sleepInterval = 20; // do we need to reset?
+    //   if(robot.snap == SnapButton.None){
+    //     if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
+    //       setColour(fullStrip, coralColor);
+    //     }
+    //     if (mode == ControlMode.Algae && current < 20) {
+    //       setColour(fullStrip, algaeColor);
+    //       if (algaeTime != 0) {
+    //         algaeTimer.reset();
+    //       }
+    //     }
+    //     if (mode == ControlMode.Climb) {
+    //       setColour(fullStrip, climbColor);
+    //     }
 
-        // Display if algae is in claw for a short time
-        Color colorAlgaeClawWithTime = Color.kSeaGreen;
-        if (mode == ControlMode.Algae && current >= 20 && algaeTime < 15) {
-          setColour(fullStrip, colorAlgaeClawWithTime);
-          if (algaeTime == 0) {
-            algaeTimer.start();
-          }
-        }
+    //     // Display if algae is in claw for a short time
+    //     Color colorAlgaeClawWithTime = Color.kSeaGreen;
+    //     if (mode == ControlMode.Algae && current >= 20 && algaeTime < 15) {
+    //       setColour(fullStrip, colorAlgaeClawWithTime);
+    //       if (algaeTime == 0) {
+    //         algaeTimer.start();
+    //       }
+    //     }
 
-        // Display if algae is in claw and it's been there for over 15 secs (hurting the motors)
-        Color colorAlgaeClawWithoutTime = Color.kLimeGreen;
-        if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 15) {
-          setColour(fullStrip, colorAlgaeClawWithoutTime);
-        }
+    //     // Display if algae is in claw and it's been there for over 15 secs (hurting the motors)
+    //     Color colorAlgaeClawWithoutTime = Color.kLimeGreen;
+    //     if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 15) {
+    //       setColour(fullStrip, colorAlgaeClawWithoutTime);
+    //     }
 
         // Display if coral is in hopper
         Color colorCoralHopper = Color.kDeepPink;
@@ -324,62 +324,62 @@ public class LEDSubsystem implements Runnable {
           setColour(fullStrip, colorCoralClaw);
         }
         
-      } else if (robot.snap != SnapButton.RightFeeder && robot.snap != SnapButton.LeftFeeder){
-        setColour(fullStrip, Color.kBlack); // reset is needed
-        sleepInterval = 100;
-        if(robot.snap == SnapButton.Left){
-          if (Math.abs(robot.positionError) < 0.045 && Math.abs(robot.positionError) != 0) {
-            setColour(fullStrip, Color.kGreen);
-          } else {
-            if(turnSignalOn){
-             setColour(leftStrip, Color.kYellow); // make blink
-            } else {
-              setColour(fullStrip, Color.kBlack); // make blink
-            }
-            turnSignalOn = !turnSignalOn;
-          }
-        } else if(robot.snap == SnapButton.Right){
-          if (Math.abs(robot.positionError) < 0.045) {
-            setColour(fullStrip, Color.kGreen);
-          } else {
-            if(turnSignalOn){
-              setColour(rightStrip, Color.kYellow); 
-             } else {
-               setColour(fullStrip, Color.kBlack); // blink
-             }
-             turnSignalOn = !turnSignalOn;
-          }
-        } else if(robot.snap == SnapButton.Center){
-          if (Math.abs(robot.positionError) < 0.045) {
-            setColour(fullStrip, Color.kGreen);
-          } else {
-            if(turnSignalOn){
-              setColour(fullStrip, Color.kYellow); 
-             } else {
-               setColour(fullStrip, Color.kBlack); // blink
-             }
-             turnSignalOn = !turnSignalOn;
-          }
-        }
-      }
-    } else {
-      setColour(fullStrip, Color.kBlack); // reset is needed
-      if(robot.dpadShiftX > 0){
-        setColour(leftTopStrip, BetterRed); // shifting right
-        setColour(rightTopStrip, Color.kGreen); 
-      } else if (robot.dpadShiftX < 0){
-        setColour(leftTopStrip, Color.kGreen); // shifting left
-        setColour(rightTopStrip, BetterRed); 
-      } 
+    //   } else if (robot.snap != SnapButton.RightFeeder && robot.snap != SnapButton.LeftFeeder){
+    //     setColour(fullStrip, Color.kBlack); // reset is needed
+    //     sleepInterval = 100;
+    //     if(robot.snap == SnapButton.Left){
+    //       if (Math.abs(robot.positionError) < 0.045 && Math.abs(robot.positionError) != 0) {
+    //         setColour(fullStrip, Color.kGreen);
+    //       } else {
+    //         if(turnSignalOn){
+    //          setColour(leftStrip, Color.kYellow); // make blink
+    //         } else {
+    //           setColour(fullStrip, Color.kBlack); // make blink
+    //         }
+    //         turnSignalOn = !turnSignalOn;
+    //       }
+    //     } else if(robot.snap == SnapButton.Right){
+    //       if (Math.abs(robot.positionError) < 0.045) {
+    //         setColour(fullStrip, Color.kGreen);
+    //       } else {
+    //         if(turnSignalOn){
+    //           setColour(rightStrip, Color.kYellow); 
+    //          } else {
+    //            setColour(fullStrip, Color.kBlack); // blink
+    //          }
+    //          turnSignalOn = !turnSignalOn;
+    //       }
+    //     } else if(robot.snap == SnapButton.Center){
+    //       if (Math.abs(robot.positionError) < 0.045) {
+    //         setColour(fullStrip, Color.kGreen);
+    //       } else {
+    //         if(turnSignalOn){
+    //           setColour(fullStrip, Color.kYellow); 
+    //          } else {
+    //            setColour(fullStrip, Color.kBlack); // blink
+    //          }
+    //          turnSignalOn = !turnSignalOn;
+    //       }
+    //     }
+    //   }
+    // } else {
+    //   setColour(fullStrip, Color.kBlack); // reset is needed
+    //   if(robot.dpadShiftX > 0){
+    //     setColour(leftTopStrip, BetterRed); // shifting right
+    //     setColour(rightTopStrip, Color.kGreen); 
+    //   } else if (robot.dpadShiftX < 0){
+    //     setColour(leftTopStrip, Color.kGreen); // shifting left
+    //     setColour(rightTopStrip, BetterRed); 
+    //   } 
       
-      if (robot.dpadShiftY < 0){
-        setColour(leftBotStrip, Color.kGreen); 
-        setColour(rightBotStrip, Color.kGreen); 
-      } else if (robot.dpadShiftY > 0){
-        setColour(leftBotStrip, BetterRed); 
-        setColour(rightBotStrip, BetterRed); 
-      }
-    }
+    //   if (robot.dpadShiftY < 0){
+    //     setColour(leftBotStrip, Color.kGreen); 
+    //     setColour(rightBotStrip, Color.kGreen); 
+    //   } else if (robot.dpadShiftY > 0){
+    //     setColour(leftBotStrip, BetterRed); 
+    //     setColour(rightBotStrip, BetterRed); 
+    //   }
+    // }
   }
 
   /* These were the individual functions before they were combined into enabledMode

@@ -19,39 +19,40 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+// import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.ClimberCmd;
+// import frc.robot.commands.ClimberCmd;
 import frc.robot.commands.RequesteStateCmd;
 import frc.robot.commands.ShootCmd;
+// import frc.robot.commands.ShootCmd;
 import frc.robot.commands.auto.AutoBuildingBlocks;
-import frc.robot.commands.SuckCmd;
+// import frc.robot.commands.SuckCmd;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.CenterAuto;
 import frc.robot.commands.auto.Left3Piece;
 import frc.robot.commands.auto.Left4Piece;
 import frc.robot.commands.auto.Right3Piece;
-import frc.robot.commands.auto.TautoFLF;
-import frc.robot.commands.auto.TautoLB;
-import frc.robot.commands.auto.TautoLF;
-import frc.robot.commands.auto.TautoRB;
-import frc.robot.commands.auto.TautoRF;
-import frc.robot.commands.auto.Testing;
+// import frc.robot.commands.auto.TautoFLF;
+// import frc.robot.commands.auto.TautoLB;
+// import frc.robot.commands.auto.TautoLF;
+// import frc.robot.commands.auto.TautoRB;
+// import frc.robot.commands.auto.TautoRF;
+// import frc.robot.commands.auto.Testing;
 import frc.robot.drive.CommandSwerveDrivetrain;
 import frc.robot.drive.Telemetry;
 import frc.robot.drive.TunerConstantsComp;
 import frc.robot.drive.TunerConstantsPrac;
 import frc.robot.input.AnalogTrigger;
-import frc.robot.input.DPadButton;
+// import frc.robot.input.DPadButton;
 import frc.robot.input.AnalogTrigger.Axis;
-import frc.robot.input.DPadButton.DPad;
+// import frc.robot.input.DPadButton.DPad;
 import frc.robot.input.Keybind;
 import frc.robot.input.SnapButton;
 import frc.robot.input.Keybind.Button;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.ClimberSubsystem.ClimbHeight;
-import frc.robot.subsystems.ClimberSubsystem.ManualClimbState;
+// import frc.robot.subsystems.ClimberSubsystem.ClimbHeight;
+// import frc.robot.subsystems.ClimberSubsystem.ManualClimbState;
 import frc.robot.subsystems.ElevClArmSubsystem;
 import frc.robot.subsystems.ElevClArmSubsystem.ControlMode;
 import frc.robot.subsystems.ElevClArmSubsystem.RequestState;
@@ -61,8 +62,8 @@ import frc.robot.subsystems.LEDSubsystem;
 public class RobotContainer {
   public final CommandXboxController driverController = new CommandXboxController(
       Constants.DRIVER_CONTROLLER_PORT);
-  public final CommandXboxController codriverController = new CommandXboxController(
-      Constants.CODRIVER_CONTROLLER_PORT);
+  // public final CommandXboxController codriverController = new CommandXboxController(
+  //     Constants.CODRIVER_CONTROLLER_PORT);
   // public final CommandXboxController testController = new
   // CommandXboxController(Constants.TEST_CONTROLLER_PORT);
 
@@ -83,31 +84,31 @@ public class RobotContainer {
   Keybind xButton;
   Keybind yButton;
 
-  Keybind snapA;
-  Keybind snapB;
-  Keybind snapX;
-  Keybind snapY;
+  // Keybind snapA;
+  // Keybind snapB;
+  // Keybind snapX;
+  // Keybind snapY;
   
   //codriver stick click
-  Keybind rightStickClick;
-  Keybind leftStickClick;
+  // Keybind rightStickClick;
+  // Keybind leftStickClick;
 
-  DPadButton rightDpad;
-  DPadButton leftDpad;
-  DPadButton upDpad;
-  DPadButton downDpad;
+  // DPadButton rightDpad;
+  // DPadButton leftDpad;
+  // DPadButton upDpad;
+  // DPadButton downDpad;
 
-  DPadButton coDpadUp;
-  DPadButton coDpadDown;
-  DPadButton coDpadLeft;
-  DPadButton coDpadRight;
+  // DPadButton coDpadUp;
+  // DPadButton coDpadDown;
+  // DPadButton coDpadLeft;
+  // DPadButton coDpadRight;
 
-  public double dpadShiftX;
-  public double dpadShiftY;
+  // public double dpadShiftX;
+  // public double dpadShiftY;
 
   // shoot keybind
-  AnalogTrigger rightTrigger;
-  AnalogTrigger leftTrigger;
+  // AnalogTrigger rightTrigger;
+  // AnalogTrigger leftTrigger;
   AnalogTrigger feederRightTrigger;
   AnalogTrigger feederLeftTrigger;
 
@@ -117,9 +118,6 @@ public class RobotContainer {
   public SnapButton snap = SnapButton.None;
 
   double speedFactor = 0.25;
-  ;
-
-  
 
   static Rotation2d LeftFeederAngle = Rotation2d.fromDegrees(90 - 144.011);
   static Rotation2d RightFeederAngle = Rotation2d.fromDegrees(144.011 - 90); // measurements stolen from spectrum
@@ -221,67 +219,78 @@ public class RobotContainer {
   private void configureBindings() {
     // climber engage - toggle? change controls when climbed? make sure arm is
     // forward, and everything is safe
-    selectButton = new Keybind(codriverController, Button.Select);
-    startButton = new Keybind(codriverController, Button.Start);
-    aButton = new Keybind(codriverController, Button.A);
-    bButton = new Keybind(codriverController, Button.B);
-    xButton = new Keybind(codriverController, Button.X);
-    yButton = new Keybind(codriverController, Button.Y);
+    
+    /* Commented out for one controller support
+    // selectButton = new Keybind(codriverController, Button.Select);
+    // startButton = new Keybind(codriverController, Button.Start);
+    // aButton = new Keybind(codriverController, Button.A);
+    // bButton = new Keybind(codriverController, Button.B);
+    // xButton = new Keybind(codriverController, Button.X);
+    // yButton = new Keybind(codriverController, Button.Y);
 
-    snapA = new Keybind(driverController, Button.A);
-    snapB = new Keybind(driverController, Button.B);
-    snapX = new Keybind(driverController, Button.X);
-    snapY = new Keybind(driverController, Button.Y);
+    // snapA = new Keybind(driverController, Button.A);
+    // snapB = new Keybind(driverController, Button.B);
+    // snapX = new Keybind(driverController, Button.X);
+    // snapY = new Keybind(driverController, Button.Y);
+    */
 
-    leftStickClick = new Keybind(codriverController, Button.LeftStick);
-    rightStickClick = new Keybind(codriverController, Button.RightStick);
+    selectButton = new Keybind(driverController, Button.Select);
+    startButton = new Keybind(driverController, Button.Start);
+    aButton = new Keybind(driverController, Button.A);
+    bButton = new Keybind(driverController, Button.B);
+    xButton = new Keybind(driverController, Button.X);
+    yButton = new Keybind(driverController, Button.Y);
 
-    leftDpad = new DPadButton(driverController, DPad.Left);
-    rightDpad = new DPadButton(driverController, DPad.Right);
-    upDpad = new DPadButton(driverController, DPad.Up);
-    downDpad = new DPadButton(driverController, DPad.Down);
+    // leftStickClick = new Keybind(codriverController, Button.LeftStick);
+    // rightStickClick = new Keybind(codriverController, Button.RightStick);
 
-    coDpadUp = new DPadButton(codriverController, DPad.Up);
-    coDpadDown = new DPadButton(codriverController, DPad.Down);
-    coDpadLeft = new DPadButton(codriverController, DPad.Left);
-    coDpadRight = new DPadButton(codriverController, DPad.Right);
+    // Removed dpad stuff
+    // leftDpad = new DPadButton(driverController, DPad.Left);
+    // rightDpad = new DPadButton(driverController, DPad.Right);
+    // upDpad = new DPadButton(driverController, DPad.Up);
+    // downDpad = new DPadButton(driverController, DPad.Down);
+
+    // coDpadUp = new DPadButton(codriverController, DPad.Up);
+    // coDpadDown = new DPadButton(codriverController, DPad.Down);
+    // coDpadLeft = new DPadButton(codriverController, DPad.Left);
+    // coDpadRight = new DPadButton(codriverController, DPad.Right);
 
     // processor (just shoot in safe?) maybe default to processor rather than
     // algaesafe
-    rightTrigger = new AnalogTrigger(codriverController, Axis.RT, 0.5);
-    leftTrigger = new AnalogTrigger(codriverController, Axis.LT, 0.5);
+    // rightTrigger = new AnalogTrigger(codriverController, Axis.RT, 0.5);
+    // leftTrigger = new AnalogTrigger(codriverController, Axis.LT, 0.5);
     feederRightTrigger = new AnalogTrigger(driverController, Axis.RT, 0.5);
     feederLeftTrigger = new AnalogTrigger(driverController, Axis.LT, 0.5);
 
-    rightBumper = new Keybind(codriverController, Button.RightBumper);
-    leftBumper = new Keybind(codriverController, Button.LeftBumper);
+    // rightBumper = new Keybind(codriverController, Button.RightBumper);
+    // leftBumper = new Keybind(codriverController, Button.LeftBumper);
 
-    // select modes
-    selectButton.trigger().and(startButton.trigger())
-        .and(rightTrigger.trigger().and(leftTrigger.trigger()).negate())
-        .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Climb)));
-    startButton.trigger().and(selectButton.trigger().negate())
-        .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Coral)));
-    selectButton.trigger().and(startButton.trigger().negate())
-        .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Algae)));
+    // // select modes
+    // selectButton.trigger().and(startButton.trigger())
+    //     .and(rightTrigger.trigger().and(leftTrigger.trigger()).negate())
+    //     .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Climb)));
+    // startButton.trigger().and(selectButton.trigger().negate())
+    //     .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Coral)));
+    // selectButton.trigger().and(startButton.trigger().negate())
+    //     .onTrue(new InstantCommand(() -> e.requestMode(ControlMode.Algae)));
 
-    rightStickClick.trigger().negate().and(leftStickClick.trigger())
-        .onTrue(new InstantCommand(() -> e.manualCoral = true));
-    rightStickClick.trigger().and(leftStickClick.trigger().negate())
-        .onTrue(new InstantCommand(() -> e.manualCoral = false));
+    // rightStickClick.trigger().negate().and(leftStickClick.trigger())
+    //     .onTrue(new InstantCommand(() -> e.manualCoral = true));
+    // rightStickClick.trigger().and(leftStickClick.trigger().negate())
+    //     .onTrue(new InstantCommand(() -> e.manualCoral = false));
 
     // Allow exiting Climb mode
-    selectButton.trigger().and(startButton.trigger())
-        .and(rightTrigger.trigger().and(leftTrigger.trigger()))
-        .whileTrue(new RequesteStateCmd(e, RequestState.UnlockClimb));
+    // selectButton.trigger().and(startButton.trigger())
+    //     .and(rightTrigger.trigger().and(leftTrigger.trigger()))
+    //     .whileTrue(new RequesteStateCmd(e, RequestState.UnlockClimb));
 
     // shoot
-    rightTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
-        .whileTrue(new ShootCmd(e));
-    rightTrigger.trigger().and(() -> e.getEMode() == ControlMode.Algae)
-        .whileTrue(new ShootCmd(e));
-    leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
-        .whileTrue(new SuckCmd(e));
+    // rightTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+    //     .whileTrue(new ShootCmd(e));
+    // rightTrigger.trigger().and(() -> e.getEMode() == ControlMode.Algae)
+    //     .whileTrue(new ShootCmd(e));
+    // leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+    //     .whileTrue(new SuckCmd(e));
 
     // snap feeder station angles
     feederRightTrigger.trigger().and(driverController.rightBumper().negate())
@@ -299,13 +308,13 @@ public class RobotContainer {
     // snapA.trigger().and(
     //     snapB.trigger().negate().and(snapX.trigger().negate().and(snapY.trigger().negate())))
     //     .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefF));
-    snapY.trigger().and(
-        snapB.trigger().negate().and(snapX.trigger().negate().and(snapA.trigger().negate())))
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefB));
+    // snapY.trigger().and(
+    //     snapB.trigger().negate().and(snapX.trigger().negate().and(snapA.trigger().negate())))
+    //     .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefB));
 
-    // for b and x allow just button or combo a
-    snapB.trigger().and(snapX.trigger().negate().and(snapY.trigger().negate()))
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.Processor));
+    // // for b and x allow just button or combo a
+    // snapB.trigger().and(snapX.trigger().negate().and(snapY.trigger().negate()))
+    //     .whileTrue(new InstantCommand(() -> snap = SnapButton.Processor));
     // snapX.trigger().and(snapB.trigger().negate().and(snapY.trigger().negate()))
     //     .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefFL));
 
@@ -316,11 +325,8 @@ public class RobotContainer {
     //     .whileTrue(new InstantCommand(() -> snap = SnapButton.ReefBL));
 
     // When nothing pressed, don't snap!
-    snapA.trigger().negate()
-        .and(snapB.trigger().negate().and(snapX.trigger().negate().and(snapY.trigger().negate()
-            .and(feederLeftTrigger.trigger().negate()
-                .and(feederRightTrigger.trigger().negate())))))
-        .whileTrue(new InstantCommand(() -> snap = SnapButton.None));
+    feederLeftTrigger.trigger().negate().and(feederRightTrigger.trigger().negate())
+      .whileTrue(new InstantCommand(() -> snap = SnapButton.None));
 
     // request states for elevclarm
     // include negative feedback (rumble) for unavailable changes of state/mode TODO
@@ -328,76 +334,85 @@ public class RobotContainer {
     // // Unjam strats
     // leftBumper.trigger().and(() -> e.getEMode() == ControlMode.Coral)
     //     .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat1));
-    rightBumper.trigger().and(() -> e.getEMode() == ControlMode.Coral)
-        .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat2));
+    // rightBumper.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+    //     .whileTrue(new RequesteStateCmd(e, RequestState.UnjamStrat2));
 
     // go to lvl 1
-    aButton.trigger().and(() -> e.getEMode() == ControlMode.Coral)
-        .whileTrue(new RequesteStateCmd(e, RequestState.CoralLevel1));
+    // aButton.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+    //     .whileTrue(new RequesteStateCmd(e, RequestState.CoralLevel1));
     // go to lvl 2
     bButton.trigger().and(() -> e.getEMode() == ControlMode.Coral)
         .whileTrue(new RequesteStateCmd(e, RequestState.CoralLevel2));
+    bButton.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+        .whileTrue(new ShootCmd(e));
+    //bButton.trigger().toggleOnFalse(new RequesteStateCmd(e, RequestState.None));
     // go to lvl 3
     xButton.trigger().and(() -> e.getEMode() == ControlMode.Coral)
         .whileTrue(new RequesteStateCmd(e, RequestState.CoralLevel3));
+    xButton.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+        .whileTrue(new ShootCmd(e));
+    //xButton.trigger().toggleOnFalse(new RequesteStateCmd(e, RequestState.None));
     // go to lvl 4
     yButton.trigger().and(() -> e.getEMode() == ControlMode.Coral)
         .whileTrue(new RequesteStateCmd(e, RequestState.CoralLevel4));
+    yButton.trigger().and(() -> e.getEMode() == ControlMode.Coral)
+        .whileTrue(new ShootCmd(e));
+    //yButton.trigger().toggleOnFalse(new RequesteStateCmd(e, RequestState.None));
 
     // algae position bottom
-    aButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
-        .whileTrue(new RequesteStateCmd(e, RequestState.AlgaeBottom));
-    // algae position top
-    bButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
-        .whileTrue(new RequesteStateCmd(e, RequestState.AlgaeTop));
+    // aButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
+    //     .whileTrue(new RequesteStateCmd(e, RequestState.AlgaeBottom));
+    // // algae position top
+    // bButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
+    //     .whileTrue(new RequesteStateCmd(e, RequestState.AlgaeTop));
     // barge
-    yButton.trigger().and(leftTrigger.trigger().negate().and(() -> e.getEMode() == ControlMode.Algae))
-        .whileTrue(new RequesteStateCmd(e, RequestState.Barge));
-    // bargeplace
-    yButton.trigger().and(leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Algae))
-        .whileTrue(new RequesteStateCmd(e, RequestState.BargePlace));
-    // processor
-    xButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
-        .whileTrue(new RequesteStateCmd(e, RequestState.Processor));
+    // yButton.trigger().and(leftTrigger.trigger().negate().and(() -> e.getEMode() == ControlMode.Algae))
+    //     .whileTrue(new RequesteStateCmd(e, RequestState.Barge));
+    // // bargeplace
+    // yButton.trigger().and(leftTrigger.trigger().and(() -> e.getEMode() == ControlMode.Algae))
+    //     .whileTrue(new RequesteStateCmd(e, RequestState.BargePlace));
+    // // processor
+    // xButton.trigger().and(() -> e.getEMode() == ControlMode.Algae)
+    //     .whileTrue(new RequesteStateCmd(e, RequestState.Processor));
 
-    coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Climb)
-        .whileTrue(new ClimberCmd(climber, ManualClimbState.Up));
-    coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Climb)
-        .whileTrue(new ClimberCmd(climber, ManualClimbState.Down));
-    coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Climb)
-        .whileTrue(new ClimberCmd(climber, ClimbHeight.Stowed));
-    coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Climb)
-        .whileTrue(new ClimberCmd(climber, ClimbHeight.Engaged));
+    // coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Climb)
+    //     .whileTrue(new ClimberCmd(climber, ManualClimbState.Up));
+    // coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Climb)
+    //     .whileTrue(new ClimberCmd(climber, ManualClimbState.Down));
+    // coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Climb)
+    //     .whileTrue(new ClimberCmd(climber, ClimbHeight.Stowed));
+    // coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Climb)
+    //     .whileTrue(new ClimberCmd(climber, ClimbHeight.Engaged));
 
     // coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral)
     //     .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
-    coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
-        .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
-    coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
-        .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
-    coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
-        .whileTrue(new TautoFLF(this, e, drivetrain, driveRC));
-    coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
-        .whileTrue(new TautoRB(this, e, drivetrain, driveRC));
+    // coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
+    //     .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
+    // coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
+    //     .whileTrue(new TautoRF(this, e, drivetrain, driveRC));
+    // coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
+    //     .whileTrue(new TautoFLF(this, e, drivetrain, driveRC));
+    // coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger().negate())
+    //     .whileTrue(new TautoRB(this, e, drivetrain, driveRC));
 
-    coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
-        .whileTrue(new TautoLF(this, e, drivetrain, driveRC));
-    coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
-        .whileTrue(new TautoLF(this, e, drivetrain, driveRC));
-    coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
-        .whileTrue(new TautoFLF(this, e, drivetrain, driveRC));
-    coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
-        .whileTrue(new TautoLB(this, e, drivetrain, driveRC));
+    // coDpadLeft.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
+    //     .whileTrue(new TautoLF(this, e, drivetrain, driveRC));
+    // coDpadRight.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
+    //     .whileTrue(new TautoLF(this, e, drivetrain, driveRC));
+    // coDpadDown.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
+    //     .whileTrue(new TautoFLF(this, e, drivetrain, driveRC));
+    // coDpadUp.trigger().and(() -> e.getEMode() == ControlMode.Coral).and(leftBumper.trigger())
+    //     .whileTrue(new TautoLB(this, e, drivetrain, driveRC));
 
-    leftDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = -0.08));
-    rightDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = 0.08));
-    upDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = -0.08));
-    downDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = 0.08));
+    // leftDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = -0.08));
+    // rightDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftX = 0.08));
+    // upDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = -0.08));
+    // downDpad.trigger().whileTrue(new InstantCommand(() -> dpadShiftY = 0.08));
 
-    leftDpad.trigger().negate().and(rightDpad.trigger().negate())
-        .whileTrue(new InstantCommand(() -> dpadShiftX = 0));
-    upDpad.trigger().negate().and(downDpad.trigger().negate())
-        .whileTrue(new InstantCommand(() -> dpadShiftY = 0));
+    // leftDpad.trigger().negate().and(rightDpad.trigger().negate())
+    //     .whileTrue(new InstantCommand(() -> dpadShiftX = 0));
+    // upDpad.trigger().negate().and(downDpad.trigger().negate())
+    //     .whileTrue(new InstantCommand(() -> dpadShiftY = 0));
 
     driverController.leftBumper().and(driverController.rightBumper().negate())
         .onTrue(new InstantCommand(() -> snap = SnapButton.Left));
@@ -512,8 +527,8 @@ public class RobotContainer {
                 }
             }
 
-            targetTx = targetTx + dpadShiftX;
-            targetTy = targetTy + dpadShiftY;
+            // targetTx = targetTx + dpadShiftX;
+            // targetTy = targetTy + dpadShiftY;
 
             idToLookFor = getFacingSide().getTag();
             camRet = OURLimelightHelpers.getBotPoseTargetSpace(primaryCam, fallbackCam, idToLookFor);

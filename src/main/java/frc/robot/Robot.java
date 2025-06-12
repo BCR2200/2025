@@ -215,7 +215,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     // Reset pose based on the selected autonomous command
     if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+      // m_autonomousCommand.schedule();
     }
   }
 
@@ -227,7 +227,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousExit() {
     if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+      // m_autonomousCommand.cancel();
     }
 
 //    m_robotContainer.e.shoulderMotor.setIdleBrakeMode();

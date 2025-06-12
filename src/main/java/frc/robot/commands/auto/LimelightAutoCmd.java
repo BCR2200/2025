@@ -81,7 +81,7 @@ public class LimelightAutoCmd extends Command {
     robot.snap = snap;
     // e movement stuff
     if (e.atFinalPosition(ep) && shootTimer.get() == 0 && driveAtPosition) {
-      e.shootLust = true;
+      // e.shootLust = true;
       shootTimer.restart();
     }
     if (e.atFinalPosition(ep) && abandonTimer.get() == 0) {
@@ -89,10 +89,10 @@ public class LimelightAutoCmd extends Command {
     }
     // TODO adjust the value
     if (abandonTimer.get() > 1.0) {
-      e.shootLust = true;
+      // e.shootLust = true;
     }
     if (shootTimer.get() > 0.3 || abandonTimer.get() > 1.5) {
-      e.shootLust = false;
+      // e.shootLust = false;
       e.requestState(RequestState.None);
     }
 
@@ -204,7 +204,7 @@ public class LimelightAutoCmd extends Command {
   public void end(boolean interrupted) {
     // still stow if interrupted
     e.requestState(RequestState.None);
-    e.shootLust = false;
+    // e.shootLust = false;
     int[] ids = {};
     LimelightHelpers.SetFiducialIDFiltersOverride("limelight-left", ids);
     LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", ids);
