@@ -116,7 +116,8 @@ public class RobotContainer {
 
   public SnapButton snap = SnapButton.None;
 
-  double speedFactor = 1.0;
+  double speedFactor = 0.25;
+  ;
 
   
 
@@ -465,7 +466,7 @@ public class RobotContainer {
           // limelight snaps
           if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center || snap == SnapButton.LeftL1 || snap == SnapButton.RightL1) {
             double tx, ty, yaw;
-            double targetTx, targetTy = 0.587, targetYaw = 0; // define unchanging values
+            double targetTx, targetTy = 0.587, targetYaw = 0; // define unchanging values was .547
             double[][] camRet;
             double[] botPose = null;
 
@@ -475,16 +476,16 @@ public class RobotContainer {
               case Right:
                 primaryCam = "limelight-left";
                 fallbackCam = "limelight-right";
-                targetTx = 0.170; // competition value
-                // targetTx = 0.150;
+                // targetTx = 0.170; // competition value
+                targetTx = 0.150;
                 // targetTy = 0.587;
                 // targetYaw = 0;
                 break;
               case Left:
                 primaryCam = "limelight-right";
                 fallbackCam = "limelight-left";
-                targetTx = -0.170; // competition value
-                // targetTx = -0.18;
+                // targetTx = -0.170; // competition value
+                targetTx = -0.18;
                 break;
               case RightL1:
                 primaryCam = "limelight-left";
@@ -504,10 +505,10 @@ public class RobotContainer {
                 primaryCam = "limelight-left";
                 fallbackCam = "limelight-right";
                 targetTx = 0.0;
-                targetTy = 0.45;
+                targetTy = 0.4; // change? was 45
                 if (e.getEMode() == ControlMode.Algae) {
                   targetTx = 0.0;
-                  targetTy = 0.49;
+                  targetTy = 0.4;
                 }
             }
 

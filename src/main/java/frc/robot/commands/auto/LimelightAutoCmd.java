@@ -103,7 +103,7 @@ public class LimelightAutoCmd extends Command {
     // limelight snaps
     if (snap == SnapButton.Right || snap == SnapButton.Left || snap == SnapButton.Center) {
       double tx, ty, yaw;
-      double targetTx, targetTy = 0.587, targetYaw = 0; // define unchanging values
+      double targetTx, targetTy = 0.547, targetYaw = 0; // define unchanging values
       double[][] camRet;
       double[] botPose = null;
 
@@ -143,7 +143,7 @@ public class LimelightAutoCmd extends Command {
           primaryCam = "limelight-left";
           fallbackCam = "limelight-right";
           targetTx = 0.0;
-          targetTy = 0.67;
+          targetTy = 0.61;
       }
 
       camRet = OURLimelightHelpers.getBotPoseTargetSpace(primaryCam, fallbackCam, idToLookFor, 10000000.0);
