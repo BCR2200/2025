@@ -20,7 +20,6 @@ import frc.robot.subsystems.led.Strip;
 import frc.robot.subsystems.led.disabledmodes.Full;
 import frc.robot.subsystems.led.disabledmodes.Rise;
 import frc.robot.subsystems.led.disabledmodes.Sink;
-// import frc.robot.subsystems.led.disabledmodes.TestColors;
 import frc.robot.subsystems.led.disabledmodes.Tetris;
 import frc.robot.subsystems.led.disabledmodes.Breathe;
 import frc.robot.subsystems.led.disabledmodes.Crackle;
@@ -88,9 +87,9 @@ public class LEDSubsystem implements Runnable {
     /*
      * There are 2 vertical strips of LEDs
      * 30 left, 30 right
-     * 
+     *
      * L *|----|* R
-     * 
+     *
      */
 
     fullStrip = new Strip(0, 59);
@@ -132,7 +131,7 @@ public class LEDSubsystem implements Runnable {
     disableChooser.setDefaultOption("Bounce", new Bounce(this, ledStrip, buffer, BetterWhite)); // Like rise and sink, but goes back down after hitting the top and vice versa
     disableChooser.addOption("Tetris", new Tetris(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Sparkle2", new Sparkle2(this, ledStrip, buffer));
-    disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer)); 
+    disableChooser.addOption("Breathe", new Breathe(this, ledStrip, buffer));
     disableChooser.addOption("Fill", new Fill(this, ledStrip, buffer));
     disableChooser.addOption("Binary", new Binary(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("DoubleBinary", new DoubleBinary(this, ledStrip, buffer, BetterWhite));
@@ -151,15 +150,6 @@ public class LEDSubsystem implements Runnable {
     disableChooser.addOption("Sink", new Sink(this, ledStrip, buffer, BetterWhite));
     disableChooser.addOption("Crackle", new Crackle(this, ledStrip, buffer));
     disableChooser.addOption("Sparkle", new Sparkle(this, ledStrip, buffer));
-    // disableChooser.addOption("TestColors", new TestColors(this, ledStrip, buffer, BetterWhite)); //This exists to see what the colors are, without having to enable every time
-
-    // testChooser = new SendableChooser<>();
-    // testChooser.setDefaultOption("Red", new TestColors(null, ledStrip, buffer, BetterRed, BetterWhite));
-    // testChooser.addOption("Blue", new TestColors(null, ledStrip, buffer, BetterBlue, BetterWhite));
-    // testChooser.addOption("Yellow", new TestColors(null, ledStrip, buffer, Color.kDarkOrange, BetterWhite));
-    // testChooser.addOption("Green", new TestColors(null, ledStrip, buffer, Color.kGreen, BetterWhite));
-    // testChooser.addOption("Get RGB", );
-
 
     SmartDashboard.putData(disableChooser);
     new Thread(this, "LED Thread").start();
@@ -250,7 +240,7 @@ public class LEDSubsystem implements Runnable {
    * @param color2     The background colour.
    */
   public void twoColourProgressBar(Strip strip, double percentage, Color color1,
-      Color color2) {
+Color color2) {
     synchronized (this) {
       percentage = ExtraMath.clamp(percentage, 0, 1);
       int numLEDs = (int) (strip.numLEDs * percentage);
@@ -266,152 +256,66 @@ public class LEDSubsystem implements Runnable {
 
     // Gather data
     ControlMode mode = arm.getEMode();
-    double current = arm.clawMotor.getCurrent();
     boolean coralInHopper = arm.isCoralInHopper();
     boolean coralInClaw = arm.isCoralEnteredClaw();
-    double algaeTime = algaeTimer.get();
 
+    // In hopper state, no coral yet
+    if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
+        setColour(fullStrip, Color.kMediumVioletRed);
+    }
 
-    // Change coral hopper coral (alliance or a unique color)
-    // Color coralColor = Color.kMediumVioletRed;
-    // Color coralColor = allianceColor
-    
-    // Display mode
-    // Color algaeColor = Color.kGreen;
-    // Color climbColor = Color.kDarkOrange;
-    // if(robot.dpadShiftX == 0 && robot.dpadShiftY == 0){
-    //   sleepInterval = 20; // do we need to reset?
-    //   if(robot.snap == SnapButton.None){
-    //     if (mode == ControlMode.Coral && !coralInHopper && !coralInClaw) {
-    //       setColour(fullStrip, coralColor);
-    //     }
-    //     if (mode == ControlMode.Algae && current < 20) {
-    //       setColour(fullStrip, algaeColor);
-    //       if (algaeTime != 0) {
-    //         algaeTimer.reset();
-    //       }
-    //     }
-    //     if (mode == ControlMode.Climb) {
-    //       setColour(fullStrip, climbColor);
-    //     }
+    // Display if coral is in hopper
+    if (mode == ControlMode.Coral && coralInHopper) {
+        setColour(fullStrip, Color.kDeepPink);
+    }
 
-    //     // Display if algae is in claw for a short time
-    //     Color colorAlgaeClawWithTime = Color.kSeaGreen;
-    //     if (mode == ControlMode.Algae && current >= 20 && algaeTime < 15) {
-    //       setColour(fullStrip, colorAlgaeClawWithTime);
-    //       if (algaeTime == 0) {
-    //         algaeTimer.start();
-    //       }
-    //     }
+    // Display if coral is in claw
+    if (mode == ControlMode.Coral && coralInClaw && !coralInHopper) { // Coral not in hopper to make hopper colour longer
+        setColour(fullStrip, Color.kPurple);
+    }
 
-    //     // Display if algae is in claw and it's been there for over 15 secs (hurting the motors)
-    //     Color colorAlgaeClawWithoutTime = Color.kLimeGreen;
-    //     if (mode == ControlMode.Algae && current >= 20 && algaeTime >= 15) {
-    //       setColour(fullStrip, colorAlgaeClawWithoutTime);
-    //     }
-
-        // Display if coral is in hopper
-        Color colorCoralHopper = Color.kDeepPink;
-        if (mode == ControlMode.Coral && coralInHopper) {
-          setColour(fullStrip, colorCoralHopper);
-        }
-
-        // Display if coral is in claw
-        Color colorCoralClaw = Color.kPurple;
-        if(arm.manualCoral){
-          setColour(fullStrip, Color.kChocolate); // bc I'm pooping myself
-        } else if (mode == ControlMode.Coral && coralInClaw && !coralInHopper) { //Coral not in hopper to make hopper colour longer
-          setColour(fullStrip, colorCoralClaw);
-        }
+    if (robot.snap != SnapButton.RightFeeder && robot.snap != SnapButton.LeftFeeder) {
         
-    //   } else if (robot.snap != SnapButton.RightFeeder && robot.snap != SnapButton.LeftFeeder){
-    //     setColour(fullStrip, Color.kBlack); // reset is needed
-    //     sleepInterval = 100;
-    //     if(robot.snap == SnapButton.Left){
-    //       if (Math.abs(robot.positionError) < 0.045 && Math.abs(robot.positionError) != 0) {
-    //         setColour(fullStrip, Color.kGreen);
-    //       } else {
-    //         if(turnSignalOn){
-    //          setColour(leftStrip, Color.kYellow); // make blink
-    //         } else {
-    //           setColour(fullStrip, Color.kBlack); // make blink
-    //         }
-    //         turnSignalOn = !turnSignalOn;
-    //       }
-    //     } else if(robot.snap == SnapButton.Right){
-    //       if (Math.abs(robot.positionError) < 0.045) {
-    //         setColour(fullStrip, Color.kGreen);
-    //       } else {
-    //         if(turnSignalOn){
-    //           setColour(rightStrip, Color.kYellow); 
-    //          } else {
-    //            setColour(fullStrip, Color.kBlack); // blink
-    //          }
-    //          turnSignalOn = !turnSignalOn;
-    //       }
-    //     } else if(robot.snap == SnapButton.Center){
-    //       if (Math.abs(robot.positionError) < 0.045) {
-    //         setColour(fullStrip, Color.kGreen);
-    //       } else {
-    //         if(turnSignalOn){
-    //           setColour(fullStrip, Color.kYellow); 
-    //          } else {
-    //            setColour(fullStrip, Color.kBlack); // blink
-    //          }
-    //          turnSignalOn = !turnSignalOn;
-    //       }
-    //     }
-    //   }
-    // } else {
-    //   setColour(fullStrip, Color.kBlack); // reset is needed
-    //   if(robot.dpadShiftX > 0){
-    //     setColour(leftTopStrip, BetterRed); // shifting right
-    //     setColour(rightTopStrip, Color.kGreen); 
-    //   } else if (robot.dpadShiftX < 0){
-    //     setColour(leftTopStrip, Color.kGreen); // shifting left
-    //     setColour(rightTopStrip, BetterRed); 
-    //   } 
-      
-    //   if (robot.dpadShiftY < 0){
-    //     setColour(leftBotStrip, Color.kGreen); 
-    //     setColour(rightBotStrip, Color.kGreen); 
-    //   } else if (robot.dpadShiftY > 0){
-    //     setColour(leftBotStrip, BetterRed); 
-    //     setColour(rightBotStrip, BetterRed); 
-    //   }
-    // }
+        setColour(fullStrip, Color.kBlack); // reset is needed
+        sleepInterval = 100;
+        
+        if(robot.snap == SnapButton.Left){
+            if (Math.abs(robot.positionError) < 0.045 && Math.abs(robot.positionError) != 0) {
+                setColour(fullStrip, Color.kGreen);
+            } else {
+                if(turnSignalOn){
+                    setColour(leftStrip, Color.kYellow); // make blink
+                } else {
+                    setColour(fullStrip, Color.kBlack); // make blink
+                }
+                turnSignalOn = !turnSignalOn;
+            }
+            
+        } else if(robot.snap == SnapButton.Right){
+            if (Math.abs(robot.positionError) < 0.045) {
+                setColour(fullStrip, Color.kGreen);
+            } else {
+                if(turnSignalOn){
+                    setColour(rightStrip, Color.kYellow);
+                } else {
+                    setColour(fullStrip, Color.kBlack); // blink
+                }
+                turnSignalOn = !turnSignalOn;
+            }
+        } else if(robot.snap == SnapButton.Center){
+            if (Math.abs(robot.positionError) < 0.045) {
+                setColour(fullStrip, Color.kGreen);
+            } else {
+                if(turnSignalOn){
+                    setColour(fullStrip, Color.kYellow);
+                } else {
+                    setColour(fullStrip, Color.kBlack); // blink
+                }
+                turnSignalOn = !turnSignalOn;
+            }
+        }
+    }
   }
-
-  /* These were the individual functions before they were combined into enabledMode
-  public void algaeClaw() {
-  synchronized (this) {
-  ControlMode mode = arm.getEMode();
-  double current = arm.clawMotor.getCurrent();
-  Color color1 = Color.kSeaGreen;
-  Color color2 = Color.kLimeGreen;
-  if (mode == ControlMode.Algae && current > 20) {
-  twoColourProgressBar(fullStrip, 50, color1, color2);
-  }}}
-
-  public void coralHopper() {
-  synchronized (this) {
-  ControlMode mode = arm.getEMode();
-  Boolean coralInHopper = arm.isCoralInHopper();
-  Color color = Color.kMediumVioletRed;
-  if (mode == ControlMode.Coral && coralInHopper == true) {
-  setColour(fullStrip, color);
-  }}}
-
-  public void coralClaw() {
-  synchronized (this) {
-  ControlMode mode = arm.getEMode();
-  Boolean coralInClaw = arm.isCoralInClaw();
-  Color color1 = Color.kLightPink;
-  Color color2 = Color.kDeepPink;
-  if (mode == ControlMode.Coral && coralInClaw == true) {
-  twoColourProgressBar(fullStrip, 50, color1, color2);
-  }}}
-  */
 
   /** Gets voltage from the PDP and displays it as a percentage */
   public void displayVoltage() {
@@ -500,29 +404,6 @@ public class LEDSubsystem implements Runnable {
     }
   }
 
-  /** Fades in and out the full strip to emulate breathing. */
-  // public void breatheMode() {
-  // synchronized (this) {
-  // sleepInterval = 15;
-  // setColour(fullStrip, Color.kBlack);
-  // if (allianceColor == BetterRed) {
-  // setColour(fullStrip, new Color(stripIndex, 0, 0));
-  // } else {
-  // setColour(fullStrip, new Color(0, 0, stripIndex));
-  // }
-  // if (stripIndex >= 75) {
-  // breatheDirection = false;
-  // } else if (stripIndex <= 0) {
-  // breatheDirection = true;
-  // }
-  // if (breatheDirection) {
-  // stripIndex++;
-  // } else {
-  // stripIndex--;
-  // }
-  // }
-  // }
-
   /** Blends two colours together by a variable amount. */
   public Color blend(Color color1, Color color2, double blendFactor) {
     blendFactor = ExtraMath.clamp(blendFactor, 0, 1);
@@ -531,33 +412,4 @@ public class LEDSubsystem implements Runnable {
     double blue = color1.blue * blendFactor + color2.blue * (1 - blendFactor);
     return new Color(red, green, blue);
   }
-
-  /**
-   * Flashes between red and blue to create a police siren effect
-   *
-   * @param color1 A colour to flash.
-   * @param color2 A colour to flash.
-   */
-  // public void sirenMode(Color color1, Color color2) {
-  // synchronized (this) {
-  // sleepInterval = 100;
-  // Color colorA;
-  // Color colorB;
-  // if (sirenState) {
-  // colorA = color2;
-  // colorB = color1;
-  // } else {
-  // colorA = color1;
-  // colorB = color2;
-  // }
-  // for (var strip : halfTopStrips) {
-  // setColour(strip, colorA);
-  // }
-  // for (var strip : halfBotStrips) {
-  // setColour(strip, colorB);
-  // }
-  // sirenState = !sirenState;
-  // }
-  // }
-
 }
